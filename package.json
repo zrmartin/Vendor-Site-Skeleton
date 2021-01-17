@@ -10,6 +10,7 @@
     "postbuild": "next-on-netlify"
   },
   "dependencies": {
+    "faunadb": "^4.0.0",
     "next": "10.0.4",
     "next-on-netlify": "^2.8.2",
     "react": "17.0.1",
