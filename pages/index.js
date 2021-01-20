@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import netlifyAuth from '../netlifyAuth.js'
+import Link from 'next/link';
 import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
@@ -19,6 +20,7 @@ export default function Home() {
     netlifyAuth.authenticate((user) => {
       setLoggedIn(!!user)
       setUser(user)
+      console.log(user)
       netlifyAuth.closeModal()
     })
   }
@@ -45,8 +47,16 @@ export default function Home() {
 
         {loggedIn ? (
           <div>
-            You are logged in!
-            {user && <>Welcome {user?.user_metadata.full_name}!</>}
+            You are logged in! 
+            {user && <> Welcome {user?.user_metadata.full_name}!</>}
+            <br/>
+            {
+              user && user.user_metadata?.roles?.includes("owner") &&
+              <Link href="/owner">
+                <a>Edit Store</a>
+              </Link>
+            }
+            <br/>
             <button onClick={logout}>
               Log out here.
             </button>
