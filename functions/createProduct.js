@@ -5,13 +5,21 @@ const client = new faunadb.Client({
   secret: process.env.FAUNADB_SECRET
 })
 
+
+
 exports.handler = async (event, context, callback) => {
-  console.log("Function `getProducts` invoked")
+  console.log("Function `createProducts` invoked")
   try {
-    let results = await client.query(q.Map(
-      q.Paginate(q.Match(q.Index("all_products"))),
-      q.Lambda("product", q.Get(q.Var("product")))
-    ));
+    let results = await client.query(
+      q.Create(
+        q.Collection("Products"),
+        { data: {
+            name: "Test Product",
+            quantity: 100,
+            price: 100
+        }},
+      )
+    )
 
     return {
       statusCode: 200,
@@ -19,7 +27,7 @@ exports.handler = async (event, context, callback) => {
     }
   } 
   catch {
-    console.log("Error fetching all products", error)
+    console.log("Error creating new product", error)
     return {
       statusCode: 500,
       body: JSON.stringify(error)
