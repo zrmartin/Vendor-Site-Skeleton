@@ -19,6 +19,7 @@ exports.handler = async (event, context, callback) => {
     let results = await client.query(
       Call('login', [email, password])
     ) 
+    console.log(results)
     let body = JSON.stringify({
       user: results.user,
       secret: results.access.secret
