@@ -13,21 +13,34 @@ return {
 const faunadb = require('faunadb')
 
 const q = faunadb.query
+const {
+  Call
+} = q
 const client = new faunadb.Client({
   secret: process.env.FAUNADB_SECRET
 })
 
 exports.handler = async (event, context, callback) => {
-  // These log statements can only be seen on netlify UI for some reason
-  // Grab event.user.email and password from .env file. Use these to call login from fauna db.
   console.log("Function `identity-login` invoked")
-  console.log(event)
+  let email = event.body.user.email
+  let password = process.env.SHOP_OWNER_PASSWORD
+
   try {
-    return {
+    let results = await client.query(
+      Call(Function('login'), [email, password])
+    )
+    let body = JSON.stringify({
+      user: results.user,
+      secret: results.access.secret
+    })
+    return{
       statusCode: 200,
-      body: "hello world"
+      headers: {
+        "Set-Cookie": `refreshToken = ${results.refresh.secret};HttpOnly` // Add ;secure option when going to production 
+      },
+      body
     }
-  } 
+  }
   catch {
     console.log("Error logging in", error)
     return {
