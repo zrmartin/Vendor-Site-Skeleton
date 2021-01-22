@@ -21,11 +21,12 @@ exports.handler = async (event, context, callback) => {
   // These log statements can only be seen on netlify UI for some reason
   // Grab event.user.email and password from .env file. Use these to call login from fauna db.
   console.log("Function `identity-login` invoked")
-  console.log(event.user.email)
+  console.log(event?.body?.user)
+  console.log(event)
   try {
     return {
       statusCode: 200,
-      body: JSON.stringify({context})
+      body: "hello world"
     }
   } 
   catch {
