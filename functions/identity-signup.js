@@ -15,6 +15,7 @@ exports.handler = async (event, context, callback) => {
   console.log("Function `identity-signup` invoked")
   const data = JSON.parse(event.body);
   const { user } = data;
+  console.log(user)
 
   const responseBody = {
     app_metadata: {

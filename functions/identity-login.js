@@ -1,15 +1,3 @@
-// Need to create access token, send back and store in memory
-// Need to set refresh toekn as http only cookie
-/*EX:     
-return {
-      headers: {
-        "Set-Cookie": refreshToken = res.refresh.secret ;HttpOnly ;Secure (if not dev, need HTTPS);   
-        "Content-Type": "application/json",
-      }
-    }
-    */
-   // Need to create FaunaDB USer
-// I think user will be logged in? Should I try to create access/refresh tokens?
 const faunadb = require('faunadb')
 
 const q = faunadb.query
