@@ -18,9 +18,10 @@ const client = new faunadb.Client({
 })
 
 exports.handler = async (event, context, callback) => {
+  // These log statements can only be seen on netlify UI for some reason
+  // Grab event.user.email and password from .env file. Use these to call login from fauna db.
   console.log("Function `identity-login` invoked")
-  console.log(context)
-  console.log(event)
+  console.log(event.user.email)
   try {
     return {
       statusCode: 200,
