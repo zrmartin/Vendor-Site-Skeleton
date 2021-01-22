@@ -15,7 +15,6 @@ exports.handler = async (event, context, callback) => {
   console.log("Function `identity-signup` invoked")
   const data = JSON.parse(event.body);
   const { user } = data;
-  console.log(user)
 
   const responseBody = {
     app_metadata: {
@@ -31,7 +30,7 @@ exports.handler = async (event, context, callback) => {
       Collection("users"),
       {
         data: {
-          email: event.body.user.email
+          email: user.email
         },
         credentials: {
           password: process.env.SHOP_OWNER_PASSWORD

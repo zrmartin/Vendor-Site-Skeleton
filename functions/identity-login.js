@@ -10,7 +10,9 @@ const client = new faunadb.Client({
 
 exports.handler = async (event, context, callback) => {
   console.log("Function `identity-login` invoked")
-  let email = event.body.user.email
+  const data = JSON.parse(event.body);
+  const { user } = data;
+  let email = user.email
   let password = process.env.SHOP_OWNER_PASSWORD
 
   try {
