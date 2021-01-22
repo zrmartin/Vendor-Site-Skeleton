@@ -41,7 +41,7 @@ exports.handler = async (event, context, callback) => {
       body
     }
   }
-  catch {
+  catch (error){
     console.log("Error logging in", error)
     return {
       statusCode: 500,

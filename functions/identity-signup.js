@@ -43,7 +43,7 @@ exports.handler = async (event, context, callback) => {
       body: JSON.stringify(responseBody)
     }
   } 
-  catch {
+  catch (error) {
     console.log("Error calling identity-signup", error)
     return {
       statusCode: 500,
