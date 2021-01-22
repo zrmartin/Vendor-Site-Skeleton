@@ -17,8 +17,8 @@ exports.handler = async (event, context, callback) => {
 
   try {
     let results = await client.query(
-      Call(Function('login'), [email, password])
-    )
+      Call('login', [email, password])
+    ) 
     let body = JSON.stringify({
       user: results.user,
       secret: results.access.secret
@@ -32,7 +32,7 @@ exports.handler = async (event, context, callback) => {
     }
   }
   catch (error){
-    console.log("Error logging in", error)
+    console.log("Error calling `identity login` - ", error)
     return {
       statusCode: 500,
       body: JSON.stringify(error)
