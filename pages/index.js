@@ -4,11 +4,12 @@ import Link from 'next/link';
 import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
+import { useUser } from '../context/userContext'
 
 export default function Home() {
   let [loggedIn, setLoggedIn] = useState(netlifyAuth.isAuthenticated)
-  let [user, setUser] = useState(null)
-  
+  let {user, setUser} = useUser()
+
   useEffect(() => {
     netlifyAuth.initialize((user) => {
       setLoggedIn(!!user)
@@ -20,7 +21,6 @@ export default function Home() {
     netlifyAuth.authenticate((user) => {
       setLoggedIn(!!user)
       setUser(user)
-      console.log(user)
       netlifyAuth.closeModal()
     })
   }
@@ -45,13 +45,13 @@ export default function Home() {
           Get started by editing <code>pages/index.js</code>
         </p>
 
-        {loggedIn ? (
+        {user ? (
           <div>
             You are logged in! 
             {user && <> Welcome {user?.user_metadata.full_name}!</>}
             <br/>
             {
-              user && user.user_metadata?.roles?.includes("owner") &&
+              user && user.app_metadata?.roles?.includes("owner") &&
               <Link href="/owner">
                 <a>Edit Store</a>
               </Link>
