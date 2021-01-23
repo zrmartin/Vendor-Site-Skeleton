@@ -27,7 +27,7 @@ exports.handler = async (event, context, callback) => {
 
   try {
     let results = await client.query(Create(
-      Collection("users"),
+      Collection("accounts"),
       {
         data: {
           email: user.email

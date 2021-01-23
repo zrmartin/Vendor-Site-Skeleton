@@ -18,7 +18,7 @@ exports.handler = async (event, context, callback) => {
   // Set expire time for 8 hours in the future.
   let now = new Date()
   now.setTime(now.getTime() + 60*60*1000*8)
-  const includeSecure = SITE_CONTEXT == SITE_CONTEXTS.PROD ? "; Secure" : ""
+  const includeSecure = SITE_CONTEXT == SITE_CONTEXTS.PROD ? "Secure" : ""
 
   try {
     let results = await client.query(
@@ -31,7 +31,7 @@ exports.handler = async (event, context, callback) => {
     return{
       statusCode: 200,
       headers: {
-        "Set-Cookie": `refreshToken=${results.refresh.secret}; HttpOnly; Expires=${now.toUTCString()}; Path=/;${includeSecure}`
+        "Set-Cookie": `refreshToken=${results.refresh.secret}; HttpOnly; Expires=${now.toUTCString()}; Path=/; ${includeSecure}`
       },
       body
     }

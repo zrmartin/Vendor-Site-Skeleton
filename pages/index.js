@@ -19,7 +19,7 @@ export default function Home() {
   }, [loggedIn])
   
   let login = () => {
-    let results = netlifyAuth.authenticate(async (user) => {
+      netlifyAuth.authenticate(async (user) => {
       setLoggedIn(!!user)
       setUser(user)
 
