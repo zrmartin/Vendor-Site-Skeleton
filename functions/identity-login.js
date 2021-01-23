@@ -27,7 +27,7 @@ exports.handler = async (event, context, callback) => {
     return{
       statusCode: 200,
       headers: {
-        "Set-Cookie": `refreshToken = ${results.refresh.secret};HttpOnly` // Add ;secure option when going to production 
+        "Set-Cookie": `refreshToken=${results.refresh.secret}; HttpOnly` // Add ;secure option when going to production 
       },
       body
     }
