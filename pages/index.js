@@ -5,10 +5,11 @@ import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useUser } from '../context/userContext'
+import { POST } from "../util/requests"
 
 export default function Home() {
   let [loggedIn, setLoggedIn] = useState(netlifyAuth.isAuthenticated)
-  let {user, setUser} = useUser()
+  let { user, setUser, accessToken, setAccessToken } = useUser()
 
   useEffect(() => {
     netlifyAuth.initialize((user) => {
@@ -18,11 +19,26 @@ export default function Home() {
   }, [loggedIn])
   
   let login = () => {
-    netlifyAuth.authenticate((user) => {
+    let results = netlifyAuth.authenticate(async (user) => {
       setLoggedIn(!!user)
       setUser(user)
-      netlifyAuth.closeModal()
+
+      let results = await POST("login", {
+        email: user.email,
+        password: process.env.SHOP_OWNER_PASSWORD
+      })
+      // Need error checking to see if results came back with valid data
+      setAccessToken(results.secret)
     })
+  }
+
+  let myLogin = async () => {
+    let results = await POST("login", {
+      email: user.email,
+      password: process.env.SHOP_OWNER_PASSWORD
+    })
+    // Need error checking to see if results came back with valid data
+    setAccessToken(results.secret)
   }
   
   let logout = () => {
@@ -60,6 +76,9 @@ export default function Home() {
             <button onClick={logout}>
               Log out here.
             </button>
+            <button onClick={myLogin}>
+            My Login
+          </button>
           </div>
         ) : (
           <button onClick={login}>

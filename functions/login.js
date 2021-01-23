@@ -10,8 +10,7 @@ const client = new faunadb.Client({
 
 exports.handler = async (event, context, callback) => {
   console.log("Function `identity-login` invoked")
-  const data = JSON.parse(event.body);
-  const { user } = data;
+  const { user } = context.clientContext;
   let email = user.email
   let password = process.env.SHOP_OWNER_PASSWORD
 
@@ -19,7 +18,6 @@ exports.handler = async (event, context, callback) => {
     let results = await client.query(
       Call('login', [email, password])
     ) 
-    console.log(results)
     let body = JSON.stringify({
       user: results.user,
       secret: results.access.secret
@@ -33,7 +31,7 @@ exports.handler = async (event, context, callback) => {
     }
   }
   catch (error){
-    console.log("Error calling `identity login` - ", error)
+    console.log("Error calling `login` - ", error)
     return {
       statusCode: 500,
       body: JSON.stringify(error)

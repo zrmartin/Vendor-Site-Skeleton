@@ -13,7 +13,7 @@ const netlifyAuth = {
   authenticate(callback) {
     this.isAuthenticated = true
     netlifyIdentity.open()
-    netlifyIdentity.on('login', (user) => {
+    netlifyIdentity.on('login', async (user) => {
       this.user = user
       callback(user)
       netlifyIdentity.close()

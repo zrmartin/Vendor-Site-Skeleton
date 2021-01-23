@@ -10,14 +10,14 @@ async function getToken() {
 
 export async function GET(api) {
   const token = await getToken()
-  return (await fetch(`/.netlify/functions${api}`, {
+  return (await fetch(`/.netlify/functions/${api}`, {
     headers: { Authorization: `Bearer ${token}` }
   })).json()
 }
 
 export async function POST(api, body) {
   const token = await getToken()
-  return (await fetch(`/.netlify/functions${api}`, {
+  return (await fetch(`/.netlify/functions/${api}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
