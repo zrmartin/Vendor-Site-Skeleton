@@ -1,3 +1,4 @@
+const { SITE_CONTEXT, SITE_CONTEXTS } = require("../util/constants")
 const faunadb = require('faunadb')
 
 const q = faunadb.query
@@ -8,11 +9,16 @@ const client = new faunadb.Client({
   secret: process.env.FAUNADB_SECRET
 })
 
+
 exports.handler = async (event, context, callback) => {
   console.log("Function `identity-login` invoked")
   const { user } = context.clientContext;
   let email = user.email
   let password = process.env.SHOP_OWNER_PASSWORD
+  // Set expire time for 8 hours in the future.
+  let now = new Date()
+  now.setTime(now.getTime() + 60*60*1000*8)
+  const includeSecure = SITE_CONTEXT == SITE_CONTEXTS.PROD ? "; Secure" : ""
 
   try {
     let results = await client.query(
@@ -25,7 +31,7 @@ exports.handler = async (event, context, callback) => {
     return{
       statusCode: 200,
       headers: {
-        "Set-Cookie": `refreshToken=${results.refresh.secret}; HttpOnly` // Add ;secure option when going to production 
+        "Set-Cookie": `refreshToken=${results.refresh.secret}; HttpOnly; Expires=${now.toUTCString()}; Path=/; Domain=${process.env.SITE_URL}${includeSecure}`
       },
       body
     }
