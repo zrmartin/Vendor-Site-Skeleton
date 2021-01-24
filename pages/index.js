@@ -5,7 +5,7 @@ import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useUser } from '../context/userContext'
-import { POST } from "../util/requests"
+import { GET, POST, POST_SECURE } from "../util/requests"
 
 export default function Home() {
   let [loggedIn, setLoggedIn] = useState(netlifyAuth.isAuthenticated)
@@ -32,19 +32,17 @@ export default function Home() {
     })
   }
 
-  let myLogin = async () => {
-    let results = await POST("login", {
-      email: user.email,
-      password: process.env.SHOP_OWNER_PASSWORD
-    })
-    // Need error checking to see if results came back with valid data
-    setAccessToken(results.secret)
+  let createProduct = async () => {
+    let results = await POST_SECURE("createProduct", null, accessToken)
+    setAccessToken(results.accessToken)
   }
   
   let logout = () => {
-    netlifyAuth.signout(() => {
+    netlifyAuth.signout(async () => {
       setLoggedIn(false)
       setUser(null)
+
+      await GET("logout")
     })
   }
 
@@ -76,8 +74,8 @@ export default function Home() {
             <button onClick={logout}>
               Log out here.
             </button>
-            <button onClick={myLogin}>
-            My Login
+            <button onClick={createProduct}>
+            Create Product
           </button>
           </div>
         ) : (

@@ -11,7 +11,7 @@ const client = new faunadb.Client({
   secret: process.env.FAUNADB_SECRET
 })
 
-exports.handler = async (event, context, callback) => {
+exports.handler = async (event, context) => {
   console.log("Function `identity-signup` invoked")
   const data = JSON.parse(event.body);
   const { user } = data;

@@ -25,8 +25,7 @@ function CreateRefreshToken(accountRef) {
     {
       session_refresh: Create(Collection('account_sessions'), {
         data: {
-          account: accountRef,
-          used: false
+          account: accountRef
         }
       })
     },

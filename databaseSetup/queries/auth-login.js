@@ -81,6 +81,7 @@ function LogoutAllSessions() {
       session: Get(Var('sessionRef')),
       accountRef: Select(['data', 'account'], Var('session')),
       allAccountTokens: Match(Index('tokens_by_instance'), Var('accountRef')),
+      allAccountSessions: Match(Index('account_sessions_by_account'), Var('accountRef')),
       // there might be other sessions for this account (other devices)
       allSessions: Paginate(Match(Index('account_sessions_by_account'), Var('accountRef')), { size: 100000 }),
       allRefreshTokens: q.Map(
@@ -93,7 +94,8 @@ function LogoutAllSessions() {
     },
     {
       allRefreshTokensDeleted: DeleteAllAndCount(Union(Select(['data'], Var('allRefreshTokens')))),
-      allAccountTokens: DeleteAllAndCount(Select(['data'], Paginate(Var('allAccountTokens'))))
+      allAccountTokens: DeleteAllAndCount(Select(['data'], Paginate(Var('allAccountTokens')))),
+      allAccountSessionsDeleted: DeleteAllAndCount(Select(['data'], Paginate(Var('allAccountSessions'))))
     }
   )
 }

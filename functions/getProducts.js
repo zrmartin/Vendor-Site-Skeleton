@@ -5,7 +5,7 @@ const client = new faunadb.Client({
   secret: process.env.FAUNADB_SECRET
 })
 
-exports.handler = async (event, context, callback) => {
+exports.handler = async (event, context) => {
   console.log("Function `getProducts` invoked")
   try {
     let results = await client.query(q.Map(
