@@ -1,6 +1,5 @@
 import { LoginAccount, LogoutAllSessions, LogoutCurrentSession } from '../queries/auth-login.js'
 import { RegisterAccount } from '../queries/auth-register.js'
-
 import { CreateOrUpdateFunction } from '../helpers/fql.js'
 import { RefreshToken } from '../queries/auth-refresh.js'
 
