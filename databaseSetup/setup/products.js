@@ -1,18 +1,22 @@
-import { DeleteIfExists, IfNotExists, executeFQL, CreateOrUpdateRole, CreateOrUpdateFunction } from '../helpers/fql.js'
-import faunadb from 'faunadb'
-import { CreateProduct, GetAllProducts } from '../queries/products.js'
+const { DeleteIfExists, IfNotExists, executeFQL, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
+const { CreateProduct, GetAllProducts } = require('../queries/products')
+const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/collections')
+const { INDEXES: { All_Products }} = require('../../util/constants/indexes')
+const { FUNCTION_ROLES: { FunctionRole_Products }} = require('../../util/constants/functionRoles')
+const { FUNCTIONS: { Create_Product, Get_All_Products }} = require('../../util/constants/functions')
+const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner }} = require('../../util/constants/membershipRoles')
+
+const faunadb = require('faunadb')
 const q = faunadb.query
 const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function } = q
 
-
 /* Collection */
-
-const CreateProductsCollection = CreateCollection({ name: 'products' })
+const CreateProductsCollection = CreateCollection({ name: Products })
 
 /* Indexes */
 const CreateIndexAllProducts = CreateIndex({
-  name: 'all_products',
-  source: Collection('products'),
+  name: All_Products,
+  source: Collection(Products),
   // this is the default collection index, no terms or values are provided
   // which means the index will sort by reference and return only the reference.
   serialized: true
@@ -20,14 +24,14 @@ const CreateIndexAllProducts = CreateIndex({
 
 /* Function Roles */
 const CreateFnRoleProducts = CreateOrUpdateRole({
-  name: 'functionrole_products',
+  name: FunctionRole_Products,
   privileges: [
     {
-      resource: Index('all_products'),
+      resource: Index(All_Products),
       actions: { read: true }
     },
     {
-      resource: Collection('products'),
+      resource: Collection(Products),
       actions: { read: true, write: true, delete: true, create: true }
     }
   ]
@@ -35,30 +39,30 @@ const CreateFnRoleProducts = CreateOrUpdateRole({
 
 /* Functions */
 const CreateProductUDF = CreateOrUpdateFunction({
-  name: 'create_product',
+  name: Create_Product,
   body: Query(Lambda(['name', 'price', 'quantity'], CreateProduct(Var('name'), Var('price'), Var('quantity')))),
-  role: Role('functionrole_products')
+  role: Role(FunctionRole_Products)
 })
 
 const GetAllProductsUDF = CreateOrUpdateFunction({
-  name: 'get_all_products',
+  name: Get_All_Products,
   body: Query(Lambda([], GetAllProducts())),
-  role: Role('functionrole_products')
+  role: Role(FunctionRole_Products)
 })
 
 /* Membership Roles */
 const CreateShopOwnerRole = CreateOrUpdateRole({
-  name: 'membership_role_shop_owner',
-  membership: [{ resource: Collection('accounts') }],
+  name: MembershipRole_Shop_Owner,
+  membership: [{ resource: Collection(Accounts) }],
   privileges: [
     {
-      resource: q.Function('create_product'),
+      resource: q.Function(Create_Product),
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function('get_all_products'),
+      resource: q.Function(Get_All_Products),
       actions: {
         call: true
       }
@@ -68,10 +72,10 @@ const CreateShopOwnerRole = CreateOrUpdateRole({
 
 async function createProductsCollection(client) {
   // Create Collection
-  await client.query(IfNotExists(Collection('products'), CreateProductsCollection))
+  await client.query(IfNotExists(Collection(Products), CreateProductsCollection))
 
   // Create Indexes
-  await client.query(IfNotExists(Index('all_products'), CreateIndexAllProducts))
+  await client.query(IfNotExists(Index(All_Products), CreateIndexAllProducts))
 
   // Create Function Roles
   await executeFQL(client, CreateFnRoleProducts, 'roles - function role - products')
@@ -85,12 +89,12 @@ async function createProductsCollection(client) {
 }
 
 async function deleteProductsCollection(client) {
-  await client.query(DeleteIfExists(Collection('products')))
-  await client.query(DeleteIfExists(Index('all_products')))
-  await client.query(DeleteIfExists(Role('functionrole_products')))
-  await client.query(DeleteIfExists(Function('create_product')))
-  await client.query(DeleteIfExists(Function('get_all_products')))
-  await client.query(DeleteIfExists(Role('membership_role_shop_owner')))
+  await client.query(DeleteIfExists(Collection(Products)))
+  await client.query(DeleteIfExists(Index(All_Products)))
+  await client.query(DeleteIfExists(Role(FunctionRole_Products)))
+  await client.query(DeleteIfExists(Function(Create_Product)))
+  await client.query(DeleteIfExists(Function(Get_All_Products)))
+  await client.query(DeleteIfExists(Role(MembershipRole_Shop_Owner)))
 }
 
-export { createProductsCollection, deleteProductsCollection }
+module.exports = { createProductsCollection, deleteProductsCollection }

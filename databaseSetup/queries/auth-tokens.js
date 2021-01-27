@@ -1,7 +1,8 @@
-import faunadb from 'faunadb'
-
+const faunadb = require('faunadb')
 const q = faunadb.query
 const { Let, Var, Create, Select, Tokens, Collection, Now, TimeAdd } = q
+
+const { COLLECTIONS: { Account_Sessions } } = require('../../util/constants/collections')
 
 function CreateAccessToken(instance, sessionDoc) {
   return Create(Tokens(), {
@@ -23,7 +24,7 @@ function CreateAccessToken(instance, sessionDoc) {
 function CreateRefreshToken(accountRef) {
   return Let(
     {
-      session_refresh: Create(Collection('account_sessions'), {
+      session_refresh: Create(Collection(Account_Sessions), {
         data: {
           account: accountRef
         }
@@ -57,4 +58,4 @@ function CreateAccessAndRefreshToken(instance) {
   )
 }
 
-export { CreateRefreshToken, CreateAccessToken, CreateAccessAndRefreshToken }
+module.exports = { CreateRefreshToken, CreateAccessToken, CreateAccessAndRefreshToken }

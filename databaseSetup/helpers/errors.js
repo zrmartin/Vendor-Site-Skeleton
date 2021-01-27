@@ -28,4 +28,4 @@ const safeVerifyError = (error, keys) => {
 
 const refreshTokenUsed = 'refresh_token_used'
 
-export { handleSetupError, safeVerifyError, refreshTokenUsed }
+module.exports = { handleSetupError, safeVerifyError, refreshTokenUsed }

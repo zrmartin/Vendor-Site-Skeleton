@@ -1,5 +1,5 @@
-import { executeFQL } from '../helpers/fql.js'
-import faunadb from 'faunadb'
+const { executeFQL } = require('../helpers/fql')
+const faunadb = require('faunadb')
 const q = faunadb.query
 const {
   If,
@@ -22,13 +22,8 @@ const {
 } = q
 
 const client = new faunadb.Client({
-  secret: process.env.FAUNADB_SECRET
+  secret: ""
 })
-// *********** NOTE ************
-/* BEFORE RUNNING YOU HAVE TO ADD:
-      "type": "module",
-    To package.json
-*/
 
 const main = async () => {
     const DeleteAllRoles = q.Map(Paginate(Roles()), Lambda('ref', Delete(Var('ref'))))

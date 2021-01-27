@@ -1,25 +1,14 @@
-import { createAccountCollection } from './accounts.js'
-import { createProductsCollection, deleteProductsCollection } from './products.js'
-import { handleSetupError } from '../helpers/errors.js'
-import { executeFQL } from '../helpers/fql.js'
-import { LoginUDF, RegisterUDF, RefreshTokenUDF, LogoutAllUDF, LogoutUDF } from './functions.js'
-import faunadb from 'faunadb'
-
-import {
-  CreateFnRoleLogin,
-  CreateFnRoleRegister,
-  CreateFnRoleRefreshTokens,
-  CreateRefreshRole
-} from './roles.js'
+const { createAccountCollection } = require('./accounts')
+const { createProductsCollection, deleteProductsCollection } = require('./products')
+const { handleSetupError } = require('../helpers/errors')
+const { executeFQL } = require('../helpers/fql')
+const { LoginUDF, RegisterUDF, RefreshTokenUDF, LogoutAllUDF, LogoutUDF } = require('./functions')
+const { CreateFnRoleLogin, CreateFnRoleRegister, CreateFnRoleRefreshTokens, CreateRefreshRole } = require('./roles')
+const faunadb = require('faunadb')
 
 const client = new faunadb.Client({
   secret: ""
 })
-// *********** NOTE ************
-/* BEFORE RUNNING YOU HAVE TO ADD:
-      "type": "module",
-    To package.json
-*/
 
 async function setupDatabase(client) {
   await handleSetupError(createAccountCollection(client), 'collections/indexes - accounts collection')

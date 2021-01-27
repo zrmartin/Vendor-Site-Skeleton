@@ -1,6 +1,8 @@
-import faunadb from 'faunadb'
+const faunadb = require('faunadb')
 const q = faunadb.query
 const { Create, Collection } = q
+const { COLLECTIONS: { Accounts } } = require('../../util/constants/collections')
+
 
 /* Register - creating a simple account
    any document in the database could be used to register login. In this case 
@@ -9,7 +11,7 @@ const { Create, Collection } = q
    to make sure we can call the FQL Login function on this account later on.  
  */
 function RegisterAccount(email, password) {
-  return Create(Collection('accounts'), {
+  return Create(Collection(Accounts), {
     // credentials is a special field, the contents will never be returned
     // and will be encrypted. { password: ... } is the only format it currently accepts.
     credentials: { password: password },
@@ -20,4 +22,4 @@ function RegisterAccount(email, password) {
   })
 }
 
-export { RegisterAccount }
+module.exports = { RegisterAccount }

@@ -1,4 +1,5 @@
-const { SITE_CONTEXT, SITE_CONTEXTS } = require("../util/constants")
+const { SITE_CONTEXT, SITE_CONTEXTS } = require("../util/constants/siteContexts")
+const { FUNCTIONS: { Login } } = require('../util/constants/functions')
 const faunadb = require('faunadb')
 
 const q = faunadb.query
@@ -20,7 +21,7 @@ exports.handler = async (event, context) => {
 
   try {
     let results = await client.query(
-      Call('login', [email, password])
+      Call(Login, [email, password])
     ) 
     let body = JSON.stringify({
       user: results.user,

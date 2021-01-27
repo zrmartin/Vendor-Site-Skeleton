@@ -1,7 +1,12 @@
-import { CreateOrUpdateRole } from './../helpers/fql.js'
-import faunadb from 'faunadb'
+const { CreateOrUpdateRole } = require('./../helpers/fql')
+const faunadb = require('faunadb')
 const q = faunadb.query
-const { Collection, Index, Tokens, Query, Lambda, Not, Equals, Select, Get, Var } = q
+const { Collection, Index, Tokens } = q
+const { COLLECTIONS: { Accounts, Account_Sessions} } = require('../../util/constants/collections')
+const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/indexes')
+const { FUNCTION_ROLES: { FunctionRole_Login, FunctionRole_Register, FunctionRole_Refresh_Tokens_Logout }} = require('../../util/constants/functionRoles')
+const { FUNCTIONS: { Refresh_Token, Logout, Logout_All }} = require('../../util/constants/functions')
+const { MEMBERSHIP_ROLES: { MembershipRole_Refresh_Logout }} = require('../../util/constants/membershipRoles')
 
 
 /* Roles can also be bound to a function, here we separate the permissions per function.
@@ -16,18 +21,18 @@ const { Collection, Index, Tokens, Query, Lambda, Not, Equals, Select, Get, Var 
  * - create tokens (we will create tokens manually for more flexibility instead of using the Login function)
  */
 const CreateFnRoleLogin = CreateOrUpdateRole({
-  name: 'functionrole_login',
+  name: FunctionRole_Login,
   privileges: [
     {
-      resource: Index('accounts_by_email'),
+      resource: Index(Accounts_By_Email),
       actions: { read: true }
     },
     {
-      resource: Collection('accounts'),
+      resource: Collection(Accounts),
       actions: { read: true }
     },
     {
-      resource: Collection('account_sessions'),
+      resource: Collection(Account_Sessions),
       actions: { read: true, create: true }
     },
     {
@@ -42,10 +47,10 @@ const CreateFnRoleLogin = CreateOrUpdateRole({
  * preconfigure a new user in your app when the register UDF is called. In that case, you would add extra permissions here.
  */
 const CreateFnRoleRegister = CreateOrUpdateRole({
-  name: 'functionrole_register',
+  name: FunctionRole_Register,
   privileges: [
     {
-      resource: Collection('accounts'),
+      resource: Collection(Accounts),
       actions: { create: true }
     }
   ]
@@ -68,23 +73,23 @@ const CreateFnRoleRegister = CreateOrUpdateRole({
  */
 
 const CreateRefreshRole = CreateOrUpdateRole({
-  name: 'membership_role_refresh_logout',
-  membership: [{ resource: Collection('account_sessions') }],
+  name: MembershipRole_Refresh_Logout,
+  membership: [{ resource: Collection(Account_Sessions) }],
   privileges: [
     {
-      resource: q.Function('refresh_token'),
+      resource: q.Function(Refresh_Token),
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function('logout'),
+      resource: q.Function(Logout),
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function('logout_all'),
+      resource: q.Function(Logout_All),
       actions: {
         call: true
       }
@@ -97,14 +102,14 @@ const CreateRefreshRole = CreateOrUpdateRole({
  */
 
 const CreateFnRoleRefreshTokens = CreateOrUpdateRole({
-  name: 'functionrole_refresh_tokens_logout',
+  name: FunctionRole_Refresh_Tokens_Logout,
   privileges: [
     {
-      resource: Collection('accounts'),
+      resource: Collection(Accounts),
       actions: { read: true }
     },
     {
-      resource: Collection('account_sessions'),
+      resource: Collection(Account_Sessions),
       actions: { read: true, create: true, write: true, delete: true }
     },
     {
@@ -114,21 +119,21 @@ const CreateFnRoleRefreshTokens = CreateOrUpdateRole({
       actions: { read: true, create: true, delete: true }
     },
     {
-      resource: Index('access_tokens_by_session'),
+      resource: Index(Access_Tokens_By_Session),
       actions: { read: true }
     },
     {
-      resource: Index('tokens_by_instance'),
+      resource: Index(Tokens_By_Instance),
       actions: { read: true }
     },
     {
-      resource: Index('account_sessions_by_account'),
+      resource: Index(Account_Sessions_By_Account),
       actions: { read: true }
     }
   ]
 })
 
-export {
+module.exports = {
   CreateFnRoleLogin,
   CreateRefreshRole,
   CreateFnRoleRegister,

@@ -1,5 +1,6 @@
-import faunadb from 'faunadb'
-import { CreateAccessAndRefreshToken } from './auth-tokens.js'
+const faunadb = require('faunadb')
+const { CreateAccessAndRefreshToken } = require( './auth-tokens')
+const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/indexes')
 
 const q = faunadb.query
 const {
@@ -27,11 +28,11 @@ const {
 function LoginAccount(email, password) {
   return If(
     // First check whether the account exists
-    Exists(Match(Index('accounts_by_email'), email)),
+    Exists(Match(Index(Accounts_By_Email), email)),
     // If not, we can skip all below.
     Let(
       {
-        accountRef: Select([0], Paginate(Match(Index('accounts_by_email'), email))),
+        accountRef: Select([0], Paginate(Match(Index(Accounts_By_Email), email))),
         account: Get(Var('accountRef')),
         // First we verify whether our login credentials are correct without retrieving a token using Identify.
         authenticated: Identify(Var('accountRef'), password),
@@ -60,7 +61,7 @@ function LogoutCurrentSession() {
     {
       // Get the session (this function is called from the backend using the refresh token)
       sessionRef: CurrentIdentity(),
-      accessTokens: Match(Index('access_tokens_by_session'), Var('sessionRef'))
+      accessTokens: Match(Index(Access_Tokens_By_Session), Var('sessionRef'))
     },
     {
       // we can return the results to see whether it worked
@@ -80,15 +81,15 @@ function LogoutAllSessions() {
       sessionRef: CurrentIdentity(),
       session: Get(Var('sessionRef')),
       accountRef: Select(['data', 'account'], Var('session')),
-      allAccountTokens: Match(Index('tokens_by_instance'), Var('accountRef')),
-      allAccountSessions: Match(Index('account_sessions_by_account'), Var('accountRef')),
+      allAccountTokens: Match(Index(Tokens_By_Instance), Var('accountRef')),
+      allAccountSessions: Match(Index(Account_Sessions_By_Account), Var('accountRef')),
       // there might be other sessions for this account (other devices)
-      allSessions: Paginate(Match(Index('account_sessions_by_account'), Var('accountRef')), { size: 100000 }),
+      allSessions: Paginate(Match(Index(Account_Sessions_By_Account), Var('accountRef')), { size: 100000 }),
       allRefreshTokens: q.Map(
         Var('allSessions'),
         Lambda(
           ['otherSessionRef'],
-          Select(['data'], Paginate(Match(Index('tokens_by_instance'), Var('otherSessionRef'))))
+          Select(['data'], Paginate(Match(Index(Tokens_By_Instance), Var('otherSessionRef'))))
         )
       )
     },
@@ -104,4 +105,4 @@ function DeleteAllAndCount(pageOfTokens) {
   return Count(q.Map(pageOfTokens, Lambda(['tokenRef'], Delete(Var('tokenRef')))))
 }
 
-export { LoginAccount, LogoutAllSessions, LogoutCurrentSession }
+module.exports = { LoginAccount, LogoutAllSessions, LogoutCurrentSession }

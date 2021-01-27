@@ -1,25 +1,27 @@
-import { DeleteIfExists, IfNotExists } from '../helpers/fql.js'
+const { DeleteIfExists, IfNotExists } = require('../helpers/fql')
+const { COLLECTIONS: { Accounts, Account_Sessions } } = require('../../util/constants/collections')
+const { INDEXES: { All_Accounts, Accounts_By_Email, Access_Tokens_By_Session, Account_Sessions_By_Account, Tokens_By_Instance }} = require('../../util/constants/indexes')
 
-import faunadb from 'faunadb'
+const faunadb = require('faunadb')
 const q = faunadb.query
 const { CreateCollection, CreateIndex, Collection, Index, Tokens } = q
 
 /* Collection */
 
-const CreateAccountsCollection = CreateCollection({ name: 'accounts' })
+const CreateAccountsCollection = CreateCollection({ name: Accounts })
 
 /* Indexes */
 const CreateIndexAllAccounts = CreateIndex({
-  name: 'all_accounts',
-  source: Collection('accounts'),
+  name: All_Accounts,
+  source: Collection(Accounts),
   // this is the default collection index, no terms or values are provided
   // which means the index will sort by reference and return only the reference.
   serialized: true
 })
 
 const CreateIndexAccountsByEmail = CreateIndex({
-  name: 'accounts_by_email',
-  source: Collection('accounts'),
+  name: Accounts_By_Email,
+  source: Collection(Accounts),
   // We will search on email
   terms: [
     {
@@ -33,10 +35,10 @@ const CreateIndexAccountsByEmail = CreateIndex({
   serialized: true
 })
 
-const CreateAccountsSessionRefreshCollection = CreateCollection({ name: 'account_sessions' })
+const CreateAccountsSessionRefreshCollection = CreateCollection({ name: Account_Sessions })
 
 const CreateIndexAccessTokensByRefreshTokens = CreateIndex({
-  name: 'access_tokens_by_session',
+  name: Access_Tokens_By_Session,
   source: Tokens(),
   terms: [
     {
@@ -48,8 +50,8 @@ const CreateIndexAccessTokensByRefreshTokens = CreateIndex({
 })
 
 const CreateIndexSessionByAccount = CreateIndex({
-  name: 'account_sessions_by_account',
-  source: Collection('account_sessions'),
+  name: Account_Sessions_By_Account,
+  source: Collection(Account_Sessions),
   terms: [
     {
       field: ['data', 'account']
@@ -60,7 +62,7 @@ const CreateIndexSessionByAccount = CreateIndex({
 })
 
 const CreateIndexTokensByInstance = CreateIndex({
-  name: 'tokens_by_instance',
+  name: Tokens_By_Instance,
   source: Tokens(),
   terms: [
     {
@@ -72,24 +74,24 @@ const CreateIndexTokensByInstance = CreateIndex({
 })
 
 async function createAccountCollection(client) {
-  const accountsRes = await client.query(IfNotExists(Collection('accounts'), CreateAccountsCollection))
-  await client.query(IfNotExists(Collection('account_sessions'), CreateAccountsSessionRefreshCollection))
-  await client.query(IfNotExists(Index('accounts_by_email'), CreateIndexAccountsByEmail))
-  await client.query(IfNotExists(Index('all_accounts'), CreateIndexAllAccounts))
-  await client.query(IfNotExists(Index('access_tokens_by_session'), CreateIndexAccessTokensByRefreshTokens))
-  await client.query(IfNotExists(Index('account_sessions_by_account'), CreateIndexSessionByAccount))
-  await client.query(IfNotExists(Index('tokens_by_instance'), CreateIndexTokensByInstance))
+  const accountsRes = await client.query(IfNotExists(Collection(Accounts), CreateAccountsCollection))
+  await client.query(IfNotExists(Collection(Account_Sessions), CreateAccountsSessionRefreshCollection))
+  await client.query(IfNotExists(Index(Accounts_By_Email), CreateIndexAccountsByEmail))
+  await client.query(IfNotExists(Index(All_Accounts), CreateIndexAllAccounts))
+  await client.query(IfNotExists(Index(Access_Tokens_By_Session), CreateIndexAccessTokensByRefreshTokens))
+  await client.query(IfNotExists(Index(Account_Sessions_By_Account), CreateIndexSessionByAccount))
+  await client.query(IfNotExists(Index(Tokens_By_Instance), CreateIndexTokensByInstance))
   return accountsRes
 }
 
 async function deleteAccountsCollection(client) {
-  await client.query(DeleteIfExists(Collection('accounts')))
-  await client.query(DeleteIfExists(Collection('account_sessions')))
-  await client.query(DeleteIfExists(Index('accounts_by_email')))
-  await client.query(DeleteIfExists(Index('all_accounts')))
-  await client.query(DeleteIfExists(Index('access_tokens_by_session')))
-  await client.query(DeleteIfExists(Index('account_sessions_by_account')))
-  await client.query(DeleteIfExists(Index('tokens_by_instance')))
+  await client.query(DeleteIfExists(Collection(Accounts)))
+  await client.query(DeleteIfExists(Collection(Account_Sessions)))
+  await client.query(DeleteIfExists(Index(Accounts_By_Email)))
+  await client.query(DeleteIfExists(Index(All_Accounts)))
+  await client.query(DeleteIfExists(Index(Access_Tokens_By_Session)))
+  await client.query(DeleteIfExists(Index(Account_Sessions_By_Account)))
+  await client.query(DeleteIfExists(Index(Tokens_By_Instance)))
 }
 
-export { createAccountCollection, deleteAccountsCollection }
+module.exports = { createAccountCollection, deleteAccountsCollection }

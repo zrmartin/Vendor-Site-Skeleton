@@ -1,5 +1,5 @@
-import { CreateAccessToken } from './auth-tokens.js'
-import faunadb from 'faunadb'
+const { CreateAccessToken } = require('./auth-tokens')
+const faunadb = require('faunadb')
 
 const { Let, Get, Var, Select, CurrentIdentity } = faunadb.query
 
@@ -22,4 +22,4 @@ function RefreshToken() {
   )
 }
 
-export { RefreshToken }
+module.exports = { RefreshToken }

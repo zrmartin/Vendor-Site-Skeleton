@@ -1,6 +1,7 @@
 // Need to create FaunaDB USer
 // I think user will be logged in? Should I try to create access/refresh tokens?
 const faunadb = require('faunadb')
+const { COLLECTIONS: { Accounts } } = require('../util/constants/collections')
 
 const q = faunadb.query
 const {
@@ -27,7 +28,7 @@ exports.handler = async (event, context) => {
 
   try {
     let results = await client.query(Create(
-      Collection("accounts"),
+      Collection(Accounts),
       {
         data: {
           email: user.email

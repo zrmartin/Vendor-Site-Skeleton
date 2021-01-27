@@ -1,10 +1,8 @@
 const faunadb = require('faunadb')
 const { getCookie } = require('../util/cookie')
-
+const { FUNCTIONS: { Refresh_Token } } = require('../util/constants/functions')
 const q = faunadb.query
-const {
-  Call
-} = q
+const { Call } = q
 
 exports.handler = async (event, context) => {
   console.log("Function `refreshFaunaToken` invoked")
@@ -18,7 +16,7 @@ exports.handler = async (event, context) => {
 
   try {
     let results = await client.query(
-      Call('refresh_token')
+      Call(Refresh_Token)
     ) 
     let body = JSON.stringify({
       secret: results.access.secret

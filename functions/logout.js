@@ -1,9 +1,8 @@
 const faunadb = require('faunadb')
 const { getCookie } = require('../util/cookie')
+const { FUNCTIONS: { Logout_All } } = require('../util/constants/functions')
 const q = faunadb.query
-const {
-  Call
-} = q
+const { Call } = q
 
 exports.handler = async (event, context) => {
   console.log("Function `logout` invoked")
@@ -15,7 +14,7 @@ exports.handler = async (event, context) => {
 
   try {
     let results = await client.query(
-      Call('logout_all')
+      Call(Logout_All)
     ) 
     let body = JSON.stringify(results)
     return{
@@ -27,7 +26,7 @@ exports.handler = async (event, context) => {
     }
   }
   catch (error){
-    console.log("Error calling `login` - ", error)
+    console.log("Error calling `logout_all` - ", error)
     return {
       statusCode: 500,
       body: JSON.stringify(error)

@@ -1,40 +1,42 @@
-import { LoginAccount, LogoutAllSessions, LogoutCurrentSession } from '../queries/auth-login.js'
-import { RegisterAccount } from '../queries/auth-register.js'
-import { CreateOrUpdateFunction } from '../helpers/fql.js'
-import { RefreshToken } from '../queries/auth-refresh.js'
+const { LoginAccount, LogoutAllSessions, LogoutCurrentSession } = require('../queries/auth-login')
+const { RegisterAccount } = require('../queries/auth-register')
+const { CreateOrUpdateFunction } = require('../helpers/fql')
+const { RefreshToken } = require('../queries/auth-refresh')
+const { FUNCTION_ROLES: { FunctionRole_Register, FunctionRole_Login, FunctionRole_Refresh_Tokens_Logout }} = require('../../util/constants/functionRoles')
+const { FUNCTIONS: { Register, Login, Refresh_Token, Logout_All, Logout }} = require('../../util/constants/functions')
 
-import faunadb from 'faunadb'
+const faunadb = require('faunadb')
 const q = faunadb.query
 const { Query, Lambda, Var, Role } = q
 
 const RegisterUDF = CreateOrUpdateFunction({
-  name: 'register',
+  name: Register,
   body: Query(Lambda(['email', 'password'], RegisterAccount(Var('email'), Var('password')))),
-  role: Role('functionrole_register')
+  role: Role(FunctionRole_Register)
 })
 
 const LoginUDF = CreateOrUpdateFunction({
-  name: 'login',
+  name: Login,
   body: Query(Lambda(['email', 'password'], LoginAccount(Var('email'), Var('password')))),
-  role: Role('functionrole_login')
+  role: Role(FunctionRole_Login)
 })
 
 const RefreshTokenUDF = CreateOrUpdateFunction({
-  name: 'refresh_token',
+  name: Refresh_Token,
   body: Query(Lambda([], RefreshToken())),
-  role: Role('functionrole_refresh_tokens_logout')
+  role: Role(FunctionRole_Refresh_Tokens_Logout)
 })
 
 const LogoutAllUDF = CreateOrUpdateFunction({
-  name: 'logout_all',
+  name: Logout_All,
   body: Query(Lambda([], LogoutAllSessions())),
-  role: Role('functionrole_refresh_tokens_logout')
+  role: Role(FunctionRole_Refresh_Tokens_Logout)
 })
 
 const LogoutUDF = CreateOrUpdateFunction({
-  name: 'logout',
+  name: Logout,
   body: Query(Lambda([], LogoutCurrentSession())),
-  role: Role('functionrole_refresh_tokens_logout')
+  role: Role(FunctionRole_Refresh_Tokens_Logout)
 })
 
-export { RegisterUDF, LoginUDF, RefreshTokenUDF, LogoutAllUDF, LogoutUDF }
+module.exports = { RegisterUDF, LoginUDF, RefreshTokenUDF, LogoutAllUDF, LogoutUDF }

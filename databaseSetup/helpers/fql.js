@@ -1,6 +1,5 @@
-import { handleSetupError } from './errors.js'
-
-import faunadb from 'faunadb'
+const { handleSetupError } = require('./errors')
+const faunadb = require('faunadb')
 const q = faunadb.query
 const { Exists, If, Delete, Update, CreateFunction, CreateRole, Role } = q
 
@@ -37,4 +36,4 @@ function CreateOrUpdateRole(obj) {
   )
 }
 
-export { executeFQL, DeleteIfExists, IfNotExists, CreateOrUpdateFunction, CreateOrUpdateRole }
+module.exports = { executeFQL, DeleteIfExists, IfNotExists, CreateOrUpdateFunction, CreateOrUpdateRole }
