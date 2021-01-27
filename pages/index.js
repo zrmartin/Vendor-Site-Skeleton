@@ -5,7 +5,7 @@ import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useUser } from '../context/userContext'
-import { GET, POST, POST_SECURE } from "../util/requests"
+import { GET, POST, CALL_FAUNA_FUNCTION } from "../util/requests"
 
 export default function Home() {
   let [loggedIn, setLoggedIn] = useState(netlifyAuth.isAuthenticated)
@@ -33,8 +33,18 @@ export default function Home() {
   }
 
   let createProduct = async () => {
-    let results = await POST_SECURE("createProduct", null, accessToken)
+    let results = await CALL_FAUNA_FUNCTION("create_product", accessToken, {
+      name: "Test Product",
+      price: 123456,
+      quantity: 900
+    })
     setAccessToken(results.accessToken)
+  }
+
+  let getProducts = async () => {
+    let { accessToken, data } = await CALL_FAUNA_FUNCTION("get_all_products", accessToken)
+    setAccessToken(accessToken)
+    console.log(data)
   }
   
   let logout = () => {
@@ -76,6 +86,9 @@ export default function Home() {
             </button>
             <button onClick={createProduct}>
             Create Product
+          </button>
+          <button onClick={getProducts}>
+            Get All Products
           </button>
           </div>
         ) : (

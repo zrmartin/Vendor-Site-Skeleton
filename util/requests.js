@@ -52,14 +52,15 @@ export async function POST(api, body) {
   return await response.json()
 }
 
-export async function POST_SECURE(api, body, accessToken) {
+export async function CALL_FAUNA_FUNCTION(functionName, accessToken, body = {}) {
   const netlifyToken = await getNetlifyToken()
   accessToken = await getFaunaToken(accessToken)
   body = {
     ...body,
-    accessToken: accessToken
+    accessToken,
+    functionName
   }
-  var response = await fetch(`/.netlify/functions/${api}`, {
+  var response = await fetch(`/.netlify/functions/callFunction`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

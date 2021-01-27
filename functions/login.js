@@ -2,9 +2,7 @@ const { SITE_CONTEXT, SITE_CONTEXTS } = require("../util/constants")
 const faunadb = require('faunadb')
 
 const q = faunadb.query
-const {
-  Call
-} = q
+const { Call } = q
 const client = new faunadb.Client({
   secret: process.env.FAUNADB_SECRET
 })

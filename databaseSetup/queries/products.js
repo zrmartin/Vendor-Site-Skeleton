@@ -13,7 +13,10 @@ function CreateProduct(name, price, quantity) {
 }
 
 function GetAllProducts() {
-  return Paginate(Match(Index("all_products")))
+  return Map(
+    Paginate(Match(Index("all_products"))),
+    Lambda("X", Get(Var("X")))
+  )
 }
 
 export { CreateProduct, GetAllProducts }

@@ -56,6 +56,12 @@ const CreateShopOwnerRole = CreateOrUpdateRole({
       actions: {
         call: true
       }
+    },
+    {
+      resource: q.Function('get_all_products'),
+      actions: {
+        call: true
+      }
     }
   ]
 })
