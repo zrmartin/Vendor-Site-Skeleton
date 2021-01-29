@@ -41,8 +41,6 @@ exports.handler = async (event, context) => {
       }
     ));
 
-    netlifyIdentity.logout()
-
     return {
       statusCode: 200,
       body: JSON.stringify(responseBody)
