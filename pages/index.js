@@ -70,7 +70,7 @@ export default function Home() {
           Get started by editing <code>pages/index.js</code>
         </p>
 
-        {user ? (
+        {loggedIn ? (
           <div>
             You are logged in! 
             {user && <> Welcome {user?.user_metadata.full_name}!</>}
