@@ -1,9 +1,9 @@
 const { DeleteIfExists, IfNotExists, executeFQL, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateProduct, GetAllProducts } = require('../queries/products')
+const { CreateProduct, GetAllProducts, DeleteProduct } = require('../queries/products')
 const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/collections')
 const { INDEXES: { All_Products }} = require('../../util/constants/indexes')
 const { FUNCTION_ROLES: { FunctionRole_Products }} = require('../../util/constants/functionRoles')
-const { FUNCTIONS: { Create_Product, Get_All_Products }} = require('../../util/constants/functions')
+const { FUNCTIONS: { Create_Product, Get_All_Products, Delete_Product }} = require('../../util/constants/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner }} = require('../../util/constants/membershipRoles')
 
 const faunadb = require('faunadb')
@@ -50,6 +50,12 @@ const GetAllProductsUDF = CreateOrUpdateFunction({
   role: Role(FunctionRole_Products)
 })
 
+const DeleteProductUDF = CreateOrUpdateFunction({
+  name: Delete_Product,
+  body: Query(Lambda(['id'], DeleteProduct(Var('id')))),
+  role: Role(FunctionRole_Products)
+})
+
 /* Membership Roles */
 const CreateShopOwnerRole = CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner,
@@ -63,6 +69,12 @@ const CreateShopOwnerRole = CreateOrUpdateRole({
     },
     {
       resource: q.Function(Get_All_Products),
+      actions: {
+        call: true
+      }
+    },
+    {
+      resource: q.Function(Delete_Product),
       actions: {
         call: true
       }
@@ -83,6 +95,7 @@ async function createProductsCollection(client) {
   // Create Functions
   await executeFQL(client, CreateProductUDF, 'functions - create product')
   await executeFQL(client, GetAllProductsUDF, 'functions - get all products')
+  await executeFQL(client, DeleteProductUDF, 'functions - delete product')
 
   // Create Membership Roles
   await executeFQL(client, CreateShopOwnerRole, 'roles - membership role - shop owner')

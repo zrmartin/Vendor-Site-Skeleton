@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useUser } from '../context/userContext'
-import {  CALL_FAUNA_FUNCTION } from "../util/requests"
+import { CALL_FAUNA_FUNCTION } from "../util/requests"
 import { FUNCTIONS } from"../util/constants/functions"
 import { Login, Logout } from '../components'
 

@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref } = q
 
 const { COLLECTIONS: { Products } } = require('../../util/constants/collections')
 const { INDEXES: { All_Products }} = require('../../util/constants/indexes')
@@ -21,4 +21,10 @@ function GetAllProducts() {
     Lambda("X", Get(Var("X")))
   )
 }
-module.exports = { CreateProduct, GetAllProducts }
+
+function DeleteProduct(id) {
+  return Delete(
+    Ref(Collection(Products), id)
+  )
+}
+module.exports = { CreateProduct, GetAllProducts, DeleteProduct }
