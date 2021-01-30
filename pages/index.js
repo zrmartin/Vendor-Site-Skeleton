@@ -9,19 +9,10 @@ import { GET, POST, CALL_FAUNA_FUNCTION } from "../util/requests"
 const { FUNCTIONS: {Create_Product, Get_All_Products} } = require("../util/constants/functions")
 
 export default function Home() {
-  let [loggedIn, setLoggedIn] = useState(netlifyAuth.isAuthenticated)
   let { user, setUser, accessToken, setAccessToken } = useUser()
-
-  useEffect(() => {
-    netlifyAuth.initialize((user) => {
-      setLoggedIn(!!user)
-      setUser(user)
-    })
-  }, [])
   
   let login = () => {
       netlifyAuth.authenticate(async (user) => {
-      setLoggedIn(!!user)
       setUser(user)
 
       let results = await POST("login", {
@@ -50,7 +41,6 @@ export default function Home() {
   
   let logout = () => {
     netlifyAuth.signout(async () => {
-      setLoggedIn(false)
       setUser(null)
 
       await GET("logout")
@@ -70,7 +60,7 @@ export default function Home() {
           Get started by editing <code>pages/index.js</code>
         </p>
 
-        {loggedIn ? (
+        {user ? (
           <div>
             You are logged in! 
             {user && <> Welcome {user?.user_metadata.full_name}!</>}
