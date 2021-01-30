@@ -36,7 +36,6 @@ const { Call } = q
 exports.handler = async (event, context) => {
   const { accessToken, functionName, ...body } = JSON.parse(event.body);
   console.log(`Function 'Call Function - ${functionName}' invoked`)
-  console.log(accessToken)
 
   const client = new faunadb.Client({
     secret: accessToken

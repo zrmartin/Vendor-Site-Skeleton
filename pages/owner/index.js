@@ -1,5 +1,5 @@
 import Link from 'next/link';
-export default function OwnerHome() {
+const OwnerHome = () =>  {
   return (
     <>
       <h1>Hello Owner</h1>
@@ -9,3 +9,5 @@ export default function OwnerHome() {
     </>
   )
 }
+
+export default OwnerHome
