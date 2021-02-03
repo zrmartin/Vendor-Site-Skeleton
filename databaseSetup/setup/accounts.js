@@ -1,6 +1,6 @@
 const { DeleteIfExists, IfNotExists } = require('../helpers/fql')
-const { COLLECTIONS: { Accounts, Account_Sessions } } = require('../../util/constants/collections')
-const { INDEXES: { All_Accounts, Accounts_By_Email, Access_Tokens_By_Session, Account_Sessions_By_Account, Tokens_By_Instance }} = require('../../util/constants/indexes')
+const { COLLECTIONS: { Accounts, Account_Sessions } } = require('../../util/constants/database/collections')
+const { INDEXES: { All_Accounts, Accounts_By_Email, Access_Tokens_By_Session, Account_Sessions_By_Account, Tokens_By_Instance }} = require('../../util/constants/database/indexes')
 
 const faunadb = require('faunadb')
 const q = faunadb.query

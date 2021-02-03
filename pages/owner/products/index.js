@@ -2,12 +2,13 @@
    Each row will have a small image of the product, name, price, quantity, description
 */
 import useSWR from 'swr'
-import { FUNCTIONS } from '../../util/constants/functions'
-import { CALL_FAUNA_FUNCTION } from "../../util/requests"
-import { useUser } from '../../context/userContext'
-import { getId } from '../../util/helpers'
+import Link from 'next/link';
+import { FUNCTIONS } from '../../../util/constants/database/functions'
+import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
+import { useUser } from '../../../context/userContext'
+import { getId, getPrice } from '../../../util/helpers'
 
-const ProductsPage = () => {
+const ProductsHome = () => {
   const { accessToken, setAccessToken } = useUser()
   const { Get_All_Products, Delete_Product } = FUNCTIONS
   // data is the name of the object returned from the useSWR data fetch
@@ -41,10 +42,18 @@ const ProductsPage = () => {
   return (
       <>
           <h1>Products</h1>
+          <br/>
+          <Link href={`/owner/products/newProduct`}>
+              <a>Create New Product</a>
+          </Link>
+          <br/>
           {
             products?.map(product =>
               <div key={getId(product)}>
-                {product.data.name} - price ${product.data.price} - quantity - {product.data.quantity}
+                <Link href={`/owner/products/${getId(product)}`}>
+                  <a>{product.data.name}</a>
+                </Link>
+                 - price ${getPrice(product.data.price)} - quantity - {product.data.quantity}
                 <button onClick={() => deleteProduct(getId(product))}>Delete</button>
               </div>
             
@@ -54,4 +63,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage
+export default ProductsHome

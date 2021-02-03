@@ -3,7 +3,7 @@
 const faunadb = require('faunadb')
 const netlifyIdentity = require('netlify-identity-widget')
 
-const { COLLECTIONS: { Accounts } } = require('../util/constants/collections')
+const { COLLECTIONS: { Accounts } } = require('../util/constants/database/collections')
 
 const q = faunadb.query
 const {

@@ -1,5 +1,5 @@
 const { SITE_CONTEXT, SITE_CONTEXTS } = require("../util/constants/siteContexts")
-const { FUNCTIONS: { Login } } = require('../util/constants/functions')
+const { FUNCTIONS: { Login } } = require('../util/constants/database/functions')
 const faunadb = require('faunadb')
 
 const q = faunadb.query

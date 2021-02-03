@@ -3,22 +3,10 @@ import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useUser } from '../context/userContext'
-import { CALL_FAUNA_FUNCTION } from "../util/requests"
-import { FUNCTIONS } from"../util/constants/functions"
 import { Login, Logout } from '../components'
 
 export default function Home() {
-  let { user, accessToken, setAccessToken } = useUser()
-  let { Create_Product } = FUNCTIONS
-
-  let createProduct = async () => {
-    let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, {
-      name: "Test Product",
-      price: 123456,
-      quantity: 900
-    })
-    setAccessToken(results.accessToken)
-  }
+  let { user } = useUser()
 
   return (
     <div className="container">
@@ -52,9 +40,6 @@ export default function Home() {
             }
             <br/>
             <Logout></Logout>
-            <button onClick={createProduct}>
-            Create Product
-          </button>
           </div>
         ) : (
           <Login></Login>

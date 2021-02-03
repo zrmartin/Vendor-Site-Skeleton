@@ -1,7 +1,7 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
 const { Create, Collection } = q
-const { COLLECTIONS: { Accounts } } = require('../../util/constants/collections')
+const { COLLECTIONS: { Accounts } } = require('../../util/constants/database/collections')
 
 
 /* Register - creating a simple account

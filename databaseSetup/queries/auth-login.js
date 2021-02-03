@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const { CreateAccessAndRefreshToken } = require( './auth-tokens')
-const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/indexes')
+const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/database/indexes')
 
 const q = faunadb.query
 const {

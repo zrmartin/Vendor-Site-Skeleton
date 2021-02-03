@@ -10,7 +10,6 @@ async function getNetlifyToken() {
 
 async function getFaunaToken(accessToken) {
   if (accessToken) {
-    console.log("Access Token pass from frontend")
     return accessToken
   }
   // TODO error handle if this fails
@@ -60,6 +59,7 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, body = {}) 
     accessToken,
     functionName
   }
+
   var response = await fetch(`/.netlify/functions/callFunction`, {
     method: 'POST',
     headers: {
@@ -69,6 +69,14 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, body = {}) 
     },
     body: JSON.stringify(body)
   })
+
+  if (!response.ok) {
+    const error = new Error('An error occurred while fetching the data.')
+    // Attach extra info to the error object.
+    error.info = await response.json()
+    error.status = response.status
+    throw error
+  }
 
   return await response.json()
 }

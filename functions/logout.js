@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const { getCookie } = require('../util/cookie')
-const { FUNCTIONS: { Logout_All } } = require('../util/constants/functions')
+const { FUNCTIONS: { Logout_All } } = require('../util/constants/database/functions')
 const q = faunadb.query
 const { Call } = q
 

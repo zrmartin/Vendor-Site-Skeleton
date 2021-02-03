@@ -2,8 +2,8 @@ const { LoginAccount, LogoutAllSessions, LogoutCurrentSession } = require('../qu
 const { RegisterAccount } = require('../queries/auth-register')
 const { CreateOrUpdateFunction } = require('../helpers/fql')
 const { RefreshToken } = require('../queries/auth-refresh')
-const { FUNCTION_ROLES: { FunctionRole_Register, FunctionRole_Login, FunctionRole_Refresh_Tokens_Logout }} = require('../../util/constants/functionRoles')
-const { FUNCTIONS: { Register, Login, Refresh_Token, Logout_All, Logout }} = require('../../util/constants/functions')
+const { FUNCTION_ROLES: { FunctionRole_Register, FunctionRole_Login, FunctionRole_Refresh_Tokens_Logout }} = require('../../util/constants/database/functionRoles')
+const { FUNCTIONS: { Register, Login, Refresh_Token, Logout_All, Logout }} = require('../../util/constants/database/functions')
 
 const faunadb = require('faunadb')
 const q = faunadb.query

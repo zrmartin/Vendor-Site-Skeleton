@@ -2,11 +2,11 @@ const { CreateOrUpdateRole } = require('./../helpers/fql')
 const faunadb = require('faunadb')
 const q = faunadb.query
 const { Collection, Index, Tokens } = q
-const { COLLECTIONS: { Accounts, Account_Sessions} } = require('../../util/constants/collections')
-const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/indexes')
-const { FUNCTION_ROLES: { FunctionRole_Login, FunctionRole_Register, FunctionRole_Refresh_Tokens_Logout }} = require('../../util/constants/functionRoles')
-const { FUNCTIONS: { Refresh_Token, Logout, Logout_All }} = require('../../util/constants/functions')
-const { MEMBERSHIP_ROLES: { MembershipRole_Refresh_Logout }} = require('../../util/constants/membershipRoles')
+const { COLLECTIONS: { Accounts, Account_Sessions} } = require('../../util/constants/database/collections')
+const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/database/indexes')
+const { FUNCTION_ROLES: { FunctionRole_Login, FunctionRole_Register, FunctionRole_Refresh_Tokens_Logout }} = require('../../util/constants/database/functionRoles')
+const { FUNCTIONS: { Refresh_Token, Logout, Logout_All }} = require('../../util/constants/database/functions')
+const { MEMBERSHIP_ROLES: { MembershipRole_Refresh_Logout }} = require('../../util/constants/database/membershipRoles')
 
 
 /* Roles can also be bound to a function, here we separate the permissions per function.

@@ -2,7 +2,7 @@ const faunadb = require('faunadb')
 const q = faunadb.query
 const { Let, Var, Create, Select, Tokens, Collection, Now, TimeAdd } = q
 
-const { COLLECTIONS: { Account_Sessions } } = require('../../util/constants/collections')
+const { COLLECTIONS: { Account_Sessions } } = require('../../util/constants/database/collections')
 
 function CreateAccessToken(instance, sessionDoc) {
   return Create(Tokens(), {
