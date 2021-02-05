@@ -35,8 +35,7 @@ const ProductsHome = () => {
       }
     }
     catch (e){
-      console.log(e)
-      showFetchToastError()
+      showFetchToastError(e.message)
     }
   }
 

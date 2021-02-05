@@ -38,8 +38,7 @@ const ProductPage = () => {
       }
     }
     catch (e){
-      console.log(e)
-      showFetchToastError()
+      showFetchToastError(e.message)
     }
   }
 
@@ -67,8 +66,7 @@ const ProductPage = () => {
       }
     }
     catch (e){
-      console.log(e)
-      showFetchToastError()
+      showFetchToastError(e.message)
     }
   }
 

@@ -21,6 +21,6 @@ export const showToast = (data) => {
   }
 }
 
-export const showFetchToastError = () => {
-  toast.error("Could not reach server, please try again. If this issue persists please contact Admin")
+export const showFetchToastError = (msg) => {
+  toast.error(msg)
 }

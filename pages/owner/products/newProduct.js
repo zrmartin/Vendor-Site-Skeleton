@@ -26,8 +26,7 @@ const NewProductPage = () => {
       }
     }
     catch (e){
-      console.log(e)
-      showFetchToastError()
+      showFetchToastError(e.message)
     }
   }
 
