@@ -1,5 +1,5 @@
-import { HTTP_CODES } from './constants/httpCodes'
 import { toast } from 'react-toastify'
+const { HTTP_CODES: { Success, Not_Found ,Validation_Error }} = require('./constants/httpCodes')
 
 export const getId = (obj) => {
  return obj?.ref['@ref']?.id
@@ -10,13 +10,17 @@ export const getPrice = (price) => {
 }
 
 export const showToast = (data) => {
-  const { Success, Not_Found } = HTTP_CODES
   switch(data.code) {
     case Success:
-      toast.success("Saved Changes")
+      if (data.message) toast.success(data.message)
       break
     case Not_Found:
-      toast.error("Could not update Product")
-
+    case Validation_Error:
+      if (data.message) toast.error(data.message)
+      break
   }
+}
+
+export const showFetchToastError = () => {
+  toast.error("Could not reach server, please try again. If this issue persists please contact Admin")
 }

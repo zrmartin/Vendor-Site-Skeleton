@@ -7,7 +7,7 @@ const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner }} = require('../../util/c
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals } = q
+const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes } = q
 
 /* Collection */
 const CreateProductsCollection = CreateCollection({ name: Products })
@@ -86,6 +86,10 @@ const CreateShopOwnerRole = CreateOrUpdateRole({
     },
     {
       resource: Index(All_Products),
+      actions: { read: true }
+    },
+    {
+      resource: Indexes(),
       actions: { read: true }
     },
     {

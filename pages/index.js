@@ -30,7 +30,7 @@ export default function Home() {
               user && user.app_metadata?.roles?.includes("owner") &&
               <>
                 <Link href="/owner">
-                  <a>Edit Store</a>
+                  <a>Owner Home Page</a>
                 </Link>
                 <br/ >
                 <Link href="/owner/products">

@@ -1,30 +1,33 @@
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
-import { FUNCTIONS } from '../../../util/constants/database/functions'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
+import { showToast, showFetchToastError } from '../../../util/helpers'
+const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
+const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const NewProductPage = () => {
   const { register, handleSubmit, errors } = useForm();
   const router = useRouter()
   const { accessToken, setAccessToken } = useUser()
-  const { Create_Product } = FUNCTIONS
 
   const createProduct = async (formData) => {
     try{
       const { name, price, quantity } = formData
-
-      let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, {
+      let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, setAccessToken, {
         name,
         price,
         quantity
       })
-      
-      setAccessToken(results.accessToken)
-      router.push('/owner/products')
+
+      showToast(results)
+      if (results.code === Success) {
+        router.push('/owner/products')
+      }
     }
     catch (e){
       console.log(e)
+      showFetchToastError()
     }
   }
 

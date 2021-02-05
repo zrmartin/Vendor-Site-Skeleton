@@ -6,6 +6,9 @@ const OwnerHome = () =>  {
       <Link href="/">
         <a>Home</a> 
       </Link>
+      <Link href="/owner/products">
+        <a>Products</a> 
+      </Link>
     </>
   )
 }

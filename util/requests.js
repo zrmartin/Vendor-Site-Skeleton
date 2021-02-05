@@ -51,9 +51,10 @@ export async function POST(api, body) {
   return await response.json()
 }
 
-export async function CALL_FAUNA_FUNCTION(functionName, accessToken, body = {}) {
+export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessToken, body = {}) {
   const netlifyToken = await getNetlifyToken()
   accessToken = await getFaunaToken(accessToken)
+  setAccessToken(accessToken)
   body = {
     ...body,
     accessToken,
@@ -74,7 +75,7 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, body = {}) 
     const error = new Error('An error occurred while fetching the data.')
     // Attach extra info to the error object.
     error.info = await response.json()
-    error.status = response.status
+    error.status = response.status  
     throw error
   }
 

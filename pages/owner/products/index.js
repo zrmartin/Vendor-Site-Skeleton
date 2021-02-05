@@ -3,22 +3,21 @@
 */
 import useSWR from 'swr'
 import Link from 'next/link';
-import { FUNCTIONS } from '../../../util/constants/database/functions'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
-import { getId, getPrice } from '../../../util/helpers'
+import { getId, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
+import { HttpError, ServerError } from '../../../components'
+const { FUNCTIONS: { Get_All_Products, Delete_Product }} = require('../../../util/constants/database/functions')
+const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductsHome = () => {
   const { accessToken, setAccessToken } = useUser()
-  const { Get_All_Products, Delete_Product } = FUNCTIONS
-  // data is the name of the object returned from the useSWR data fetch
-  const { data, mutate, error } = useSWR([Get_All_Products, accessToken], CALL_FAUNA_FUNCTION)
-  if (error) return <div>failed to load</div>
+  const { data, mutate, error } = useSWR([Get_All_Products, accessToken, setAccessToken], CALL_FAUNA_FUNCTION)
+  if (error) return <div><ServerError error={error}/></div>
   if (!data) return <div>loading...</div>
+  if (data.code !== Success) return <HttpError error={data}/>
 
-  // Product info return from fauna db is store in a data object
   const products = data.data
-  setAccessToken(data.accessToken)
 
   const deleteProduct = async (id) => {
     try{
@@ -27,15 +26,17 @@ const ProductsHome = () => {
       // set the useSWR data object equal to itself,
       // then update the data field which contains all of the products returned from faunadb
       mutate({ ...data, data: updatedProducts }, false)
-
-      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, {
+      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, {
         id
       })
-      setAccessToken(results.accessToken)
+      showToast(results)
       mutate()
+      if (results.code === Success) {
+      }
     }
     catch (e){
       console.log(e)
+      showFetchToastError()
     }
   }
 
@@ -56,7 +57,6 @@ const ProductsHome = () => {
                  - price ${getPrice(product.data.price)} - quantity - {product.data.quantity}
                 <button onClick={() => deleteProduct(getId(product))}>Delete</button>
               </div>
-            
             )
           }
       </>
