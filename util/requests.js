@@ -1,3 +1,5 @@
+const { HTTP_CODES: { Validation_Error }} = require('../util/constants/httpCodes')
+
 async function getNetlifyToken() {
   const currentUser = netlifyIdentity.currentUser()
   if (!currentUser) {
@@ -51,7 +53,20 @@ export async function POST(api, body) {
   return await response.json()
 }
 
-export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessToken, body = {}) {
+export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessToken, schema = null, body = {}) {
+  if (schema) {
+    try {
+      await schema.validate(body)
+      body = schema.cast(body)
+    }
+    catch (e) {
+      return {
+        code: Validation_Error,
+        message: e.message
+      }
+    }
+  }
+
   const netlifyToken = await getNetlifyToken()
   accessToken = await getFaunaToken(accessToken)
   setAccessToken(accessToken)
@@ -72,9 +87,21 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessTo
   })
 
   if (!response.ok) {
-    const error = new Error('An error occurred while fetching the data.')
+    let info = await response.json()
+    console.log(info)
+    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
+    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
+    const error = new Error()
+
+    if (errorMessage) {
+      error.message = errorMessage
+    }
+    else {
+      error.message = 'An error occurred while contacting the server'
+    }
+
     // Attach extra info to the error object.
-    error.info = await response.json()
+    error.info = info
     error.status = response.status  
     throw error
   }

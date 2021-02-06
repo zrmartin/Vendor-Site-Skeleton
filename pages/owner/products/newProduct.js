@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
 import { showToast, showFetchToastError } from '../../../util/helpers'
+import { createProductSchema, } from '../../../validators'
 const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
@@ -14,7 +15,7 @@ const NewProductPage = () => {
   const createProduct = async (formData) => {
     try{
       const { name, price, quantity } = formData
-      let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, setAccessToken, {
+      let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, setAccessToken, createProductSchema, {
         name,
         price,
         quantity

@@ -7,6 +7,7 @@ import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
 import { getId, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
 import { HttpError, ServerError } from '../../../components'
+import { deleteProductSchema } from '../../../validators'
 const { FUNCTIONS: { Get_All_Products, Delete_Product }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
@@ -26,13 +27,11 @@ const ProductsHome = () => {
       // set the useSWR data object equal to itself,
       // then update the data field which contains all of the products returned from faunadb
       mutate({ ...data, data: updatedProducts }, false)
-      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, {
+      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
         id
       })
       showToast(results)
       mutate()
-      if (results.code === Success) {
-      }
     }
     catch (e){
       showFetchToastError(e.message)

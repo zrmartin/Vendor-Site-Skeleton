@@ -7,7 +7,7 @@ const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner }} = require('../../util/c
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes } = q
+const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes, And } = q
 
 /* Collection */
 const CreateProductsCollection = CreateCollection({ name: Products })
@@ -26,7 +26,7 @@ const CreateIndexAllProducts = CreateIndex({
 /* Functions */
 const CreateProductUDF = CreateOrUpdateFunction({
   name: Create_Product,
-  body: Query(Lambda(['name', 'price', 'quantity'], CreateProduct(Var('name'), Var('price'), Var('quantity')))),
+  body: Query(Lambda(['data'], CreateProduct(Select(['name'], Var('data')), Select(['price'], Var('data')), Select(['quantity'], Var('data'))))),
 })
 
 const GetAllProductsUDF = CreateOrUpdateFunction({
@@ -36,17 +36,17 @@ const GetAllProductsUDF = CreateOrUpdateFunction({
 
 const GetProductUDF = CreateOrUpdateFunction({
   name: Get_Product,
-  body: Query(Lambda(['id'], GetProduct(Var('id')))),
+  body: Query(Lambda(['data'], GetProduct(Select(['id'], Var('data'))))),
 })
 
 const UpdateProductUDF = CreateOrUpdateFunction({
   name: Update_Product,
-  body: Query(Lambda(['id', 'name', 'price', 'quantity'], UpdateProduct(Var('id'), Var('name'), Var('price'), Var('quantity')))),
+  body: Query(Lambda(['data'], UpdateProduct(Select(['id'], Var('data')), Select(['name'], Var('data')), Select(['price'], Var('data')), Select(['quantity'], Var('data'))))),
 })
 
 const DeleteProductUDF = CreateOrUpdateFunction({
   name: Delete_Product,
-  body: Query(Lambda(['id'], DeleteProduct(Var('id')))),
+  body: Query(Lambda(['data'], DeleteProduct(Select(['id'], Var('data'))))),
 })
 
 /* Membership Roles */
@@ -95,8 +95,26 @@ const CreateShopOwnerRole = CreateOrUpdateRole({
     {
       resource: Collection(Products),
       actions: {
-        write: true, 
-        delete: true, 
+        write: Query(
+          Lambda(["oldData", "newData"],
+            And(
+              Equals(CurrentIdentity(), Select(["data", "account"], Var("oldData"))),
+              Equals(
+                Select(["data", "account"], Var("oldData")),
+                Select(["data", "account"], Var("newData"))
+              )
+            )
+          )
+        ), 
+        delete: Query(
+          Lambda("productRef", Let(
+            {
+              product: Get(Var("productRef")),
+              accountRef: Select(["data", "account"], Var("product"))
+            },
+            Equals(Var("accountRef"), CurrentIdentity())
+          ))
+        ), 
         create: true,
         read: Query(
           Lambda("productRef", Let(
@@ -106,7 +124,7 @@ const CreateShopOwnerRole = CreateOrUpdateRole({
             },
             Equals(Var("accountRef"), CurrentIdentity())
           ))
-        )
+        ),
       }
     }
   ]

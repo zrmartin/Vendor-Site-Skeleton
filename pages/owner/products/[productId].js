@@ -5,7 +5,8 @@ import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
 import { getId, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
 import { HttpError, ServerError } from '../../../components'
-const { FUNCTIONS: {Get_Product, Delete_Product, Update_Product }} = require('../../../util/constants/database/functions')
+import { editProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
+const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductPage = () => {
@@ -15,10 +16,10 @@ const ProductPage = () => {
   const { productId } = router.query
 
   const { data, mutate, error } = useSWR(
-    [Get_Product, accessToken, setAccessToken, productId], 
-    (url, token, setToken, id) => 
+    [Get_Product, accessToken, setAccessToken, getProductSchema, productId], 
+    (url, token, setToken, validator, id) => 
     CALL_FAUNA_FUNCTION(
-      url, token, setToken, { id }
+      url, token, setToken, validator, { id }
     )
   )
   if (error) return <div><ServerError error={error}/></div>
@@ -29,7 +30,7 @@ const ProductPage = () => {
   
   const deleteProduct = async (id) => {
     try{
-      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, {
+      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
         id
       })
       showToast(results)
@@ -53,7 +54,7 @@ const ProductPage = () => {
         }
       }
       mutate({ ...data, data: updatedProduct}, false)
-      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, {
+      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, editProductSchema, {
         id: getId(product),
         name,
         price,
