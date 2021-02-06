@@ -1,35 +1,24 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, And, IsString, IsInteger, IsDouble } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, And, IsString, IsInteger, IsDouble, Not } = q
 
 const { COLLECTIONS: { Products } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Products }} = require('../../util/constants/database/indexes')
-const { HTTP_CODES: { Success, Not_Found, Validation_Error }} = require('../../util/constants/httpCodes')
+const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/httpCodes')
 
 function CreateProduct(name, price, quantity) {
-  return If(
-    And(
-      IsString(name),
-      IsDouble(price),
-      IsInteger(quantity),
-    ),
-    {
-      code: Success,
-      message: "Product Created",
-      data: Create(Collection(Products), {
-        data: {
-          account: CurrentIdentity(),
-          name,
-          price,
-          quantity
-        }
-      })
-    },
-    {
-      code: Validation_Error,
-      message: "Validation Failed, please check fields and try again"
-    }
-  )
+  return {
+    code: Success,
+    message: "Product Created",
+    data: Create(Collection(Products), {
+      data: {
+        account: CurrentIdentity(),
+        name,
+        price,
+        quantity
+      }
+    })
+  }
 }
 
 function GetAllProducts() {
@@ -66,31 +55,20 @@ function GetProduct(id) {
 function UpdateProduct(id, name, price, quantity) {
   return If(
     Exists(Ref(Collection(Products), id)),
-      If(
-        And(
-          IsString(name),
-          IsDouble(price),
-          IsInteger(quantity),
-        ),
-        {
-          data: Update(
-            Ref(Collection(Products), id),
-            {
-              data: {
-                name,
-                price,
-                quantity
-              }
+      {
+        data: Update(
+          Ref(Collection(Products), id),
+          {
+            data: {
+              name,
+              price,
+              quantity
             }
-          ),
-          code: Success,
-          message: "Product Updated"
-        },
-        {
-          code: Validation_Error,
-          message: "Validation Failed, please check fields and try again"
-        }
-      ),
+          }
+        ),
+        code: Success,
+        message: "Product Updated"
+    },
     {
       code: Not_Found,
       message: "Product not found, could not update"
@@ -112,4 +90,4 @@ function DeleteProduct(id) {
     }
   )
 }
-module.exports = { CreateProduct, GetAllProducts, GetProduct, UpdateProduct,DeleteProduct }
+module.exports = { CreateProduct, GetAllProducts, GetProduct, UpdateProduct, DeleteProduct }
