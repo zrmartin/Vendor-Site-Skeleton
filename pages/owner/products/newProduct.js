@@ -4,6 +4,7 @@ import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
 import { showToast, showFetchToastError } from '../../../util/helpers'
 import { createProductSchema, } from '../../../validators'
+import { DropZone } from '../../../components'
 const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
@@ -47,6 +48,7 @@ const NewProductPage = () => {
             <input type="submit" value="Create Product" />
           </form>
           <br/>
+          <DropZone />
       </>
   );
 };
