@@ -1,5 +1,6 @@
 const { createAccountCollection } = require('./accounts')
-const { createProductsCollection, deleteProductsCollection } = require('./products')
+const { createProductsCollection } = require('./products')
+const { createImagesCollection } = require('./images')
 const { handleSetupError } = require('../helpers/errors')
 const { executeFQL } = require('../helpers/fql')
 const { LoginUDF, RegisterUDF, RefreshTokenUDF, LogoutAllUDF, LogoutUDF } = require('./functions')
@@ -13,6 +14,7 @@ const client = new faunadb.Client({
 async function setupDatabase(client) {
   await handleSetupError(createAccountCollection(client), 'collections/indexes - accounts collection')
   await handleSetupError(createProductsCollection(client), 'collections/indexes - products collection')
+  await handleSetupError(createImagesCollection(client), 'collections/indexes - images collection')
 
   /* Setup User Auth Objects*/
   // Before we define functions we need to define the roles that will be assigned to them.

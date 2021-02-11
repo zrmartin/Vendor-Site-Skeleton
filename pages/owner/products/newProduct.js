@@ -2,9 +2,8 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
-import { showToast, showFetchToastError } from '../../../util/helpers'
+import { showToast, showFetchToastError, getId } from '../../../util/helpers'
 import { createProductSchema, } from '../../../validators'
-import { DropZone } from '../../../components'
 const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
@@ -21,10 +20,9 @@ const NewProductPage = () => {
         price,
         quantity
       })
-
       showToast(results)
       if (results.code === Success) {
-        router.push('/owner/products')
+        router.push(`/owner/products/${getId(results.data)}`)
       }
     }
     catch (e){
@@ -48,7 +46,6 @@ const NewProductPage = () => {
             <input type="submit" value="Create Product" />
           </form>
           <br/>
-          <DropZone />
       </>
   );
 };

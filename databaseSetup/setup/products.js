@@ -3,7 +3,7 @@ const { CreateProduct, GetAllProducts, GetProduct, UpdateProduct, DeleteProduct 
 const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Products }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Create_Product, Get_All_Products, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
-const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner }} = require('../../util/constants/database/membershipRoles')
+const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Product_Access }} = require('../../util/constants/database/membershipRoles')
 
 const faunadb = require('faunadb')
 const q = faunadb.query
@@ -50,8 +50,8 @@ const DeleteProductUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerRole = CreateOrUpdateRole({
-  name: MembershipRole_Shop_Owner,
+const CreateShopOwnerProductRole = CreateOrUpdateRole({
+  name: MembershipRole_Shop_Owner_Product_Access,
   membership: [{ resource: Collection(Accounts) }],
   privileges: [
     {
@@ -147,7 +147,7 @@ async function createProductsCollection(client) {
   await executeFQL(client, DeleteProductUDF, 'functions - delete product')
 
   // Create Membership Roles
-  await executeFQL(client, CreateShopOwnerRole, 'roles - membership role - shop owner')
+  await executeFQL(client, CreateShopOwnerProductRole, 'roles - membership role - shop owner product access')
 }
 
 async function deleteProductsCollection(client) {
@@ -158,7 +158,7 @@ async function deleteProductsCollection(client) {
   await client.query(DeleteIfExists(Function(Get_Product)))
   await client.query(DeleteIfExists(Function(Update_Product)))
   await client.query(DeleteIfExists(Function(Delete_Product)))
-  await client.query(DeleteIfExists(Role(MembershipRole_Shop_Owner)))
+  await client.query(DeleteIfExists(Role(CreateShopOwnerProductRole)))
 }
 
 module.exports = { createProductsCollection, deleteProductsCollection }

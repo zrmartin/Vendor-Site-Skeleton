@@ -1,12 +1,13 @@
 import useSWR from 'swr'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
-import { getId, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
-import { HttpError, ServerError } from '../../../components'
+import { getId, getCollection, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
+import { HttpError, ServerError, DropZone } from '../../../components'
 import { editProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
-const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductPage = () => {
@@ -27,6 +28,22 @@ const ProductPage = () => {
   if (data.code !== Success) return <HttpError error={data}/>
 
   const product = data.data
+
+  const createProductImages = async (imageKeys) => {
+    try{
+      // Mutate before and set product images to the imageKeys
+      let results = await CALL_FAUNA_FUNCTION(Create_Images, accessToken, setAccessToken, null, {
+        entityId: getId(product),
+        entityCollection: getCollection(product),
+        imageKeys
+      })
+      showToast(results)
+      // Empty Mutate
+    }
+    catch (e){
+      showFetchToastError(e.message)
+    }
+  }
   
   const deleteProduct = async (id) => {
     try{
@@ -88,6 +105,8 @@ const ProductPage = () => {
           </form>
           <br/>
           <button onClick={() => deleteProduct(getId(product))}>Delete</button>
+          <br/><br/>
+          <DropZone createProductImages={createProductImages}/>
       </>
   );
 };

@@ -5,6 +5,10 @@ export const getId = (obj) => {
  return obj?.ref['@ref']?.id
 }
 
+export const getCollection = (obj) => {
+  return obj?.ref['@ref']?.collection['@ref']?.id
+ }
+
 export const getPrice = (price) => {
   return `${price/100}`
 }

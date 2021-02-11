@@ -8,6 +8,9 @@ const INDEXES = {
 
   // Products
   All_Products: 'all_products',
+
+  // Images
+  All_Images_For_Entity: 'all_images_for_entity'
 };
 Object.freeze(INDEXES)
 
