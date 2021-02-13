@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'react-toastify'
+const { NETLIFY_FUNCTIONS: { Upload_Url }} = require ('../util/constants/netlifyFunctions')
 
-export const DropZone = ({ setImageKeys, createProductImages }) => {
+export const DropZone = ({ createProductImages }) => {
   const fileInputRef = useRef();
   const modalImageRef = useRef();
   const modalRef = useRef();
@@ -132,7 +133,7 @@ export const DropZone = ({ setImageKeys, createProductImages }) => {
     for (let i = 0; i < validFiles.length; i++) {
       const file = validFiles[i];
       const filename = uuidv4()
-      const res = await fetch(`/.netlify/functions/uploadUrl?file=${filename}`);
+      const res = await fetch(`/.netlify/functions/${Upload_Url}?file=${filename}`);
       const { url, fields } = await res.json();
       const formData = new FormData();
       Object.entries({ ...fields, file }).forEach(([key, value]) => {

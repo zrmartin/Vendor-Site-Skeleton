@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Let, Call, Function } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Do, Call, Function } = q
 
 const { COLLECTIONS: { Products } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Products, All_Images_For_Entity }} = require('../../util/constants/database/indexes')
@@ -82,7 +82,13 @@ function DeleteProduct(id) {
   return If(
     Exists(Ref(Collection(Products), id)),
     {
-      data: Delete(Ref(Collection(Products), id)),
+      data: Do(
+        Delete(Ref(Collection(Products), id)),
+        Map(
+          Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(Products), id))),
+          Lambda("Image", Delete(Var("Image")))
+        )
+      ),
       code: Success,
       message: "Product Deleted"
     },

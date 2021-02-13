@@ -1,4 +1,5 @@
 const { HTTP_CODES: { Validation_Error }} = require('../util/constants/httpCodes')
+const { NETLIFY_FUNCTIONS: { Call_Function, Refresh_Fauna_Token }} = require('../util/constants/netlifyFunctions')
 
 async function getNetlifyToken() {
   const currentUser = netlifyIdentity.currentUser()
@@ -16,7 +17,7 @@ async function getFaunaToken(accessToken) {
   }
   // TODO error handle if this fails
   // If this fails, refresh token is not valid and user needs to log in again
-  var response = await fetch(`/.netlify/functions/refreshFaunaToken`, {
+  var response = await fetch(`/.netlify/functions/${Refresh_Fauna_Token}`, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -76,7 +77,7 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessTo
     functionName
   }
 
-  var response = await fetch(`/.netlify/functions/callFunction`, {
+  var response = await fetch(`/.netlify/functions/${Call_Function}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

@@ -1,12 +1,13 @@
 import useSWR from 'swr'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
-import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
+import { CALL_FAUNA_FUNCTION, POST } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
 import { getId, getCollection, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
 import { HttpError, ServerError, DropZone } from '../../../components'
 import { editProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
 const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images }} = require('../../../util/constants/database/functions')
+const { NETLIFY_FUNCTIONS: { Delete_S3_Files }} = require ('../../../util/constants/netlifyFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductPage = () => {
@@ -31,14 +32,13 @@ const ProductPage = () => {
 
   const createProductImages = async (imageKeys) => {
     try{
-      // Mutate before and set product images to the imageKeys
       let results = await CALL_FAUNA_FUNCTION(Create_Images, accessToken, setAccessToken, null, {
         entityId: getId(product),
         entityCollection: getCollection(product),
         imageKeys
       })
       showToast(results)
-      // Empty Mutate
+      mutate()
     }
     catch (e){
       showFetchToastError(e.message)
@@ -47,11 +47,26 @@ const ProductPage = () => {
   
   const deleteProduct = async (id) => {
     try{
-      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
+      const imageKeys = images.map(image => (
+          image.data.key
+      ))
+      /* Results looks like
+        {
+          "Deleted":[
+            {"Key":"490d8204-ef3e-428f-86d9-532c66d5eda3"}
+          ],
+          "Errors":[]
+        }
+      */
+      let s3Results = await POST(Delete_S3_Files, {
+        imageKeys
+      })
+
+      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
         id
       })
-      showToast(results)
-      if (results.code === Success) {
+      showToast(databaseResults)
+      if (databaseResults.code === Success) {
         router.push('/owner/products')
       }
     }
