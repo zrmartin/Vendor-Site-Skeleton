@@ -1,7 +1,7 @@
 import netlifyAuth from '../netlifyAuth.js'
 import { useUser } from '../context/userContext'
 import { POST } from "../util/requests"
-const { NETLIFY_FUNCTIONS: { Login }} = require ('../util/constants/netlifyFunctions')
+const { NETLIFY_FUNCTIONS: { LogIn }} = require ('../util/constants/netlifyFunctions')
 
 export const Login = () => {
   let { setUser, setAccessToken } = useUser()
@@ -10,7 +10,7 @@ export const Login = () => {
     netlifyAuth.authenticate(async (user) => {
       setUser(user)
 
-      let results = await POST(Login, {
+      let results = await POST(LogIn, {
         email: user.email,
         password: process.env.SHOP_OWNER_PASSWORD
       })

@@ -1,7 +1,7 @@
 import netlifyAuth from '../netlifyAuth.js'
 import { useUser } from '../context/userContext'
 import { GET } from "../util/requests"
-const { NETLIFY_FUNCTIONS: { Logout }} = require ('../util/constants/netlifyFunctions')
+const { NETLIFY_FUNCTIONS: { LogOut }} = require ('../util/constants/netlifyFunctions')
 
 export const Logout = () => {
   let { setUser } = useUser()
@@ -10,7 +10,7 @@ export const Logout = () => {
     netlifyAuth.signout(async () => {
       setUser(null)
 
-      await GET(Logout)
+      await GET(LogOut)
     })
   }
 
