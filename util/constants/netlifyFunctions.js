@@ -1,8 +1,8 @@
 const NETLIFY_FUNCTIONS = {
   Call_Function: "callFunction",
   Delete_S3_Files: "deleteS3Files",
-  Login: "login",
-  Logout: "logout",
+  LogIn: "login",
+  LogOut: "logout",
   Refresh_Fauna_Token: "refreshFaunaToken",
   Upload_Url: "uploadUrl",
 
