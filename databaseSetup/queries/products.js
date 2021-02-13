@@ -1,9 +1,10 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, And, IsString, IsInteger, IsDouble, Not } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Let, Call, Function } = q
 
 const { COLLECTIONS: { Products } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Products }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Products, All_Images_For_Entity }} = require('../../util/constants/database/indexes')
+const { FUNCTIONS: { Get_All_Images_For_Entity }} = require('../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/httpCodes')
 
 function CreateProduct(name, price, quantity) {
@@ -42,7 +43,8 @@ function GetProduct(id) {
   return If(
     Exists(Ref(Collection(Products), id)),
     {
-      data: Get(Ref(Collection(Products), id)),
+      product: Get(Ref(Collection(Products), id)),
+      images: Call(Function(Get_All_Images_For_Entity), {entityId: id, entityCollection: Products}),
       code: Success,
     },
     {

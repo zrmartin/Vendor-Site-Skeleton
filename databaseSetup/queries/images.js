@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Select, If, Exists,  } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Count, If, Exists, GT, ToString, Concat } = q
 
 const { COLLECTIONS: { Images } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Images_For_Entity }} = require('../../util/constants/database/indexes')
@@ -9,7 +9,11 @@ const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/http
 function CreateImages(imageKeys, entityId, entityCollection) {
   return {
     code: Success,
-    message: "Images Uploaded",
+    message: If(
+      GT(Count(imageKeys), 1),
+      Concat([ToString(Count(imageKeys)), "Images Uploaded Successfully"], " "),
+      Concat([ToString(Count(imageKeys)), "Image Uploaded Successfully"], " "),
+    ),
     data: Map(imageKeys,
       Lambda('imageKey',
         Create(Collection(Images), {

@@ -88,7 +88,6 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessTo
 
   if (!response.ok) {
     let info = await response.json()
-    console.log(info)
     // Error message from database error. I.E No permissions to perform database action (update/delete etc)
     let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
     const error = new Error()

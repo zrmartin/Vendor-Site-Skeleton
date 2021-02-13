@@ -99,7 +99,7 @@ const CreateShopOwnerImageRole = CreateOrUpdateRole({
               image: Get(Var("imageRef")),
               accountRef: Select(["data", "account"], Var("image"))
             },
-            Equals(Var("imageRef"), CurrentIdentity())
+            Equals(Var("accountRef"), CurrentIdentity())
           ))
         ),
       }

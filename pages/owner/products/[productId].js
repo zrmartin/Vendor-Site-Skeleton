@@ -1,5 +1,4 @@
 import useSWR from 'swr'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
@@ -27,7 +26,8 @@ const ProductPage = () => {
   if (!data) return <div>loading...</div>
   if (data.code !== Success) return <HttpError error={data}/>
 
-  const product = data.data
+  const product = data.product
+  const images = data.images.data.data
 
   const createProductImages = async (imageKeys) => {
     try{
@@ -70,7 +70,7 @@ const ProductPage = () => {
           quantity
         }
       }
-      mutate({ ...data, data: updatedProduct}, false)
+      mutate({ ...data, product: updatedProduct}, false)
       let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, editProductSchema, {
         id: getId(product),
         name,
@@ -107,6 +107,14 @@ const ProductPage = () => {
           <button onClick={() => deleteProduct(getId(product))}>Delete</button>
           <br/><br/>
           <DropZone createProductImages={createProductImages}/>
+          <br/><br/>
+          {
+            images?.map(image =>
+              <div key={getId(image)}>
+                <img src={`${process.env.S3_URL_PREFIX}${image.data.key}`} style={{ width: 100, height: 100 }}/>
+              </div>
+            )
+          }
       </>
   );
 };

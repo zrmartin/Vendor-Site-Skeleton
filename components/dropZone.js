@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useRef, useState, useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 
 export const DropZone = ({ setImageKeys, createProductImages }) => {
   const fileInputRef = useRef();
@@ -145,9 +146,8 @@ export const DropZone = ({ setImageKeys, createProductImages }) => {
   
       if (upload.ok) {
         imageKeys = [...imageKeys, fields.key];
-        console.log('Uploaded successfully!');
       } else {
-        console.error('Upload failed.');
+        toast.error(`File - ${file.name} failed to upload.`)
       }
     }
     await createProductImages(imageKeys)
