@@ -85,7 +85,7 @@ function DeleteProduct(id) {
   return If(
     Exists(Ref(Collection(Products), id)),
     {
-      deletedProducts: Delete(Ref(Collection(Products), id)),
+      deletedProduct: Delete(Ref(Collection(Products), id)),
       deletedImages: Map(
         Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(Products), id))),
         Lambda("Image", Delete(Var("Image")))

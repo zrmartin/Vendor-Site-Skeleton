@@ -68,6 +68,7 @@ const ProductPage = () => {
       let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
         id
       })
+      console.log(databaseResults)
       showToast(databaseResults)
       if (databaseResults.code === Success) {
         router.push('/owner/products')
