@@ -6,8 +6,8 @@ import { useUser } from '../../../context/userContext'
 import { getId, getCollection, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
 import { HttpError, ServerError, DropZone } from '../../../components'
 import { updateProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
-const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images }} = require('../../../util/constants/database/functions')
-const { NETLIFY_FUNCTIONS: { Delete_S3_Files }} = require ('../../../util/constants/netlifyFunctions')
+const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Get_All_Products }} = require('../../../util/constants/database/functions')
+const { NETLIFY_FUNCTIONS: { Delete_S3_Files, Call_Function }} = require ('../../../util/constants/netlifyFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductPage = () => {
@@ -139,3 +139,31 @@ const ProductPage = () => {
 };
 
 export default ProductPage
+
+export async function getStaticPaths() {
+  const body = {
+    accessToken: process.env.FAUNADB_SECRET,
+    functionName: Get_All_Products,
+    
+  }
+  const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  const all_products = await response.json()
+
+  const paths = all_products.products.map((product) => ({
+    params: { productId: getId(product) },
+  }))
+
+  // We'll pre-render only these paths at build time.
+  // { fallback: false } means other routes should 404.
+  // Because of _redirects file, that means any invalid urls will default to /index
+  return { paths, fallback: false }
+}
+
+export async function getStaticProps() {
+  return { 
+    props: {} 
+  }
+}
