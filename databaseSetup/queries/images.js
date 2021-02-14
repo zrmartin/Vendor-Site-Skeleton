@@ -14,7 +14,7 @@ function CreateImages(imageKeys, entityId, entityCollection) {
       Concat([ToString(Count(imageKeys)), "Images Uploaded Successfully"], " "),
       Concat([ToString(Count(imageKeys)), "Image Uploaded Successfully"], " "),
     ),
-    data: Map(imageKeys,
+    images: Map(imageKeys,
       Lambda('imageKey',
         Create(Collection(Images), {
         data: {
@@ -32,7 +32,7 @@ function GetAllImagesForEntity(entityId, entityCollection) {
   return If(
     Exists(Index(All_Images_For_Entity)), 
     {
-      data: Map(
+      images: Map(
         Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(entityCollection), entityId))),
         Lambda("X", Get(Var("X")))
       ),
@@ -49,7 +49,7 @@ function DeleteImage(id) {
   return If(
     Exists(Ref(Collection(Images), id)),
     {
-      data: Delete(Ref(Collection(Images), id)),
+      deletedImages: Delete(Ref(Collection(Images), id)),
       code: Success,
       message: "Image Deleted"
     },

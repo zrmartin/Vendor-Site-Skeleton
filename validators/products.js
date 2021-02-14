@@ -22,7 +22,7 @@ export const createProductSchema = yup.object().shape({
             .integer("Quantity must be a whole number"),
 });
 
-export const editProductSchema = yup.object().shape({
+export const updateProductSchema = yup.object().shape({
   id: yup.string().typeError("Id must be a string")
       .required("Id is required"),
   name: yup.string().typeError("Name must be a string")

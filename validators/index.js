@@ -1,8 +1,8 @@
-import { getProductSchema, createProductSchema, deleteProductSchema, editProductSchema } from './products'
+import { getProductSchema, createProductSchema, deleteProductSchema, updateProductSchema } from './products'
 
 export {
   getProductSchema,
   createProductSchema,
   deleteProductSchema,
-  editProductSchema
+  updateProductSchema
 }

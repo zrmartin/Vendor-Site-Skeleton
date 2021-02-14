@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Do, Call, Function } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Call, Function } = q
 
 const { COLLECTIONS: { Products } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Products, All_Images_For_Entity }} = require('../../util/constants/database/indexes')
@@ -11,7 +11,7 @@ function CreateProduct(name, price, quantity) {
   return {
     code: Success,
     message: "Product Created",
-    data: Create(Collection(Products), {
+    product: Create(Collection(Products), {
       data: {
         account: CurrentIdentity(),
         name,
@@ -26,9 +26,12 @@ function GetAllProducts() {
   return If(
     Exists(Index(All_Products)), 
     {
-      data: Map(
-        Paginate(Match(Index(All_Products))),
-        Lambda("X", Get(Var("X")))
+      products: Select(
+        ["data"], 
+        Map(
+          Paginate(Match(Index(All_Products))),
+          Lambda("X", Get(Var("X")))
+        )
       ),
       code: Success,
     },
@@ -44,7 +47,7 @@ function GetProduct(id) {
     Exists(Ref(Collection(Products), id)),
     {
       product: Get(Ref(Collection(Products), id)),
-      images: Call(Function(Get_All_Images_For_Entity), {entityId: id, entityCollection: Products}),
+      images: Select(["images", "data"], Call(Function(Get_All_Images_For_Entity), {entityId: id, entityCollection: Products})),
       code: Success,
     },
     {
@@ -58,7 +61,7 @@ function UpdateProduct(id, name, price, quantity) {
   return If(
     Exists(Ref(Collection(Products), id)),
       {
-        data: Update(
+        updatedProduct: Update(
           Ref(Collection(Products), id),
           {
             data: {
@@ -82,12 +85,10 @@ function DeleteProduct(id) {
   return If(
     Exists(Ref(Collection(Products), id)),
     {
-      data: Do(
-        Delete(Ref(Collection(Products), id)),
-        Map(
-          Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(Products), id))),
-          Lambda("Image", Delete(Var("Image")))
-        )
+      deletedProducts: Delete(Ref(Collection(Products), id)),
+      deletedImages: Map(
+        Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(Products), id))),
+        Lambda("Image", Delete(Var("Image")))
       ),
       code: Success,
       message: "Product Deleted"

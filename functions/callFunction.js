@@ -18,10 +18,6 @@ exports.handler = async (event, context) => {
       Call(functionName, body)
     ) 
   
-    // Extract one layer of data.data nesting for when list of objects is returned
-    if (Array.isArray(results?.data?.data)) {
-      results.data = results.data.data
-    }
     return {
       statusCode: 200,
       body: JSON.stringify(results)

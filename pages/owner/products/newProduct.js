@@ -22,7 +22,7 @@ const NewProductPage = () => {
       })
       showToast(results)
       if (results.code === Success) {
-        router.push(`/owner/products/${getId(results.data)}`)
+        router.push(`/owner/products/${getId(results.product)}`)
       }
     }
     catch (e){

@@ -5,7 +5,7 @@ import { CALL_FAUNA_FUNCTION, POST } from "../../../util/requests"
 import { useUser } from '../../../context/userContext'
 import { getId, getCollection, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
 import { HttpError, ServerError, DropZone } from '../../../components'
-import { editProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
+import { updateProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
 const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images }} = require('../../../util/constants/database/functions')
 const { NETLIFY_FUNCTIONS: { Delete_S3_Files }} = require ('../../../util/constants/netlifyFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
@@ -15,6 +15,7 @@ const ProductPage = () => {
   const { accessToken, setAccessToken } = useUser()
   const router = useRouter()
   const { productId } = router.query
+
 
   const { data, mutate, error } = useSWR(
     [Get_Product, accessToken, setAccessToken, getProductSchema, productId], 
@@ -28,7 +29,7 @@ const ProductPage = () => {
   if (data.code !== Success) return <HttpError error={data}/>
 
   const product = data.product
-  const images = data.images.data.data
+  const images = data.images
 
   const createProductImages = async (imageKeys) => {
     try{
@@ -58,9 +59,11 @@ const ProductPage = () => {
           "Errors":[]
         }
       */
-      let s3Results = await POST(Delete_S3_Files, {
-        imageKeys
-      })
+      if (imageKeys.length > 0) {
+        let s3Results = await POST(Delete_S3_Files, {
+          imageKeys
+        })
+      }
 
       let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
         id
@@ -75,7 +78,7 @@ const ProductPage = () => {
     }
   }
 
-  const editProduct = async ({ name, price, quantity }) => {
+  const updateProduct = async ({ name, price, quantity }) => {
     try{
       const updatedProduct = {
         ...product,
@@ -86,7 +89,7 @@ const ProductPage = () => {
         }
       }
       mutate({ ...data, product: updatedProduct}, false)
-      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, editProductSchema, {
+      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, updateProductSchema, {
         id: getId(product),
         name,
         price,
@@ -105,8 +108,8 @@ const ProductPage = () => {
 
   return (
       <>
-          <h1>Edit {product.data.name}</h1>
-          <form onSubmit={handleSubmit(editProduct)}>
+          <h1>Update {product.data.name}</h1>
+          <form onSubmit={handleSubmit(updateProduct)}>
             <label htmlFor="name">Name</label>
             <input name="name" ref={register} defaultValue={product.data.name}/>
 
@@ -126,7 +129,7 @@ const ProductPage = () => {
           {
             images?.map(image =>
               <div key={getId(image)}>
-                <img src={`${process.env.S3_URL_PREFIX}${image.data.key}`} style={{ width: 100, height: 100 }}/>
+                <img src={`${process.env.NEXT_PUBLIC_S3_URL_PREFIX}${image.data.key}`} style={{ width: 100, height: 100 }}/>
               </div>
             )
           }
