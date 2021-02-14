@@ -9,8 +9,13 @@ export const Logout = () => {
   let logout = () => {
     netlifyAuth.signout(async () => {
       setUser(null)
+      try {
+        await GET(LogOut)
+      }
+      catch (e) {
+        showFetchToastError(e.message)
+      }
 
-      await GET(LogOut)
     })
   }
 

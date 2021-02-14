@@ -31,11 +31,30 @@ async function getFaunaToken(accessToken) {
 
 export async function GET(api) {
   const netlifyToken = await getNetlifyToken()
-  var results = await fetch(`/.netlify/functions/${api}`, {
+  var response = await fetch(`/.netlify/functions/${api}`, {
     headers: { Authorization: `Bearer ${netlifyToken}` }
   })
 
-  return await results.json()
+  if (!response.ok) {
+    let info = await response.json()
+    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
+    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
+    const error = new Error()
+
+    if (errorMessage) {
+      error.message = errorMessage
+    }
+    else {
+      error.message = 'An error occurred while contacting the server'
+    }
+
+    // Attach extra info to the error object.
+    error.info = info
+    error.status = response.status  
+    throw error
+  }
+
+  return await response.json()
 }
 
 export async function POST(api, body) {
@@ -50,6 +69,25 @@ export async function POST(api, body) {
     },
     body: JSON.stringify(body)
   })
+
+  if (!response.ok) {
+    let info = await response.json()
+    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
+    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
+    const error = new Error()
+
+    if (errorMessage) {
+      error.message = errorMessage
+    }
+    else {
+      error.message = 'An error occurred while contacting the server'
+    }
+
+    // Attach extra info to the error object.
+    error.info = info
+    error.status = response.status  
+    throw error
+  }
 
   return await response.json()
 }
