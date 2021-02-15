@@ -2,7 +2,7 @@ import { GET } from "../util/requests"
 const { NETLIFY_FUNCTIONS: { LogOut }} = require ('../util/constants/netlifyFunctions')
 
 export const Logout = () => {
-  let logout = () => {
+  let logout = async () => {
     try {
       await GET(LogOut)
     }

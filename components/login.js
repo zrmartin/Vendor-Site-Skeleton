@@ -7,7 +7,7 @@ const { NETLIFY_FUNCTIONS: { LogIn }} = require ('../util/constants/netlifyFunct
 export const Login = () => {
   let { setAccessToken } = useUser()
 
-  let login = () => {
+  let login = async () => {
     try {
       let results = await POST(LogIn, {
         email: user.email,
