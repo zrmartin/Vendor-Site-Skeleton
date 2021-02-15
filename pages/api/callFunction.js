@@ -2,8 +2,8 @@ const faunadb = require('faunadb')
 const q = faunadb.query
 const { Call } = q
 
-exports.handler = async (event, context) => {
-  let { accessToken, functionName, ...body } = JSON.parse(event.body);
+module.exports = async (req, res) => {
+  let { accessToken, functionName, ...body } = req.body;
   console.log(`Function 'Call Function - ${functionName}' invoked`)
 
   const client = new faunadb.Client({
@@ -16,18 +16,14 @@ exports.handler = async (event, context) => {
   try {
     let results = await client.query(
       Call(functionName, body)
-    ) 
-  
-    return {
+    )
+    res.json({
       statusCode: 200,
-      body: JSON.stringify(results)
-    }
+      body: results
+    })
   } 
   catch (error) {
     console.log(`Error in 'Call Function - ${functionName}'`, error)
-    return {
-      statusCode: 500,
-      body: JSON.stringify(error)
-    }
+    res.status(error.requestResult.statusCode).json(error)
   }
 }

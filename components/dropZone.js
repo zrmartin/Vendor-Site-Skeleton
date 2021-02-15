@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'react-toastify'
-const { NETLIFY_FUNCTIONS: { Upload_Url }} = require ('../util/constants/netlifyFunctions')
+const { VERCEL_FUNCTIONS: { Upload_Url }} = require ('../util/constants/vercelFunctions')
 
 export const DropZone = ({ createProductImages }) => {
   const fileInputRef = useRef();
@@ -133,8 +133,9 @@ export const DropZone = ({ createProductImages }) => {
     for (let i = 0; i < validFiles.length; i++) {
       const file = validFiles[i];
       const filename = uuidv4()
-      const res = await fetch(`/.netlify/functions/${Upload_Url}?file=${filename}`);
-      const { url, fields } = await res.json();
+      const res = await fetch(`/api/${Upload_Url}?file=${filename}`);
+
+      const { url, fields } = (await res.json()).body
       const formData = new FormData();
       Object.entries({ ...fields, file }).forEach(([key, value]) => {
         formData.append(key, value);

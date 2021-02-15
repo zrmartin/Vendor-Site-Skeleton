@@ -4,15 +4,15 @@
 import useSWR from 'swr'
 import Link from 'next/link';
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
-import { useUser } from '../../../context/userContext'
+import { useAccount } from '../../../context/accountContext'
 import { getId, getPrice } from '../../../util/helpers'
 import { HttpError, ServerError } from '../../../components'
 const { FUNCTIONS: { Get_All_Products }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductsHome = () => {
-  const { accessToken, setAccessToken } = useUser()
-  const { data, error } = useSWR([Get_All_Products, accessToken, setAccessToken], CALL_FAUNA_FUNCTION)
+  const { accessToken } = useAccount()
+  const { data, error } = useSWR([Get_All_Products, accessToken], CALL_FAUNA_FUNCTION)
   if (error) return <div><ServerError error={error}/></div>
   if (!data) return <div>loading...</div>
   if (data.code !== Success) return <HttpError error={data}/>

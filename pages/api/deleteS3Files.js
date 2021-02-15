@@ -1,8 +1,8 @@
 const aws = require('aws-sdk');
 
-exports.handler = async (event, context) => {
+module.exports = async (req, res) => {
   console.log("Function `delete S3 Files` invoked")
-  let { imageKeys } = JSON.parse(event.body);
+  let { imageKeys } = req.body;
 
   aws.config.update({
     accessKeyId: process.env.S3_ACCESS_KEY,
@@ -31,8 +31,8 @@ exports.handler = async (event, context) => {
       "Errors":[]
     }
   */
-  return {
+  res.json({
     statusCode: 200,
-    body: JSON.stringify(results)
-  }
+    body: results
+  })
 }

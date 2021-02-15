@@ -1,4 +1,4 @@
-const NETLIFY_FUNCTIONS = {
+const VERCEL_FUNCTIONS = {
   Call_Function: "callFunction",
   Delete_S3_Files: "deleteS3Files",
   LogIn: "login",
@@ -7,8 +7,8 @@ const NETLIFY_FUNCTIONS = {
   Upload_Url: "uploadUrl",
 
 };
-Object.freeze(NETLIFY_FUNCTIONS)
+Object.freeze(VERCEL_FUNCTIONS)
 
 module.exports = {
-  NETLIFY_FUNCTIONS
+  VERCEL_FUNCTIONS
 }

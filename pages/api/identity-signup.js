@@ -1,9 +1,8 @@
 // Need to create FaunaDB USer
 // I think user will be logged in? Should I try to create access/refresh tokens?
 const faunadb = require('faunadb')
-const netlifyIdentity = require('netlify-identity-widget')
 
-const { COLLECTIONS: { Accounts } } = require('../util/constants/database/collections')
+const { COLLECTIONS: { Accounts } } = require('../../util/constants/database/collections')
 
 const q = faunadb.query
 const {
@@ -16,7 +15,7 @@ const client = new faunadb.Client({
 
 exports.handler = async (event, context) => {
   console.log("Function `identity-signup` invoked")
-  const data = JSON.parse(event.body);
+  const data = event.body;
   const { user } = data;
 
   const responseBody = {

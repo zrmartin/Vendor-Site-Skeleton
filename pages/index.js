@@ -2,11 +2,11 @@ import Link from 'next/link';
 import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
-import { useUser } from '../context/userContext'
+import { useAccount } from '../context/accountContext'
 import { Login, Logout } from '../components'
 
 export default function Home() {
-  let { user } = useUser()
+  let { account } = useAccount()
 
   return (
     <div className="container">
@@ -21,13 +21,13 @@ export default function Home() {
           Get started by editing <code>pages/index.js</code>
         </p>
 
-        {user ? (
+        {account ? (
           <div>
             You are logged in! 
-            {user && <> Welcome {user?.user_metadata.full_name}!</>}
+            {account && <> Welcome {account?.data?.email}!</>}
             <br/>
             {
-              user && user.app_metadata?.roles?.includes("owner") &&
+              account &&
               <>
                 <Link href="/owner">
                   <a>Owner Home Page</a>

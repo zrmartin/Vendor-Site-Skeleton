@@ -1,21 +1,21 @@
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
-import { useUser } from '../../../context/userContext'
+import { useAccount } from '../../../context/accountContext'
 import { showToast, showFetchToastError, getId } from '../../../util/helpers'
 import { createProductSchema, } from '../../../validators'
 const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const NewProductPage = () => {
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors } = useForm()
   const router = useRouter()
-  const { accessToken, setAccessToken } = useUser()
+  const { accessToken } = useAccount()
 
   const createProduct = async (formData) => {
     try{
       const { name, price, quantity } = formData
-      let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, setAccessToken, createProductSchema, {
+      let results = await CALL_FAUNA_FUNCTION(Create_Product, accessToken, createProductSchema, {
         name,
         price,
         quantity

@@ -2,17 +2,17 @@ import useSWR from 'swr'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION, POST } from "../../../util/requests"
-import { useUser } from '../../../context/userContext'
+import { useAccount } from '../../../context/accountContext'
 import { getId, getCollection, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
 import { HttpError, ServerError, DropZone } from '../../../components'
 import { updateProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
 const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Get_All_Products }} = require('../../../util/constants/database/functions')
-const { NETLIFY_FUNCTIONS: { Delete_S3_Files, Call_Function }} = require ('../../../util/constants/netlifyFunctions')
+const { VERCEL_FUNCTIONS: { Delete_S3_Files, Call_Function }} = require ('../../../util/constants/vercelFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 
 const ProductPage = () => {
   const { register, handleSubmit, errors } = useForm();
-  const { accessToken, setAccessToken } = useUser()
+  const { accessToken } = useAccount()
   const router = useRouter()
   if (router.isFallback) {
     return <div>Loading...</div>
@@ -21,10 +21,10 @@ const ProductPage = () => {
 
 
   const { data, mutate, error } = useSWR(
-    [Get_Product, accessToken, setAccessToken, getProductSchema, productId], 
-    (url, token, setToken, validator, id) => 
+    [Get_Product, accessToken, getProductSchema, productId], 
+    (url, token, validator, id) => 
     CALL_FAUNA_FUNCTION(
-      url, token, setToken, validator, { id }
+      url, token, validator, { id }
     )
   )
   if (error) return <div><ServerError error={error}/></div>
@@ -36,7 +36,7 @@ const ProductPage = () => {
 
   const createProductImages = async (imageKeys) => {
     try{
-      let results = await CALL_FAUNA_FUNCTION(Create_Images, accessToken, setAccessToken, null, {
+      let results = await CALL_FAUNA_FUNCTION(Create_Images, accessToken, null, {
         entityId: getId(product),
         entityCollection: getCollection(product),
         imageKeys
@@ -68,10 +68,9 @@ const ProductPage = () => {
         })
       }
 
-      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
+      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, deleteProductSchema, {
         id
       })
-      console.log(databaseResults)
       showToast(databaseResults)
       if (databaseResults.code === Success) {
         router.push('/owner/products')
@@ -93,7 +92,7 @@ const ProductPage = () => {
         }
       }
       mutate({ ...data, product: updatedProduct}, false)
-      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, updateProductSchema, {
+      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, updateProductSchema, {
         id: getId(product),
         name,
         price,
@@ -143,38 +142,38 @@ const ProductPage = () => {
 
 export default ProductPage
 
-export async function getStaticPaths() {
-  const body = {
-    accessToken: process.env.FAUNADB_SECRET,
-    functionName: Get_All_Products,
+// export async function getStaticPaths() {
+//   const body = {
+//     accessToken: process.env.FAUNADB_SECRET,
+//     functionName: Get_All_Products,
     
-  }
-  const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
-  const all_products = await response.json()
+//   }
+//   const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
+//     method: 'POST',
+//     body: JSON.stringify(body),
+//   });
+//   const all_products = await response.json()
 
-  const paths = all_products.products.map((product) => ({
-    params: { productId: getId(product) },
-  }))
+//   const paths = all_products.products.map((product) => ({
+//     params: { productId: getId(product) },
+//   }))
 
-  return { paths, fallback: true }
-}
+//   return { paths, fallback: true }
+// }
 
-export async function getStaticProps() {
-  const body = {
-    accessToken: process.env.FAUNADB_SECRET,
-    functionName: Get_Product,
-  }
-  const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
-  const product = await response.json()
+// export async function getStaticProps() {
+//   const body = {
+//     accessToken: process.env.FAUNADB_SECRET,
+//     functionName: Get_Product,
+//   }
+//   const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
+//     method: 'POST',
+//     body: JSON.stringify(body),
+//   });
+//   const product = await response.json()
 
-  return { 
-    props: { product },
-    revalidate: 1, 
-  }
-}
+//   return { 
+//     props: { product },
+//     revalidate: 1, 
+//   }
+// }

@@ -1,6 +1,6 @@
 const aws = require('aws-sdk');
 
-exports.handler = async (event, context) => {
+module.exports = async (req, res) => {
   console.log("Function `upload Url` invoked")
   aws.config.update({
     accessKeyId: process.env.S3_ACCESS_KEY,
@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
   const post = await s3.createPresignedPost({
     Bucket: process.env.S3_BUCKET_NAME,
     Fields: {
-      key: event.queryStringParameters.file,
+      key: req.query.file,
     },
     Expires: 60, // seconds
     Conditions: [
@@ -21,8 +21,8 @@ exports.handler = async (event, context) => {
     ],
   });
 
-  return {
+  res.json({
     statusCode: 200,
-    body: JSON.stringify(post)
-  }
+    body: post
+  })
 }

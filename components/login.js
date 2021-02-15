@@ -1,18 +1,23 @@
-import { useUser } from '../context/userContext'
+import { useForm } from 'react-hook-form'
+import { useAccount } from '../context/accountContext'
 import { POST } from "../util/requests"
 import { showFetchToastError } from "../util/helpers"
-const { NETLIFY_FUNCTIONS: { LogIn }} = require ('../util/constants/netlifyFunctions')
+const { VERCEL_FUNCTIONS: { LogIn }} = require ('../util/constants/vercelFunctions')
 
 export const Login = () => {
-  let { setAccessToken } = useUser()
+  let { setAccessToken, setAccount, setSessionExpired } = useAccount()
+  const { register, handleSubmit, errors } = useForm()
 
-  let login = async () => {
+  let login = async (formData) => {
     try {
+      const { email, password } = formData
       let results = await POST(LogIn, {
-        email: user.email,
-        password: process.env.SHOP_OWNER_PASSWORD
+        email,
+        password,
       })
       setAccessToken(results.secret)
+      setAccount(results.account)
+      setSessionExpired(false)
     }
     catch (e) {
       showFetchToastError(e.message)
@@ -20,8 +25,17 @@ export const Login = () => {
   }
 
   return (
-    <button onClick={login}>
-      Login
-    </button>
+    <>
+      <form onSubmit={handleSubmit(login)}>
+      <label htmlFor="email">Email</label>
+      <input name="email" ref={register} />
+
+      <label htmlFor="password">Password</label>
+      <input name="password" ref={register} />
+      
+      <input type="submit" value="Login" />
+      </form>
+      <br />
+    </>
   )
 };
