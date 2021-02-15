@@ -1,17 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import netlifyAuth from '../netlifyAuth.js'
+import React, { createContext, useContext, useState } from 'react'
 
 const UserContext = createContext()
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(undefined)
   const [accessToken, setAccessToken] = useState(undefined)
-
-  useEffect(() => {
-    netlifyAuth.initialize((user) => {
-      setUser(user)
-    })
-  }, [])
 
   const context = {
     user,

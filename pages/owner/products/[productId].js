@@ -14,6 +14,9 @@ const ProductPage = () => {
   const { register, handleSubmit, errors } = useForm();
   const { accessToken, setAccessToken } = useUser()
   const router = useRouter()
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
   const { productId } = router.query
 
 
@@ -156,14 +159,22 @@ export async function getStaticPaths() {
     params: { productId: getId(product) },
   }))
 
-  // We'll pre-render only these paths at build time.
-  // { fallback: false } means other routes should 404.
-  // Because of _redirects file, that means any invalid urls will default to /index
-  return { paths, fallback: false }
+  return { paths, fallback: true }
 }
 
 export async function getStaticProps() {
+  const body = {
+    accessToken: process.env.FAUNADB_SECRET,
+    functionName: Get_Product,
+  }
+  const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  const product = await response.json()
+
   return { 
-    props: {} 
+    props: { product },
+    revalidate: 1, 
   }
 }
