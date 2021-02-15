@@ -1,4 +1,3 @@
-import netlifyAuth from '../netlifyAuth.js'
 import { useUser } from '../context/userContext'
 import { POST } from "../util/requests"
 import { showFetchToastError } from "../util/helpers"
