@@ -1,4 +1,4 @@
-const aws = require('aws-sdk');
+import aws from "aws-sdk"
 
 module.exports = async (req, res) => {
   console.log("Function `upload Url` invoked")

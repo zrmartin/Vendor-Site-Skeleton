@@ -1,6 +1,4 @@
-// Need to create FaunaDB USer
-// I think user will be logged in? Should I try to create access/refresh tokens?
-const faunadb = require('faunadb')
+import faunadb from 'faunadb'
 
 const { COLLECTIONS: { Accounts } } = require('../../util/constants/database/collections')
 

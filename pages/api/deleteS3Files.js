@@ -1,5 +1,3 @@
-const aws = require('aws-sdk');
-
 module.exports = async (req, res) => {
   console.log("Function `delete S3 Files` invoked")
   let { imageKeys } = req.body;

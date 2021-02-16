@@ -1,5 +1,5 @@
-const faunadb = require('faunadb')
-const { getCookie } = require('../../util/cookie')
+import faunadb from 'faunadb'
+import { getCookie } from '../../util/cookie'
 const { FUNCTIONS: { Refresh_Token } } = require('../../util/constants/database/functions')
 const q = faunadb.query
 const { Call } = q

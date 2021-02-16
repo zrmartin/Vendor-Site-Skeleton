@@ -1,4 +1,4 @@
-function getCookie(cookie, name) {
+export function getCookie(cookie, name) {
   var match = cookie?.match(new RegExp('(^| )' + name + '=([^;]+)'));
   if (match) {
     return match[2];
@@ -6,8 +6,4 @@ function getCookie(cookie, name) {
   else{
     return null;
   }
-}
-
-module.exports = {
-  getCookie
 }
