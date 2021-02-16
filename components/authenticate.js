@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import { useAccount } from '../context/accountContext';
 import Unauthenticated from '../pages/unauthenticated';
 import { ROLES } from '../util/constants/roles';
-import { getAccessTokenAndAccount } from '../util/requests';
+import { GET } from '../util/requests';
+const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
 
 export const Authenticate = ({ Component, pageProps }) => {
   const { pathname } = useRouter();
@@ -16,11 +17,11 @@ export const Authenticate = ({ Component, pageProps }) => {
     if ((!account || !accessToken) && role in ROLES) {
       refreshAccountAndToken()
     }
-  }, [account, accessToken])
+  }, [accessToken])
 
   const refreshAccountAndToken = async () => {
     try {
-      const results = await getAccessTokenAndAccount()
+      const results = await GET(Refresh_Fauna_Token)
       setAccount(results.account)
       setAccessToken(results.secret)
       setBusy(false)

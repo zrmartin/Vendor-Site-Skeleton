@@ -1,9 +1,14 @@
 import { useAccount } from '../context/accountContext';
+const { HTTP_CODES: { Unauthenticated }} = require ('../util/constants/httpCodes')
 
 export const ServerError = ({ error }) => {
   const { setAccount, setAccessToken, setBusy } = useAccount();
-  // Access Token has expired. set them to null. so Authenticate component can get a new token. If that fails it will prompt user to login
-  if (error.status === 401) {
+  /* 
+    Access Token has expired. 
+    Set context to null, so Authenticate component can get a new token. 
+    If that fails it will prompt user to login again
+  */
+  if (error.status === Unauthenticated) {
     setBusy(true)
     setAccount(null)
     setAccessToken(null)

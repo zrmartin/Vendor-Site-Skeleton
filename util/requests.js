@@ -1,41 +1,12 @@
 const { HTTP_CODES: { Validation_Error }} = require('../util/constants/httpCodes')
-const { VERCEL_FUNCTIONS: { Call_Function, Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
-
-export async function getAccessTokenAndAccount() {
-  var response = await fetch(`/api/${Refresh_Fauna_Token}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-  })
-  if (!response.ok) {
-    const error = new Error()
-    error.message = 'Your session has expired, please login again'
-    throw error
-  }
-  return (await response.json()).body
-}
+const { VERCEL_FUNCTIONS: { Call_Function }} = require('../util/constants/vercelFunctions')
 
 export async function GET(api) {
   var response = await fetch(`/api/${api}`)
 
   if (!response.ok) {
-    let info = await response.json()
-    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
-    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
-    const error = new Error()
-
-    if (errorMessage) {
-      error.message = errorMessage
-    }
-    else {
-      error.message = 'An error occurred while contacting the server'
-    }
-
-    // Attach extra info to the error object.
-    error.info = info
-    error.status = response.status  
+    const info = await response.json()
+    const error = createError(info)
     throw error
   }
 
@@ -53,21 +24,8 @@ export async function POST(api, body) {
   })
 
   if (!response.ok) {
-    let info = await response.json()
-    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
-    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
-    const error = new Error()
-
-    if (errorMessage) {
-      error.message = errorMessage
-    }
-    else {
-      error.message = 'An error occurred while contacting the server'
-    }
-
-    // Attach extra info to the error object.
-    error.info = info
-    error.status = response.status  
+    const info = await response.json()
+    const error = createError(info)
     throw error
   }
 
@@ -104,22 +62,28 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, schema = nu
   })
 
   if (!response.ok) {
-    let info = await response.json()
-
-    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
-    let errorMessage = info?.requestResult?.responseContent?.errors?.[0].cause?.[0].description
-    const error = new Error()
-
-    if (errorMessage) {
-      error.message = errorMessage
-    }
-    else {
-      error.message = info.message
-    }
-
-    error.status = info.requestResult?.statusCode  
+    const info = await response.json()
+    const error = createError(info)
     throw error
   }
 
   return (await response.json()).body
+}
+
+
+const createError = (info) => {
+  const error = new Error()
+
+  // Error message from database error. I.E No permissions to perform database action (update/delete etc)
+  let errorMessage = info?.requestResult?.responseContent?.errors?.[0].cause?.[0].description
+
+  if (errorMessage) {
+    error.message = errorMessage
+  }
+  else {
+    error.message = info.message
+  }
+
+  error.status = info.requestResult?.statusCode
+  return error  
 }
