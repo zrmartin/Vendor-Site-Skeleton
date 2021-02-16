@@ -1,5 +1,5 @@
+import { toast } from 'react-toastify'
 import { GET } from "../util/requests"
-import { showFetchToastError } from "../util/helpers"
 import { useAccount } from '../context/accountContext'
 const { VERCEL_FUNCTIONS: { LogOut }} = require ('../util/constants/vercelFunctions')
 
@@ -12,7 +12,7 @@ export const Logout = () => {
       setAccount(null)
     }
     catch (e) {
-      showFetchToastError(e.message)
+      toast.error(e.message)
     }
   }
 

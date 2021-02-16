@@ -8,7 +8,7 @@ const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/
 
 export const Authenticate = ({ Component, pageProps }) => {
   const { pathname } = useRouter();
-  const { account, accessToken, setAccount, setAccessToken, busy, setBusy, setSessionExpired, sessionExpired } = useAccount();
+  const { account, setAccount, accessToken, setAccessToken, busy, setBusy, sessionExpired, setSessionExpired} = useAccount();
   const role = pathname.split("/")[1].toLowerCase();
   const accountRoles = account?.data?.roles
 

@@ -22,7 +22,6 @@ export async function POST(api, body) {
     },
     body: JSON.stringify(body)
   })
-
   if (!response.ok) {
     const info = await response.json()
     const error = createError(info)
@@ -60,7 +59,6 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, schema = nu
     },
     body: JSON.stringify(body)
   })
-
   if (!response.ok) {
     const info = await response.json()
     const error = createError(info)
@@ -76,14 +74,11 @@ const createError = (info) => {
 
   // Error message from database error. I.E No permissions to perform database action (update/delete etc)
   let errorMessage = info?.requestResult?.responseContent?.errors?.[0].cause?.[0].description
+  // Status code from fauandb call function failing, otherwise grab response status
+  let status = info.requestResult?.statusCode
+  
+  errorMessage ? error.message = errorMessage : error.message = info.message
+  status ? error.status = status : error.status = info.status
 
-  if (errorMessage) {
-    error.message = errorMessage
-  }
-  else {
-    error.message = info.message
-  }
-
-  error.status = info.requestResult?.statusCode
   return error  
 }

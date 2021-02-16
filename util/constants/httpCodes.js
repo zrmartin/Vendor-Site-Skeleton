@@ -1,8 +1,9 @@
 const HTTP_CODES = {
   Success: 200,
+  Bad_Request: 400,
+  Unauthenticated: 401,
   Not_Found: 404,
   Validation_Error: 422,
-  Unauthenticated: 401,
 };
 Object.freeze(HTTP_CODES)
 

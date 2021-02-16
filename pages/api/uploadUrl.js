@@ -22,7 +22,6 @@ module.exports = async (req, res) => {
   });
 
   res.json({
-    statusCode: 200,
     body: post
   })
 }

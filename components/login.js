@@ -1,7 +1,7 @@
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { useAccount } from '../context/accountContext'
 import { POST } from "../util/requests"
-import { showFetchToastError } from "../util/helpers"
 const { VERCEL_FUNCTIONS: { LogIn }} = require ('../util/constants/vercelFunctions')
 
 export const Login = () => {
@@ -20,7 +20,7 @@ export const Login = () => {
       setSessionExpired(false)
     }
     catch (e) {
-      showFetchToastError(e.message)
+      toast.error(e.message)
     }
   }
 

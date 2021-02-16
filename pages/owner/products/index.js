@@ -13,7 +13,7 @@ const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 const ProductsHome = () => {
   const { accessToken } = useAccount()
   const { data, error } = useSWR([Get_All_Products, accessToken], CALL_FAUNA_FUNCTION)
-  if (error) return <div><ServerError error={error}/></div>
+  if (error) return <ServerError error={error}/>
   if (!data) return <div>loading...</div>
   if (data.code !== Success) return <HttpError error={data}/>
 

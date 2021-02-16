@@ -18,7 +18,6 @@ module.exports = async (req, res) => {
       Call(functionName, body)
     )
     res.json({
-      statusCode: 200,
       body: results
     })
   } 

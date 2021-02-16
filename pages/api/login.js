@@ -1,4 +1,5 @@
 const { SITE_CONTEXT, SITE_CONTEXTS } = require("../../util/constants/siteContexts")
+const { HTTP_CODES: { Bad_Request } } = require("../../util/constants/httpCodes")
 const { FUNCTIONS: { Login } } = require('../../util/constants/database/functions')
 const faunadb = require('faunadb')
 
@@ -20,18 +21,20 @@ module.exports = async (req, res) => {
     let results = await client.query(
       Call(Login, [email, password])
     ) 
-
-    res.setHeader("Set-Cookie", [`refreshToken=${results.refresh.secret}; HttpOnly; Expires=${now.toUTCString()}; Path=/; ${includeSecure}`])
-    res.json({
-      statusCode: 200,
-      headers: {
-        
-      },
-      body: {
-        account: results.account,
-        secret: results.access.secret
-      }
-    })
+    if (!results.access || !results.refresh || !results.account) {
+      res.status(Bad_Request).json({
+        message: "Invalid Credentials"
+      })
+    }
+    else {
+      res.setHeader("Set-Cookie", [`refreshToken=${results.refresh.secret}; HttpOnly; Expires=${now.toUTCString()}; Path=/; ${includeSecure}`])
+      res.json({
+        body: {
+          account: results.account,
+          secret: results.access.secret
+        }
+      })
+    }
   }
   catch (error){
     console.log("Error calling `login` - ", error)

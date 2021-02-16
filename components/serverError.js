@@ -1,18 +1,14 @@
+import { useEffect } from 'react'
 import { useAccount } from '../context/accountContext';
-const { HTTP_CODES: { Unauthenticated }} = require ('../util/constants/httpCodes')
+import { handleFaunaError } from '../util/helpers'
 
 export const ServerError = ({ error }) => {
-  const { setAccount, setAccessToken, setBusy } = useAccount();
-  /* 
-    Access Token has expired. 
-    Set context to null, so Authenticate component can get a new token. 
-    If that fails it will prompt user to login again
-  */
-  if (error.status === Unauthenticated) {
-    setBusy(true)
-    setAccount(null)
-    setAccessToken(null)
-  }
+  const accountContext = useAccount();
+
+  useEffect(() => {
+    handleFaunaError(accountContext, error)
+  }, [])
+
   return (
     <>
       Could not reach server, please try again. If this issue persists please contact Admin.
@@ -22,4 +18,5 @@ export const ServerError = ({ error }) => {
       Error Message: {error.message}
     </>
   )
+
 };
