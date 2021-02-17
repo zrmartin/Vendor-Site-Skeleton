@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   const { email, password } = req.body;
   // Set expire time for 8 hours in the future.
   let now = new Date()
-  now.setTime(now.getTime() + 30*1000)
+  now.setTime(now.getTime() + 60*60*1000*8)
   const includeSecure = SITE_CONTEXT == SITE_CONTEXTS.PROD ? "Secure" : ""
 
   try {

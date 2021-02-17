@@ -8,7 +8,7 @@ const { CreateFnRoleLogin, CreateFnRoleRegister, CreateFnRoleRefreshTokens, Crea
 const faunadb = require('faunadb')
 
 const client = new faunadb.Client({
-  secret: "fnAEB9dovwACCQ2xxQfPLajR95ZISedAtu2bOHno"
+  secret: ""
 })
 
 async function setupDatabase(client) {
