@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import Head from 'next/head'
-import Header from '@components/Header'
-import Footer from '@components/Footer'
 import { useAccount } from '../context/accountContext'
 import { Login, Logout } from '../components'
 const { URL_PATHS: { Products_Index_Page, Owner_Index_Page }} = require('../util/constants/urlPaths')
@@ -17,7 +15,7 @@ export default function Home() {
       </Head>
 
       <main>
-        <Header title="Welcome to my app!" />
+       <h1>Welcome to my app!</h1>
         <p className="description">
           Get started by editing <code>pages/index.js</code>
         </p>
@@ -46,8 +44,6 @@ export default function Home() {
           <Login></Login>
         )}
       </main>
-
-      <Footer />
     </div>
   )
 }
