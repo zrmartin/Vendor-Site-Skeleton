@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useAccount } from '../../../context/accountContext'
@@ -9,6 +10,7 @@ const { URL_PATHS: { Product_Index_Page }} = require('../../../util/constants/ur
 const NewProductPage = () => {
   const { register, handleSubmit, errors } = useForm()
   const accountContext = useAccount()
+  const router = useRouter()
 
   const createProduct = async (formData) => {
     try{
@@ -18,7 +20,7 @@ const NewProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, null, Product_Index_Page(getId(results.product)))
+      handleFaunaResults(results, null, Product_Index_Page(getId(results.product)), router)
     }
     catch (e){
       handleFaunaError(accountContext, e)

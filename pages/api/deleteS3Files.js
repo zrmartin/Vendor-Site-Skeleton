@@ -1,3 +1,5 @@
+import aws from "aws-sdk"
+
 module.exports = async (req, res) => {
   console.log("Function `delete S3 Files` invoked")
   let { imageKeys } = req.body;
@@ -21,14 +23,7 @@ module.exports = async (req, res) => {
   };    
   const s3 = new aws.S3();
   const results = await s3.deleteObjects(deleteParams).promise();
-  /* Results looks like
-    {
-      "Deleted":[
-        {"Key":"490d8204-ef3e-428f-86d9-532c66d5eda3"}
-      ],
-      "Errors":[]
-    }
-  */
+
   res.json({
     body: results
   })

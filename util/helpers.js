@@ -14,7 +14,7 @@ export const getPrice = (price) => {
 }
 
 
-export const handleFaunaResults = (results, mutate = null, redirectUrl = null) => {
+export const handleFaunaResults = (results, mutate = null, redirectUrl = null, router = null) => {
   if (results.code === Success && results.message) {
     if (results.message) toast.success(results.message)
     if (mutate) mutate()

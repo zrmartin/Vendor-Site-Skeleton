@@ -1,4 +1,5 @@
 import useSWR from 'swr'
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION, POST } from "../../../util/requests"
@@ -15,11 +16,7 @@ const ProductPage = () => {
   const { register, handleSubmit, errors } = useForm();
   const accountContext = useAccount()
   const router = useRouter()
-  if (router.isFallback) {
-    return <div>Loading...</div>
-  }
   const { productId } = router.query
-
 
   const { data, mutate, error } = useSWR(
     [Get_Product, accountContext.accessToken, getProductSchema, productId], 
@@ -66,12 +63,17 @@ const ProductPage = () => {
         let s3Results = await POST(Delete_S3_Files, {
           imageKeys
         })
+        if (s3Results.Errors.length > 0){
+          s3Results.Errors.forEach(
+            error => toast.error(error.message)
+          )
+        }
       }
 
       let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
         id
       })
-      handleFaunaResults(databaseResults, mutate, Products_Index_Page)
+      handleFaunaResults(databaseResults, mutate, Products_Index_Page, router)
     }
     catch (e){
       handleFaunaError(accountContext, e)
@@ -95,7 +97,7 @@ const ProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, mutate, Products_Index_Page)
+      handleFaunaResults(results, mutate, Products_Index_Page, router)
     }
     catch (e){
       handleFaunaError(accountContext, e)
