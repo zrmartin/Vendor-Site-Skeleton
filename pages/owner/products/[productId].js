@@ -9,6 +9,7 @@ import { updateProductSchema, getProductSchema, deleteProductSchema } from '../.
 const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images }} = require('../../../util/constants/database/functions')
 const { VERCEL_FUNCTIONS: { Delete_S3_Files }} = require ('../../../util/constants/vercelFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
+const { URL_PATHS: { Products_Index_Page }} = require('../../../util/constants/urlPaths')
 
 const ProductPage = () => {
   const { register, handleSubmit, errors } = useForm();
@@ -70,7 +71,7 @@ const ProductPage = () => {
       let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
         id
       })
-      handleFaunaResults(databaseResults, mutate, '/owner/products')
+      handleFaunaResults(databaseResults, mutate, Products_Index_Page)
     }
     catch (e){
       handleFaunaError(accountContext, e)
@@ -94,7 +95,7 @@ const ProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, mutate, '/owner/products')
+      handleFaunaResults(results, mutate, Products_Index_Page)
     }
     catch (e){
       handleFaunaError(accountContext, e)

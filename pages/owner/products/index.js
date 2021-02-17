@@ -9,6 +9,7 @@ import { getId, getPrice } from '../../../util/helpers'
 import { HttpError, ServerError } from '../../../components'
 const { FUNCTIONS: { Get_All_Products }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
+const { URL_PATHS: { Product_Index_Page, Product_Create_Page }} = require('../../../util/constants/urlPaths')
 
 const ProductsHome = () => {
   const { accessToken } = useAccount()
@@ -23,14 +24,14 @@ const ProductsHome = () => {
       <>
           <h1>Products</h1>
           <br/>
-          <Link href={`/owner/products/newProduct`}>
+          <Link href={Product_Create_Page}>
               <a>Create New Product</a>
           </Link>
           <br/>
           {
             products?.map(product =>
               <div key={getId(product)}>
-                <Link href={`/owner/products/${getId(product)}`}>
+                <Link href={Product_Index_Page(getId(product))}>
                   <a>{product.data.name}</a>
                 </Link>
                  - price ${getPrice(product.data.price)} - quantity - {product.data.quantity}

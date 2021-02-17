@@ -4,6 +4,7 @@ import { useAccount } from '../../../context/accountContext'
 import { handleFaunaResults, handleFaunaError, getId } from '../../../util/helpers'
 import { createProductSchema, } from '../../../validators'
 const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
+const { URL_PATHS: { Product_Index_Page }} = require('../../../util/constants/urlPaths')
 
 const NewProductPage = () => {
   const { register, handleSubmit, errors } = useForm()
@@ -17,7 +18,7 @@ const NewProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, null, `/owner/products/${getId(results.product)}`)
+      handleFaunaResults(results, null, Product_Index_Page(getId(results.product)))
     }
     catch (e){
       handleFaunaError(accountContext, e)

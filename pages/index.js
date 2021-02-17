@@ -4,6 +4,7 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useAccount } from '../context/accountContext'
 import { Login, Logout } from '../components'
+const { URL_PATHS: { Products_Index_Page, Owner_Index_Page }} = require('../util/constants/urlPaths')
 
 export default function Home() {
   let { account } = useAccount()
@@ -29,11 +30,11 @@ export default function Home() {
             {
               account &&
               <>
-                <Link href="/owner">
+                <Link href={Owner_Index_Page}>
                   <a>Owner Home Page</a>
                 </Link>
                 <br/ >
-                <Link href="/owner/products">
+                <Link href={Products_Index_Page}>
                   <a>Products</a>
                 </Link>
               </>
