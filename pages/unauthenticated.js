@@ -1,9 +1,9 @@
 import { Login } from '../components'
-const UnauthenticatedPage = ({message}) => {
+const UnauthenticatedPage = ({ message, showLogin }) => {
   return (
       <>
-          <h3>{message}</h3>
-          <Login></Login>
+        <h3>{message}</h3>
+        {showLogin && <Login/>}
       </>
   );
 };

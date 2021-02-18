@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Head from 'next/head'
 import { useAccount } from '../context/accountContext'
-import { Login, Logout } from '../components'
+import { Login } from '../components'
 const { URL_PATHS: { Products_Index_Page, Owner_Index_Page }} = require('../util/constants/urlPaths')
 
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
           Get started by editing <code>pages/index.js</code>
         </p>
 
-        {account ? (
+        {account && 
           <div>
             You are logged in! 
             {account && <> Welcome {account?.data?.email}!</>}
@@ -37,12 +37,9 @@ export default function Home() {
                 </Link>
               </>
             }
-            <br/>
-            <Logout></Logout>
           </div>
-        ) : (
-          <Login></Login>
-        )}
+        }
+        <Login />
       </main>
     </div>
   )

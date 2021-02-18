@@ -1,4 +1,4 @@
-import { Logout } from './logout'
+
 import { Login } from './login'
 import { Authenticate } from './authenticate'
 import { HttpError } from './httpError'
@@ -7,7 +7,6 @@ import { DropZone } from './dropZone'
 import { ErrorBoundary } from './errorBoundary'
 
 export {
-  Logout,
   Login,
   Authenticate,
   HttpError,

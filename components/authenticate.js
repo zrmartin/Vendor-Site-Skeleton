@@ -40,17 +40,17 @@ export const Authenticate = ({ Component, pageProps }) => {
   }
 
   if (sessionExpired) {
-    return <Unauthenticated message={"Your session has expired, please login again"}/>
+    return <Unauthenticated message={"Your session has expired, please login again"} showLogin={true}/>
   }
 
   //User is not logged in and trying to access restricted paths
   if (!account && role in ROLES) {
-    return <Unauthenticated message={"Please login to view this page"}/>
+    return <Unauthenticated message={"Please login to view this page"} showLogin={true}/>
   }
 
   //User is logged in but they do not have the proper roles to view this page.
   if(!accountRoles?.includes(role) && role in ROLES) {
-    return <Unauthenticated message={"You do not have permission to access to this page"}/>
+    return <Unauthenticated message={"You do not have permission to access to this page"} showLogin={false}/>
   }
 
   return <Component {...pageProps}/>;

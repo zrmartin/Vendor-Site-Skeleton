@@ -2,7 +2,7 @@ const { HTTP_CODES: { Validation_Error }} = require('../util/constants/httpCodes
 const { VERCEL_FUNCTIONS: { Call_Function }} = require('../util/constants/vercelFunctions')
 
 export async function GET(api) {
-  var response = await fetch(`/api/${api}`)
+  var response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/${api}`)
 
   if (!response.ok) {
     const info = await response.json()
@@ -14,7 +14,7 @@ export async function GET(api) {
 }
 
 export async function POST(api, body) {
-  var response = await fetch(`/api/${api}`, {
+  var response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/${api}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -51,7 +51,7 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, schema = nu
     functionName
   }
 
-  var response = await fetch(`/api/${Call_Function}`, {
+  var response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/${Call_Function}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
