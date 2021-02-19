@@ -1,10 +1,12 @@
 import React from 'react'
 import { render } from '@testing-library/react'
+import { ToastContainer } from 'react-toastify';
 import { AccountProvider } from '../context/accountContext'
 
 const AllTheProviders = ({ children }) => {
   return (
     <AccountProvider>
+      <ToastContainer />
       {children}
     </AccountProvider>
   )

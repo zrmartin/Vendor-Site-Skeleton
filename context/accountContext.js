@@ -5,7 +5,7 @@ const AccountContext = createContext()
 export const AccountProvider = ({ children }) => {
   const [account, setAccount] = useState(undefined)
   const [accessToken, setAccessToken] = useState(undefined)
-  const [busy, setBusy] = useState(true)
+  const [busy, setBusy] = useState(false)
   const [sessionExpired, setSessionExpired] = useState(false)
 
   const context = {

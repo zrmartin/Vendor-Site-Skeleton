@@ -1,13 +1,10 @@
 import React from 'react';
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { render, fireEvent, waitFor, act } from 'test-utils';
+import { render, fireEvent } from 'test-utils';
 import '@testing-library/jest-dom/extend-expect'
-import { Login } from '../components'
+import { Login } from '../../components'
 global.fetch = require('isomorphic-fetch');
-
-//https://github.com/vercel/next.js/issues/16864
-jest.mock('next/link', () => ({ children }) => children);
 
 const server = setupServer(
   rest.post('http://localhost:3000/api/login', (req, res, ctx) => {
@@ -46,29 +43,45 @@ beforeAll(() => {
 })
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
-
-//TODO Check for cookie being set correctly
+ 
 test('Successfully logs user in and out and sets cookie', async () => {
-  const { getByText } = render(<Login />)
+  const { findByText } = render(<Login />)
 
   // Login
-  expect(getByText('Login')).toBeInTheDocument()
-  act(() => {
-    fireEvent.click(getByText('Login'))
-  })
-  await waitFor(() => getByText('Logout'))
-  expect(getByText('Logout')).toBeInTheDocument()
+  expect(await findByText('Login')).toBeInTheDocument()
+  fireEvent.click(await findByText('Login'))
+  expect(await findByText('Logout')).toBeInTheDocument()
 
   // Cookie is set
   expect(document.cookie).toMatch(/refreshToken=abc-123/i)
 
   // Logout
-  act(() => {
-    fireEvent.click(getByText('Logout'))
-  })
-  await waitFor(() => getByText('Login'))
-  expect(getByText('Login')).toBeInTheDocument()
+  fireEvent.click(await findByText('Logout'))
+  expect(await findByText('Login')).toBeInTheDocument()
 
   // Cookie is deleted
   expect(document.cookie).not.toMatch(/refreshToken=abc-123/i)
+});
+
+test('Invalid Credentails Succesfully displays toast', async () => {
+  const errorMessage = "Invalid Credentials"
+  server.use(
+    rest.post('http://localhost:3000/api/login', (req, res, ctx) => {
+      return res(
+        ctx.status(401),
+        ctx.json({
+          message: errorMessage
+        })
+      )
+    })
+  )
+
+  const { findByText } = render(<Login />)
+
+  // Login
+  expect(await findByText('Login')).toBeInTheDocument()
+  fireEvent.click(await findByText('Login'))
+
+  // Invalid Credentials Toast
+  expect(await findByText(errorMessage)).toBeInTheDocument()
 });

@@ -21,6 +21,7 @@ export const Authenticate = ({ Component, pageProps }) => {
 
   const refreshAccountAndToken = async () => {
     try {
+      setBusy(true)
       const results = await GET(Refresh_Fauna_Token)
       setAccount(results.account)
       setAccessToken(results.secret)
@@ -28,8 +29,8 @@ export const Authenticate = ({ Component, pageProps }) => {
       setSessionExpired(false)
     }
     catch(e) {
-      setBusy(false)
       setSessionExpired(true)
+      setBusy(false)
     }
   }
 

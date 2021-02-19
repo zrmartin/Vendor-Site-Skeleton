@@ -31,7 +31,6 @@ export const Login = () => {
       setAccount(null)
     }
     catch (e) {
-      throw e
       toast.error(e.message)
     }
   }

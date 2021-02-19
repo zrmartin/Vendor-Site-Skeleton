@@ -1,9 +1,9 @@
 export const HttpError = ({ error }) => {
   return (
     <>
-      Error code - {error.code}
+      Error code - {error?.code}
       <br/>
-      Error Message - {error.message}
+      Error Message - {error?.message}
     </>
   )
 };
