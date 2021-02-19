@@ -11,9 +11,9 @@ import { updateProductSchema, getProductSchema, deleteProductSchema, createImage
 const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Delete_Image }} = require('../../../util/constants/database/functions')
 const { VERCEL_FUNCTIONS: { Delete_S3_Files }} = require ('../../../util/constants/vercelFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
-const { URL_PATHS: { Products_Index_Page }} = require('../../../util/constants/urlPaths')
+const { URL_PATHS: { Owner_Products_Index_Page }} = require('../../../util/constants/urlPaths')
 
-const ProductPage = () => {
+const OwnerProductPage = () => {
   const { register, handleSubmit, errors } = useForm({ 
     resolver: yupResolver(updateProductSchema)
   })
@@ -76,7 +76,7 @@ const ProductPage = () => {
       let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
         id
       })
-      handleFaunaResults(databaseResults, mutate, Products_Index_Page, router)
+      handleFaunaResults(databaseResults, mutate, Owner_Products_Index_Page, router)
     }
     catch (e){
       handleFaunaError(accountContext, e)
@@ -100,7 +100,7 @@ const ProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, mutate, Products_Index_Page, router)
+      handleFaunaResults(results, mutate, Owner_Products_Index_Page, router)
     }
     catch (e){
       handleFaunaError(accountContext, e)
@@ -175,4 +175,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage
+export default OwnerProductPage

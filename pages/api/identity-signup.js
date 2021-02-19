@@ -8,7 +8,7 @@ const {
   Collection
 } = q
 const client = new faunadb.Client({
-  secret: process.env.FAUNADB_SECRET
+  secret: process.env.NEXT_PUBLIC_FAUNADB_SECRET
 })
 
 exports.handler = async (event, context) => {

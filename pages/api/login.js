@@ -6,7 +6,7 @@ import faunadb from 'faunadb'
 const q = faunadb.query
 const { Call } = q
 const client = new faunadb.Client({
-  secret: process.env.FAUNADB_SECRET
+  secret: process.env.NEXT_PUBLIC_FAUNADB_SECRET
 })
 
 module.exports = async (req, res) => {
