@@ -1,5 +1,15 @@
 import { toast } from 'react-toastify'
-const { HTTP_CODES: { Success, Not_Found, Validation_Error, Unauthenticated, }} = require('./constants/httpCodes')
+const { HTTP_CODES: { Success, Unauthenticated }} = require('./constants/httpCodes')
+
+export function getCookie(cookie, name) {
+  var match = cookie?.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  if (match) {
+    return match[2];
+  }
+  else{
+    return null;
+  }
+}
 
 export const getId = (obj) => {
  return obj?.ref['@ref']?.id
@@ -18,7 +28,7 @@ export const handleFaunaResults = (results, mutate = null, redirectUrl = null, r
   if (results.code === Success && results.message) {
     if (results.message) toast.success(results.message)
     if (mutate) mutate()
-    if (redirectUrl) router.push(redirectUrl)
+    if (redirectUrl && router) router.push(redirectUrl)
   }
   else {
     if (results.message) {

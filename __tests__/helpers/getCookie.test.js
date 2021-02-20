@@ -1,20 +1,19 @@
 import { getCookie } from '../../util/helpers'
 
-test('getCookie Succesfully grabs correct cookie', () => {
+test('getCookie Succesfully grabs correct cookie when found', () => {
+  const cookie = "Cookie: yummy_cookie=choco; tasty_cookie=strawberry"
 
-  let testSchema = {
-    imageKeys: ["123"],
-    entityId: "123",
-    entityCollection: "testCollection"
-  }
-  let results = null
+  const yummyCookie = getCookie(cookie, "yummy_cookie")
+  const tastyCookie = getCookie(cookie, "tasty_cookie")
 
-  try {
-    results = await createImagesSchema.validate(testSchema)
-  }
-  catch (e){
-    results = e
-  }
+  expect(yummyCookie).toEqual("choco");
+  expect(tastyCookie).toEqual("strawberry");
+});
 
-  expect(results.errors).toBeUndefined();
+test('getCookie Succesfully returns null when no match found', () => {
+  const cookie = "Cookie: yummy_cookie=choco; tasty_cookie=strawberry"
+
+  const nullCookie = getCookie(cookie, "nullCookie")
+
+  expect(nullCookie).toBeNull();
 });
