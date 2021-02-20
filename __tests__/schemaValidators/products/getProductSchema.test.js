@@ -1,7 +1,7 @@
 import { getProductSchema } from '../../../validators'
 
 test('getProductSchema passes for valid schema', async () => {
-  var testSchema = {
+  let testSchema = {
     id: "123"
   }
   let results = null
@@ -17,7 +17,7 @@ test('getProductSchema passes for valid schema', async () => {
 });
 
 test('getProductSchema fails for missing fields', async () => {
-  var testSchema = {
+  let testSchema = {
     id: undefined
   }
   let results = null
@@ -33,7 +33,7 @@ test('getProductSchema fails for missing fields', async () => {
 });
 
 test('getProductSchema fails for invalid types', async () => {
-  var testSchema = {
+  let testSchema = {
     id: []
   }
   let results = null

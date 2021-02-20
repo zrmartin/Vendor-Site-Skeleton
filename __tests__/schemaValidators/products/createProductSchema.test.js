@@ -1,7 +1,7 @@
 import { createProductSchema } from '../../../validators'
 
 test('createProductSchema passes for valid schema', async () => {
-  var testSchema = {
+  let testSchema = {
     name: "Test Product",
     price: 100.00,
     quantity: 10
@@ -19,7 +19,7 @@ test('createProductSchema passes for valid schema', async () => {
 });
 
 test('createProductSchema fails for missing fields', async () => {
-  var testSchema = {
+  let testSchema = {
     name: undefined,
     price: undefined,
     quantity: undefined
@@ -39,7 +39,7 @@ test('createProductSchema fails for missing fields', async () => {
 });
 
 test('createProductSchema fails for invalid type', async () => {
-  var testSchema = {
+  let testSchema = {
     name: [],
     price: [],
     quantity: [],
@@ -60,7 +60,7 @@ test('createProductSchema fails for invalid type', async () => {
 });
 
 test('createProductSchema fails for negative price or quantity', async () => {
-  var testSchema = {
+  let testSchema = {
     name: "Test Product",
     price: -100,
     quantity: -100,
@@ -80,7 +80,7 @@ test('createProductSchema fails for negative price or quantity', async () => {
 });
 
 test('createProductSchema fails for non-integer quantity', async () => {
-  var testSchema = {
+  let testSchema = {
     name: "Test Product",
     price: 100.00,
     quantity: 10.23,

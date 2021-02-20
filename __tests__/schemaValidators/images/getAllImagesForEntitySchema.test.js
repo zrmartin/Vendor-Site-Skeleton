@@ -1,7 +1,7 @@
 import { getAllImagesForEntitySchema } from '../../../validators'
 
 test('getAllImagesForEntitySchema passes for valid schema', async () => {
-  var testSchema = {
+  let testSchema = {
     entityId: "123",
     entityCollection: "testCollection"
   }
@@ -18,7 +18,7 @@ test('getAllImagesForEntitySchema passes for valid schema', async () => {
 });
 
 test('getAllImagesForEntitySchema fails for missing fields', async () => {
-  var testSchema = {
+  let testSchema = {
     entityId: undefined,
     entityCollection: undefined,
   }
@@ -36,7 +36,7 @@ test('getAllImagesForEntitySchema fails for missing fields', async () => {
 });
 
 test('getAllImagesForEntitySchema fails for invalid types', async () => {
-  var testSchema = {
+  let testSchema = {
     entityId: [],
     entityCollection: [],
   }

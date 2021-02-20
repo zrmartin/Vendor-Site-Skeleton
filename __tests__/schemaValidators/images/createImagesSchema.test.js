@@ -1,7 +1,7 @@
 import { createImagesSchema } from '../../../validators'
 
 test('createImagesSchema passes for valid schema', async () => {
-  var testSchema = {
+  let testSchema = {
     imageKeys: ["123"],
     entityId: "123",
     entityCollection: "testCollection"
@@ -19,7 +19,7 @@ test('createImagesSchema passes for valid schema', async () => {
 });
 
 test('createImagesSchema fails for missing fields', async () => {
-  var testSchema = {
+  let testSchema = {
     imageKeys: undefined,
     entityId: undefined,
     entityCollection: undefined,
@@ -39,7 +39,7 @@ test('createImagesSchema fails for missing fields', async () => {
 });
 
 test('createImagesSchema fails for invalid types', async () => {
-  var testSchema = {
+  let testSchema = {
     imageKeys: false,
     entityId: [],
     entityCollection: [],
@@ -59,7 +59,7 @@ test('createImagesSchema fails for invalid types', async () => {
 });
 
 test('createImagesSchema fails for imageKeys length < 1', async () => {
-  var testSchema = {
+  let testSchema = {
     imageKeys: [],
     entityId: "123",
     entityCollection: "TestCollection",
