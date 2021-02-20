@@ -1,13 +1,13 @@
-import { getProductSchema } from '../../../validators'
+import { deleteProductSchema } from '../../../validators'
 
-test('getProductSchema passes for valid schema', async () => {
+test('deleteProductSchema passes for valid schema', async () => {
   var testSchema = {
     id: "123"
   }
   let results = null
 
   try {
-    results = await getProductSchema.validate(testSchema)
+    results = await deleteProductSchema.validate(testSchema)
   }
   catch (e){
     results = e
@@ -16,14 +16,14 @@ test('getProductSchema passes for valid schema', async () => {
   expect(results.errors).toBeUndefined();
 });
 
-test('getProductSchema fails for missing fields', async () => {
+test('deleteProductSchema fails for missing fields', async () => {
   var testSchema = {
     id: undefined
   }
   let results = null
   
   try {
-    results = await getProductSchema.validate(testSchema, { abortEarly: false })
+    results = await deleteProductSchema.validate(testSchema, { abortEarly: false })
   }
   catch (e){
     results = e
@@ -32,14 +32,14 @@ test('getProductSchema fails for missing fields', async () => {
   expect(results.errors).toContain("Id is required");
 });
 
-test('getProductSchema fails for invalid types', async () => {
+test('deleteProductSchema fails for invalid types', async () => {
   var testSchema = {
     id: []
   }
   let results = null
   
   try {
-    results = await getProductSchema.validate(testSchema, { abortEarly: false })
+    results = await deleteProductSchema.validate(testSchema, { abortEarly: false })
   }
   catch (e){
     results = e
