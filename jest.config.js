@@ -4,4 +4,5 @@ module.exports = {
     // add the directory with the test-utils.js file, for example:
     'util', // a utility folder
   ],
+  setupFiles: ["dotenv/config"]
 }

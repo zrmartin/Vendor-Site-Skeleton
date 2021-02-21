@@ -1,14 +1,14 @@
 
 import { enableFetchMocks } from 'jest-fetch-mock'
 enableFetchMocks()
-import { GET } from '../../util/requests'
+import { CALL_FAUNA_FUNCTION } from '../../util/requests'
 const { HTTP_CODES: { Unauthenticated }} = require('../../util/constants/httpCodes')
 
 beforeAll(() => {
   fetch.resetMocks()
 })
 
-test('GET returns body on success', async () => {
+test('CALL_FAUNA_FUNCTION returns body on success', async () => {
   const response = {
     body: {
       field1: "test1",
@@ -17,12 +17,12 @@ test('GET returns body on success', async () => {
   }
   fetchMock.mockOnce(JSON.stringify(response))
 
-  const results = await GET("someEndpoint")
+  const results = await CALL_FAUNA_FUNCTION("functionName", "accessToken", null, {})
 
   expect(results).toEqual(response.body)
 });
 
-test('GET throws error if status code is not ok', async () => {
+test('CALL_FAUNA_FUNCTION throws error if status code is not ok', async () => {
   const response = {
     message: "Error Message",
     status: Unauthenticated
@@ -30,7 +30,7 @@ test('GET throws error if status code is not ok', async () => {
   fetchMock.mockOnce(JSON.stringify(response), {status: Unauthenticated})
 
   try {
-    await GET("someEndpoint")
+    const results = await CALL_FAUNA_FUNCTION("functionName", "accessToken", null, {})
   }
   catch (e) {
     expect(e.message).toEqual(response.message)

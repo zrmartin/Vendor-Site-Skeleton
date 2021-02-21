@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
-const { CreateAccessAndRefreshToken } = require( './auth-tokens')
 const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/database/indexes')
+const { COLLECTIONS: { Accounts, Account_Sessions } } = require('../../util/constants/database/collections')
 
 const q = faunadb.query
 const {
@@ -19,7 +19,12 @@ const {
   Delete,
   Count,
   Union,
-  Exists
+  Exists,
+  Create,
+  Collection,
+  Tokens,
+  TimeAdd,
+  Now
 } = q
 
 /* We can write our own custom login function by using 'Identify()' in combination with 'Create(Tokens(), ...)' instead of 'Login()'
@@ -105,4 +110,89 @@ function DeleteAllAndCount(pageOfTokens) {
   return Count(q.Map(pageOfTokens, Lambda(['tokenRef'], Delete(Var('tokenRef')))))
 }
 
-module.exports = { LoginAccount, LogoutAllSessions, LogoutCurrentSession }
+function RegisterAccount(email, password) {
+  return Create(Collection(Accounts), {
+    // credentials is a special field, the contents will never be returned
+    // and will be encrypted. { password: ... } is the only format it currently accepts.
+    credentials: { password: password },
+    // everything you want to store in the document should be scoped under 'data'
+    data: {
+      email: email
+    }
+  })
+}
+
+function CreateAccessToken(instance, sessionDoc) {
+  return Create(Tokens(), {
+    instance: instance,
+    // A  token is just like a document (everything in FaunaDB is),
+    // we can store metadata on the token if we'd like.
+    data: {
+      // We do not do anything with the type, it's just for readability in case we retrieve a token later on
+      type: 'access',
+      // We store which refresh token that created the access tokens.
+      // That way we can invalidate access tokens that were granted by this refresh token if we'd like.
+      session: Select(['ref'], sessionDoc)
+    },
+    // access tokens live for 10 minutes, which is typically a good livetime for short-lived tokens.
+    ttl: TimeAdd(Now(), 10, 'minutes')
+  })
+}
+
+function CreateRefreshToken(accountRef) {
+  return Let(
+    {
+      session_refresh: Create(Collection(Account_Sessions), {
+        data: {
+          account: accountRef
+        }
+      })
+    },
+    {
+      token: Create(Tokens(), {
+        instance: Select(['ref'], Var('session_refresh')),
+        // 8 hours is a good time for refresh tokens.
+        ttl: TimeAdd(Now(), 8, 'hour'),
+        data: {
+          // We do not do anything with the type, it's just for readability in case we retrieve a token later on
+          type: 'refresh'
+        }
+      }),
+      session_refresh_doc: Var('session_refresh')
+    }
+  )
+}
+
+function CreateAccessAndRefreshToken(instance) {
+  return Let(
+    {
+      refresh: CreateRefreshToken(instance),
+      access: CreateAccessToken(instance, Select(['session_refresh_doc'], Var('refresh')))
+    },
+    {
+      refresh: Select(['token'], Var('refresh')),
+      access: Var('access')
+    }
+  )
+}
+
+function RefreshToken() {
+  return Let(
+    {
+      // First get the document that the token is linked with (from the 'account_sessions' collection )
+      session: Get(CurrentIdentity())
+    },
+    Let(
+      {
+        account: Get(Select(['data', 'account'], Var('session'))),
+        access: CreateAccessToken(Select(['ref'], Var('account')), Var('session'))
+      },
+      {
+        account: Var('account'),
+        access: Var('access')
+      }
+    )
+  )
+}
+
+module.exports = { LoginAccount, LogoutAllSessions, LogoutCurrentSession, RefreshToken, RegisterAccount }

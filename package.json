@@ -13,8 +13,7 @@
   },
   "jest": {
     "setupFilesAfterEnv": [
-      "@testing-library/jest-dom/extend-expect",
-      "<rootDir>/setupTests.js"
+      "@testing-library/jest-dom/extend-expect"
     ]
   },
   "dependencies": {

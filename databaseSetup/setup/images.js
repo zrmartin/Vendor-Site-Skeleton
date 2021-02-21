@@ -7,7 +7,7 @@ const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Image_Access }} = require(
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes, And } = q
+const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, And, Do} = q
 
 /* Collection */
 const CreateImagesCollection = CreateCollection({ name: Images })
@@ -108,21 +108,22 @@ const CreateShopOwnerImageRole = CreateOrUpdateRole({
 })
 
 async function createImagesCollection(client) {
-  // Create Collection
-  await client.query(IfNotExists(Collection(Images), CreateImagesCollection))
 
-  // Create Indexes
-  await client.query(IfNotExists(Index(All_Images_For_Entity), CreateIndexAllImagesForEntity))
-
-  // Create Function Roles
-
-  // Create Functions
-  await executeFQL(client, CreateImagesUDF, 'functions - create images')
-  await executeFQL(client, GetAllImagesForEntityUDF, 'functions - get all images for entity')
-  await executeFQL(client, DeleteImageUDF, 'functions - delete image')
-
-  // Create Membership Roles
-  await executeFQL(client, CreateShopOwnerImageRole, 'roles - membership role - shop owner image access')
+  await client.query(
+    Do(
+      // Create Collection
+      IfNotExists(Collection(Images), CreateImagesCollection),
+      // Create Indexes
+      IfNotExists(Index(All_Images_For_Entity), CreateIndexAllImagesForEntity),
+      // Create Function Roles
+      // Create Functions
+      executeFQL(client, CreateImagesUDF, 'functions - create images'),
+      executeFQL(client, GetAllImagesForEntityUDF, 'functions - get all images for entity'),
+      executeFQL(client, DeleteImageUDF, 'functions - delete image'),
+      // Create Membership Roles
+      executeFQL(client, CreateShopOwnerImageRole, 'roles - membership role - shop owner image access')
+    )
+  )
 }
 
 async function deleteImagesCollection(client) {

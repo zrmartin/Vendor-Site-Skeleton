@@ -45,20 +45,14 @@ const server = setupServer(
 )
 
 beforeAll(() => {
-  server.listen()
   jest.resetModules()
-  process.env = {
-    NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-  };
+  server.listen()
 })
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 test('User is authenticated then component is displayed', async () => {
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
-
-  // Refresh Session
-  expect(await findByText('Attempting to refresh your session')).toBeInTheDocument()
 
   // Display Component
   expect(await findByText('Hello Owner')).toBeInTheDocument()
@@ -77,9 +71,6 @@ test('User Refresh Token has expired and must login again', async () => {
   )
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
 
-  // Refresh Session - Seems to hit next state too quickly, only appears sometimes
-  //expect(await findByText('Attempting to refresh your session')).toBeInTheDocument()
-
   // Session has expired
   expect(await findByText('Your session has expired, please login again')).toBeInTheDocument()
 });
@@ -97,10 +88,7 @@ test('User is not logged in and is trying to view role-restircted page', async (
   )
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
 
-  // Refresh Session
-  expect(await findByText('Attempting to refresh your session')).toBeInTheDocument()
-
-  // Session has expired
+  // User does not have specified role
   expect(await findByText('Please login to view this page')).toBeInTheDocument()
 });
 
@@ -124,9 +112,6 @@ test('User does not have role/permission to view page', async () => {
     })
   )
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
-
-  // Refresh Session
-  expect(await findByText('Attempting to refresh your session')).toBeInTheDocument()
 
   // Session has expired
   expect(await findByText('You do not have permission to access to this page')).toBeInTheDocument()

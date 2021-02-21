@@ -7,7 +7,7 @@ const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Product_Access }} = requir
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes, And } = q
+const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes, And, Do } = q
 
 /* Collection */
 const CreateProductsCollection = CreateCollection({ name: Products })
@@ -132,22 +132,23 @@ const CreateShopOwnerProductRole = CreateOrUpdateRole({
 
 async function createProductsCollection(client) {
   // Create Collection
-  await client.query(IfNotExists(Collection(Products), CreateProductsCollection))
-
-  // Create Indexes
-  await client.query(IfNotExists(Index(All_Products), CreateIndexAllProducts))
-
-  // Create Function Roles
-
-  // Create Functions
-  await executeFQL(client, CreateProductUDF, 'functions - create product')
-  await executeFQL(client, GetAllProductsUDF, 'functions - get all products')
-  await executeFQL(client, GetProductUDF, 'functions - get product')
-  await executeFQL(client, UpdateProductUDF, 'functions - update product')
-  await executeFQL(client, DeleteProductUDF, 'functions - delete product')
-
-  // Create Membership Roles
-  await executeFQL(client, CreateShopOwnerProductRole, 'roles - membership role - shop owner product access')
+  await client.query(
+    Do(
+      // Create Collection
+      IfNotExists(Collection(Products), CreateProductsCollection),
+      // Create Indexes
+      IfNotExists(Index(All_Products), CreateIndexAllProducts),
+      // Create Function Roles
+      // Create Functions
+      executeFQL(client, CreateProductUDF, 'functions - create product'),
+      executeFQL(client, GetAllProductsUDF, 'functions - get all products'),
+      executeFQL(client, GetProductUDF, 'functions - get product'),
+      executeFQL(client, UpdateProductUDF, 'functions - update product'),
+      executeFQL(client, DeleteProductUDF, 'functions - delete product'),
+      // Create Membership Roles
+      executeFQL(client, CreateShopOwnerProductRole, 'roles - membership role - shop owner product access')
+    )
+  )
 }
 
 async function deleteProductsCollection(client) {
