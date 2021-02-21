@@ -8,24 +8,24 @@ const { MEMBERSHIP_ROLES: { MembershipRole_Refresh_Logout }} = require('../../ut
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { CreateCollection, CreateIndex, Collection, Index, Tokens, Query, Lambda, Var, Role, Do } = q
+const { CreateCollection, CreateIndex, Collection, Index, Tokens, Query, Lambda, Var, Let, Select } = q
 
 /* Collection */
 const CreateAccountsCollection = CreateCollection({ name: Accounts })
 const CreateAccountsSessionRefreshCollection = CreateCollection({ name: Account_Sessions })
 
 /* Indexes */
-const CreateIndexAllAccounts = CreateIndex({
+const CreateIndexAllAccounts = (accountsCollection) => CreateIndex({
   name: All_Accounts,
-  source: Collection(Accounts),
+  source: accountsCollection,
   // this is the default collection index, no terms or values are provided
   // which means the index will sort by reference and return only the reference.
   serialized: true
 })
 
-const CreateIndexAccountsByEmail = CreateIndex({
+const CreateIndexAccountsByEmail = (accountsCollection) => CreateIndex({
   name: Accounts_By_Email,
-  source: Collection(Accounts),
+  source: accountsCollection,
   // We will search on email
   terms: [
     {
@@ -51,9 +51,9 @@ const CreateIndexAccessTokensByRefreshTokens = CreateIndex({
   serialized: true
 })
 
-const CreateIndexSessionByAccount = CreateIndex({
+const CreateIndexSessionByAccount = (accountSessionsCollection) => CreateIndex({
   name: Account_Sessions_By_Account,
-  source: Collection(Account_Sessions),
+  source: accountSessionsCollection,
   terms: [
     {
       field: ['data', 'account']
@@ -88,19 +88,19 @@ const CreateIndexTokensByInstance = CreateIndex({
  * - create and read sessions, each login creates a session
  * - create tokens (we will create tokens manually for more flexibility instead of using the Login function)
  */
-const CreateFnRoleLogin = CreateOrUpdateRole({
+const CreateFnRoleLogin = (accountsByEmailIndex, accountsCollection, accountSessionCollection) => CreateOrUpdateRole({
   name: FunctionRole_Login,
   privileges: [
     {
-      resource: Index(Accounts_By_Email),
+      resource: accountsByEmailIndex,
       actions: { read: true }
     },
     {
-      resource: Collection(Accounts),
+      resource: accountsCollection,
       actions: { read: true }
     },
     {
-      resource: Collection(Account_Sessions),
+      resource: accountSessionCollection,
       actions: { read: true, create: true }
     },
     {
@@ -114,11 +114,11 @@ const CreateFnRoleLogin = CreateOrUpdateRole({
  * when your app becomes more complex, it could be that you want to do more than creating an account to
  * preconfigure a new user in your app when the register UDF is called. In that case, you would add extra permissions here.
  */
-const CreateFnRoleRegister = CreateOrUpdateRole({
+const CreateFnRoleRegister = (accountsCollection) => CreateOrUpdateRole({
   name: FunctionRole_Register,
   privileges: [
     {
-      resource: Collection(Accounts),
+      resource: accountsCollection,
       actions: { create: true }
     }
   ]
@@ -127,16 +127,15 @@ const CreateFnRoleRegister = CreateOrUpdateRole({
 /* This role defines everything that the refresh_token and logout functions should be able to do
  * this are powerful permissions hence why we encapsulate these in a User Defined Function (UDF)
  */
-
-const CreateFnRoleRefreshTokens = CreateOrUpdateRole({
+const CreateFnRoleRefreshTokenLogout = (accountsCollection, accountSessionsCollection, accessTokensBySessionIndex, tokensByInstanceIndex, accountSessionsByAccountIndex) => CreateOrUpdateRole({
   name: FunctionRole_Refresh_Tokens_Logout,
   privileges: [
     {
-      resource: Collection(Accounts),
+      resource: accountsCollection,
       actions: { read: true }
     },
     {
-      resource: Collection(Account_Sessions),
+      resource: accountSessionsCollection,
       actions: { read: true, create: true, write: true, delete: true }
     },
     {
@@ -146,49 +145,49 @@ const CreateFnRoleRefreshTokens = CreateOrUpdateRole({
       actions: { read: true, create: true, delete: true }
     },
     {
-      resource: Index(Access_Tokens_By_Session),
+      resource: accessTokensBySessionIndex,
       actions: { read: true }
     },
     {
-      resource: Index(Tokens_By_Instance),
+      resource: tokensByInstanceIndex,
       actions: { read: true }
     },
     {
-      resource: Index(Account_Sessions_By_Account),
+      resource: accountSessionsByAccountIndex,
       actions: { read: true }
     }
   ]
 })
 
 /* Functions */
-const RegisterUDF = CreateOrUpdateFunction({
+const RegisterUDF = (registerFunctionRole) => CreateOrUpdateFunction({
   name: Register,
   body: Query(Lambda(['email', 'password'], RegisterAccount(Var('email'), Var('password')))),
-  role: Role(FunctionRole_Register)
+  role: registerFunctionRole
 })
 
-const LoginUDF = CreateOrUpdateFunction({
+const LoginUDF = (loginFunctionRole) => CreateOrUpdateFunction({
   name: Login,
   body: Query(Lambda(['email', 'password'], LoginAccount(Var('email'), Var('password')))),
-  role: Role(FunctionRole_Login)
+  role: loginFunctionRole
 })
 
-const RefreshTokenUDF = CreateOrUpdateFunction({
+const RefreshTokenUDF = (refreshTokenLogoutFunctionRole) => CreateOrUpdateFunction({
   name: Refresh_Token,
   body: Query(Lambda([], RefreshToken())),
-  role: Role(FunctionRole_Refresh_Tokens_Logout)
+  role: refreshTokenLogoutFunctionRole
 })
 
-const LogoutAllUDF = CreateOrUpdateFunction({
+const LogoutAllUDF = (refreshTokenLogoutFunctionRole) => CreateOrUpdateFunction({
   name: Logout_All,
   body: Query(Lambda([], LogoutAllSessions())),
-  role: Role(FunctionRole_Refresh_Tokens_Logout)
+  role: refreshTokenLogoutFunctionRole
 })
 
-const LogoutUDF = CreateOrUpdateFunction({
+const LogoutUDF = (refreshTokenLogoutFunctionRole) => CreateOrUpdateFunction({
   name: Logout,
   body: Query(Lambda([], LogoutCurrentSession())),
-  role: Role(FunctionRole_Refresh_Tokens_Logout)
+  role: refreshTokenLogoutFunctionRole
 })
 
 /* Membership Roles */
@@ -207,24 +206,24 @@ const LogoutUDF = CreateOrUpdateFunction({
  * - If the only way to get access to data via a refresh token is to create an access token we can so some clever tricks
  *   to verify whether a refresh token hsa been leaked (authentication providers do these kind of things for you)
  */
-const CreateRefreshRole = CreateOrUpdateRole({
+const CreateRefreshMembershipRole = (accountSessionsCollection, refreshTokenFunction, logoutFunction, logoutAllFunction) => CreateOrUpdateRole({
   name: MembershipRole_Refresh_Logout,
-  membership: [{ resource: Collection(Account_Sessions) }],
+  membership: [{ resource: accountSessionsCollection }],
   privileges: [
     {
-      resource: q.Function(Refresh_Token),
+      resource: refreshTokenFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Logout),
+      resource: logoutFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Logout_All),
+      resource: logoutAllFunction,
       actions: {
         call: true
       }
@@ -234,30 +233,95 @@ const CreateRefreshRole = CreateOrUpdateRole({
 
 async function createAccountCollection(client) {
   await client.query(
-    Do(
-      // Create Collection
-      IfNotExists(Collection(Accounts), CreateAccountsCollection),
-      IfNotExists(Collection(Account_Sessions), CreateAccountsSessionRefreshCollection),
+    Let([
+      // Create Collections
+      {
+        accounts_collection: IfNotExists(Collection(Accounts), CreateAccountsCollection)
+      },
+      {
+        account_sessions_collection: IfNotExists(Collection(Account_Sessions), CreateAccountsSessionRefreshCollection)
+      },
       // Create Indexes
-      IfNotExists(Index(Accounts_By_Email), CreateIndexAccountsByEmail),
-      IfNotExists(Index(All_Accounts), CreateIndexAllAccounts),
-      IfNotExists(Index(Access_Tokens_By_Session), CreateIndexAccessTokensByRefreshTokens),
-      IfNotExists(Index(Account_Sessions_By_Account), CreateIndexSessionByAccount),
-      IfNotExists(Index(Tokens_By_Instance), CreateIndexTokensByInstance),
+      {
+        accounts_by_email_index: IfNotExists(Index(Accounts_By_Email), CreateIndexAccountsByEmail(
+          Select(["ref"], Var("accounts_collection"))
+        ))
+      },
+      {
+        all_accounts_index: IfNotExists(Index(All_Accounts), CreateIndexAllAccounts(
+          Select(["ref"], Var("accounts_collection"))
+        ))
+      },
+      {
+        access_tokens_by_sessions_index: IfNotExists(Index(Access_Tokens_By_Session), CreateIndexAccessTokensByRefreshTokens)
+      },
+      {
+        session_by_account_index: IfNotExists(Index(Account_Sessions_By_Account), CreateIndexSessionByAccount(
+          Select(["ref"], Var("account_sessions_collection"))
+        ))
+      },
+      {
+        tokens_by_instance_index: IfNotExists(Index(Tokens_By_Instance), CreateIndexTokensByInstance)
+      },
       // Create Function Roles
-      executeFQL(client, CreateFnRoleLogin, 'roles - function role - login'),
-      executeFQL(client, CreateFnRoleRegister, 'roles - function role - register'),
-      executeFQL(client, CreateFnRoleRefreshTokens, 'roles - function role - refresh'),
+      {
+        login_function_role: CreateFnRoleLogin(
+          Select(["ref"], Var("accounts_by_email_index")),
+          Select(["ref"], Var("accounts_collection")),
+          Select(["ref"], Var("account_sessions_collection")),
+        ),
+      },
+      {
+        register_function_role: CreateFnRoleRegister(
+          Select(["ref"], Var("accounts_collection")),
+        ),
+      },
+      {
+        refresh_token_logout_function_role: CreateFnRoleRefreshTokenLogout(
+          Select(["ref"], Var("accounts_collection")),
+          Select(["ref"], Var("account_sessions_collection")),
+          Select(["ref"], Var("access_tokens_by_sessions_index")),
+          Select(["ref"], Var("tokens_by_instance_index")),
+          Select(["ref"], Var("session_by_account_index")),
+        ),
+      },
       // Create Functions
-      executeFQL(client, LoginUDF, 'functions - login'),
-      executeFQL(client, RegisterUDF, 'functions - register'),
-      executeFQL(client, RefreshTokenUDF, 'functions - refresh'),
-      executeFQL(client, LogoutAllUDF, 'functions - logout all'),
-      executeFQL(client, LogoutUDF, 'functions - logout'),
-      // Create Membership Roles
-      executeFQL(client, CreateRefreshRole, 'roles - membership role - refresh')
-    )
-  )
+      {
+        login_function: LoginUDF(
+          Select(["ref"], Var("login_function_role")),
+        ),
+      },
+      {
+        register_function: RegisterUDF(
+          Select(["ref"], Var("register_function_role")),
+        ),
+      },
+      {
+        refresh_token_function: RefreshTokenUDF(
+          Select(["ref"], Var("refresh_token_logout_function_role")),
+        ),
+      },
+      {
+        logout_all_function: LogoutAllUDF(
+          Select(["ref"], Var("refresh_token_logout_function_role")),
+        ),
+      },
+      {
+        logout_function: LogoutUDF(
+          Select(["ref"], Var("refresh_token_logout_function_role")),
+        ),
+      },
+      {
+        create_refresh_membership_role: CreateRefreshMembershipRole(
+          Select(["ref"], Var("account_sessions_collection")),
+          Select(["ref"], Var("refresh_token_function")),
+          Select(["ref"], Var("logout_function")),
+          Select(["ref"], Var("logout_all_function")),
+        ),
+      },
+    ]
+    ,{})
+  )  
 }
 
 async function deleteAccountsCollection(client) {

@@ -7,15 +7,15 @@ const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Image_Access }} = require(
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, And, Do} = q
+const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, And } = q
 
 /* Collection */
 const CreateImagesCollection = CreateCollection({ name: Images })
 
 /* Indexes */
-const CreateIndexAllImagesForEntity = CreateIndex({
+const CreateIndexAllImagesForEntity = (imagesCollection) => CreateIndex({
   name: All_Images_For_Entity,
-  source: Collection(Images),
+  source: imagesCollection,
   terms: [
     {
       field: ["data", "entity"]
@@ -43,34 +43,34 @@ const DeleteImageUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerImageRole = CreateOrUpdateRole({
+const CreateShopOwnerImageRole = (createImagesFunction, getAllImagesForEntityFunction, deleteImageFunction, allImagesForEntityIndex, imagesCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Image_Access,
   membership: [{ resource: Collection(Accounts) }],
   privileges: [
     {
-      resource: q.Function(Create_Images),
+      resource: createImagesFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Get_All_Images_For_Entity),
+      resource: getAllImagesForEntityFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Delete_Image),
+      resource: deleteImageFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: Index(All_Images_For_Entity),
+      resource: allImagesForEntityIndex,
       actions: { read: true }
     },
     {
-      resource: Collection(Images),
+      resource: imagesCollection,
       actions: {
         write: Query(
           Lambda(["oldData", "newData"],
@@ -110,19 +110,40 @@ const CreateShopOwnerImageRole = CreateOrUpdateRole({
 async function createImagesCollection(client) {
 
   await client.query(
-    Do(
-      // Create Collection
-      IfNotExists(Collection(Images), CreateImagesCollection),
+    Let([
+      // Create Collections
+      {
+        images_collection: IfNotExists(Collection(Images), CreateImagesCollection)
+      },
       // Create Indexes
-      IfNotExists(Index(All_Images_For_Entity), CreateIndexAllImagesForEntity),
+      {
+        all_images_for_entity_index: IfNotExists(Index(All_Images_For_Entity), CreateIndexAllImagesForEntity(
+          Select(["ref"], Var("images_collection"))
+        ))
+      },
       // Create Function Roles
       // Create Functions
-      executeFQL(client, CreateImagesUDF, 'functions - create images'),
-      executeFQL(client, GetAllImagesForEntityUDF, 'functions - get all images for entity'),
-      executeFQL(client, DeleteImageUDF, 'functions - delete image'),
+      {
+        create_images_function: CreateImagesUDF
+      },
+      {
+        get_all_images_for_entity_function: GetAllImagesForEntityUDF
+      },
+      {
+        delete_image_function: DeleteImageUDF
+      },
       // Create Membership Roles
-      executeFQL(client, CreateShopOwnerImageRole, 'roles - membership role - shop owner image access')
-    )
+      {
+        create_shop_owner_image_role: CreateShopOwnerImageRole(
+          Select(["ref"], Var("create_images_function")),
+          Select(["ref"], Var("get_all_images_for_entity_function")),
+          Select(["ref"], Var("delete_image_function")),
+          Select(["ref"], Var("all_images_for_entity_index")),
+          Select(["ref"], Var("images_collection"))
+        ),
+      },
+    ]
+    ,{})
   )
 }
 
