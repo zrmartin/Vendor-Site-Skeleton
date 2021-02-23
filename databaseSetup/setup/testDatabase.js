@@ -5,7 +5,7 @@ const { createAccountCollection } = require('./accounts')
 const { createProductsCollection } = require('./products')
 const { createImagesCollection } = require('./images')
 const { handleSetupError } = require('../helpers/errors')
-
+const { FUNCTIONS: { Login, Register, Create_Product }} = require('../../util/constants/database/functions')
 
 export async function createChildDatabase() {
   const testDatabaseName = uuidv4()
@@ -34,19 +34,6 @@ export async function setupDatabase(client) {
   await handleSetupError(createAccountCollection(client), 'collections/indexes - accounts collection')
   await handleSetupError(createProductsCollection(client), 'collections/indexes - products collection')
   await handleSetupError(createImagesCollection(client), 'collections/indexes - images collection')
-
-  // Create test user
-  await client.query(
-    Call("register", ["test@test.com","password"])
-  )
-
-  const user = await client.query(
-    Call("login", ["test@test.com","password"])
-  )
-
-  return new Client({
-    secret: user.access.secret
-  })
 }
 
 export async function destroyDatabase(databaseInfo) {
@@ -60,6 +47,19 @@ export async function destroyDatabase(databaseInfo) {
       Delete(databaseInfo.key.ref)
     )
   )
+}
+
+export async function createTestUserAndClient(adminClient) {
+  const user = await adminClient.query(
+    Do(
+      Call(Register, ["test@test.com", "password"]),
+      Call(Login, ["test@test.com", "password"])
+    )
+
+  )
+  return new Client({
+    secret: user.access.secret
+  })
 }
 
 
