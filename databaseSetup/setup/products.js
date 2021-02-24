@@ -13,9 +13,9 @@ const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Ind
 const CreateProductsCollection = CreateCollection({ name: Products })
 
 /* Indexes */
-const CreateIndexAllProducts = CreateIndex({
+const CreateIndexAllProducts = (productsCollection) => CreateIndex({
   name: All_Products,
-  source: Collection(Products),
+  source: productsCollection,
   // this is the default collection index, no terms or values are provided
   // which means the index will sort by reference and return only the reference.
   serialized: true
@@ -50,42 +50,42 @@ const DeleteProductUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerProductRole = CreateOrUpdateRole({
+const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunction, getProductFunction, updateProductFunction, deleteProductFunction, allProductsIndex, productsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Product_Access,
   membership: [{ resource: Collection(Accounts) }],
   privileges: [
     {
-      resource: q.Function(Create_Product),
+      resource: createProductFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Get_All_Products),
+      resource: getAllProductsFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Get_Product),
+      resource: getProductFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Update_Product),
+      resource: updateProductFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: q.Function(Delete_Product),
+      resource: deleteProductFunction,
       actions: {
         call: true
       }
     },
     {
-      resource: Index(All_Products),
+      resource: allProductsIndex,
       actions: { read: true }
     },
     {
@@ -93,7 +93,7 @@ const CreateShopOwnerProductRole = CreateOrUpdateRole({
       actions: { read: true }
     },
     {
-      resource: Collection(Products),
+      resource: productsCollection,
       actions: {
         write: Query(
           Lambda(["oldData", "newData"],
@@ -132,22 +132,50 @@ const CreateShopOwnerProductRole = CreateOrUpdateRole({
 
 async function createProductsCollection(client) {
   // Create Collection
-  await client.query(IfNotExists(Collection(Products), CreateProductsCollection))
-
-  // Create Indexes
-  await client.query(IfNotExists(Index(All_Products), CreateIndexAllProducts))
-
-  // Create Function Roles
-
-  // Create Functions
-  await executeFQL(client, CreateProductUDF, 'functions - create product')
-  await executeFQL(client, GetAllProductsUDF, 'functions - get all products')
-  await executeFQL(client, GetProductUDF, 'functions - get product')
-  await executeFQL(client, UpdateProductUDF, 'functions - update product')
-  await executeFQL(client, DeleteProductUDF, 'functions - delete product')
-
-  // Create Membership Roles
-  await executeFQL(client, CreateShopOwnerProductRole, 'roles - membership role - shop owner product access')
+  await client.query(
+    Let([
+      // Create Collections
+      {
+        products_collection: IfNotExists(Collection(Products), CreateProductsCollection)
+      },
+      // Create Indexes
+      {
+        all_products_index: IfNotExists(Index(All_Products), CreateIndexAllProducts(
+          Select(["ref"], Var("products_collection"))
+        ))
+      },
+      // Create Function Roles
+      // Create Functions
+      {
+        create_product_function: CreateProductUDF
+      },
+      {
+        get_all_products_function: GetAllProductsUDF
+      },
+      {
+        get_product_function: GetProductUDF
+      },
+      {
+        update_product_function: UpdateProductUDF
+      },
+      {
+        delete_product_function: DeleteProductUDF
+      },
+      // Create Membership Roles
+      {
+        create_shop_owner_product_role: CreateShopOwnerProductRole(
+          Select(["ref"], Var("create_product_function")),
+          Select(["ref"], Var("get_all_products_function")),
+          Select(["ref"], Var("get_product_function")),
+          Select(["ref"], Var("update_product_function")),
+          Select(["ref"], Var("delete_product_function")),
+          Select(["ref"], Var("all_products_index")),
+          Select(["ref"], Var("products_collection")),
+        ),
+      },
+    ]
+    ,{})
+  )
 }
 
 async function deleteProductsCollection(client) {

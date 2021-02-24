@@ -15,7 +15,7 @@ export const createProductSchema = yup.object().shape({
         .required("Name is required"),
   price: yup.number().typeError("Price must be a number")
         .required("Price is required")
-        .positive("Price must positive"),
+        .positive("Price must be positive"),
   quantity: yup.number().typeError("Quantity must be a number")
             .required("Quantity is required")
             .positive("Quantity must be positive")
@@ -29,7 +29,7 @@ export const updateProductSchema = yup.object().shape({
         .required("Name is required"),
   price: yup.number().typeError("Price must be a number")
         .required("Price is required")
-        .positive("Price must positive"),
+        .positive("Price must be positive"),
   quantity: yup.number().typeError("Quantity must be a number")
             .required("Quantity is required")
             .positive("Quantity must be positive")

@@ -47,7 +47,7 @@ function GetProduct(id) {
     Exists(Ref(Collection(Products), id)),
     {
       product: Get(Ref(Collection(Products), id)),
-      images: Select(["images", "data"], Call(Function(Get_All_Images_For_Entity), {entityId: id, entityCollection: Products})),
+      images: Select(["images"], Call(Function(Get_All_Images_For_Entity), {entityId: id, entityCollection: Products})),
       code: Success,
     },
     {
@@ -86,9 +86,11 @@ function DeleteProduct(id) {
     Exists(Ref(Collection(Products), id)),
     {
       deletedProduct: Delete(Ref(Collection(Products), id)),
-      deletedImages: Map(
-        Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(Products), id))),
-        Lambda("Image", Delete(Var("Image")))
+      deletedImages: Select(["data"], 
+        Map(
+          Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(Products), id))),
+          Lambda("Image", Delete(Var("Image")))
+        )
       ),
       code: Success,
       message: "Product Deleted"

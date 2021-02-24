@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import Head from 'next/head'
-import Header from '@components/Header'
-import Footer from '@components/Footer'
-import { useUser } from '../context/userContext'
-import { Login, Logout } from '../components'
+import { useAccount } from '../context/accountContext'
+import { Login } from '../components'
+const { URL_PATHS: { Owner_Products_Index_Page, Owner_Index_Page, Products_Index_Page }} = require('../util/constants/urlPaths')
 
 export default function Home() {
-  let { user } = useUser()
+  let { account } = useAccount()
 
   return (
     <div className="container">
@@ -16,37 +15,37 @@ export default function Home() {
       </Head>
 
       <main>
-        <Header title="Welcome to my app!" />
+       <h1>Welcome to my app!</h1>
         <p className="description">
           Get started by editing <code>pages/index.js</code>
         </p>
 
-        {user ? (
+        {account && 
           <div>
             You are logged in! 
-            {user && <> Welcome {user?.user_metadata.full_name}!</>}
+            {account && <> Welcome {account?.data?.email}!</>}
             <br/>
             {
-              user && user.app_metadata?.roles?.includes("owner") &&
+              account &&
               <>
-                <Link href="/owner">
+                <Link href={Owner_Index_Page}>
                   <a>Owner Home Page</a>
                 </Link>
                 <br/ >
-                <Link href="/owner/products">
-                  <a>Products</a>
+                <Link href={Owner_Products_Index_Page}>
+                  <a>Owner Products</a>
                 </Link>
               </>
             }
-            <br/>
-            <Logout></Logout>
           </div>
-        ) : (
-          <Login></Login>
-        )}
+        }
+        <br/>
+        <Link href={Products_Index_Page}>
+            <a>Products</a>
+        </Link>
+        <br/>
+        <Login />
       </main>
-
-      <Footer />
     </div>
   )
 }

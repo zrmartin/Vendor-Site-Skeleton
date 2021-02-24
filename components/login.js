@@ -1,31 +1,62 @@
-import netlifyAuth from '../netlifyAuth.js'
-import { useUser } from '../context/userContext'
-import { POST } from "../util/requests"
-import { showFetchToastError } from "../util/helpers"
-const { NETLIFY_FUNCTIONS: { LogIn }} = require ('../util/constants/netlifyFunctions')
+import { toast } from 'react-toastify'
+import { useForm } from 'react-hook-form'
+import { useAccount } from '../context/accountContext'
+import { POST, GET } from "../util/requests"
+const { VERCEL_FUNCTIONS: { LogIn, LogOut }} = require ('../util/constants/vercelFunctions')
 
 export const Login = () => {
-  let { setUser, setAccessToken } = useUser()
+  let { setAccessToken, setAccount, setSessionExpired, account, accessToken } = useAccount()
+  const { register, handleSubmit, errors } = useForm()
 
-  let login = () => {
-    netlifyAuth.authenticate(async (user) => {
-      setUser(user)
-      try {
-        let results = await POST(LogIn, {
-          email: user.email,
-          password: process.env.SHOP_OWNER_PASSWORD
-        })
-        setAccessToken(results.secret)
-      }
-      catch (e) {
-        showFetchToastError(e.message)
-      }
-    })
+  let login = async (formData) => {
+    try {
+      const { email, password } = formData
+      let results = await POST(LogIn, {
+        email,
+        password,
+      })
+      setAccessToken(results.secret)
+      setAccount(results.account)
+      setSessionExpired(false)
+    }
+    catch (e) {
+      toast.error(e.message)
+    }
+  }
+
+  let logout = async () => {
+    try {
+      await GET(LogOut)
+      setAccessToken(null)
+      setAccount(null)
+    }
+    catch (e) {
+      toast.error(e.message)
+    }
   }
 
   return (
-    <button onClick={login}>
-      Login
-    </button>
+    <>
+      { !account || !accessToken ? (
+        <>
+          <form onSubmit={handleSubmit(login)}>
+          <label htmlFor="email">Email</label>
+          <input name="email" ref={register} />
+
+          <label htmlFor="password">Password</label>
+          <input name="password" ref={register} />
+          
+          <input type="submit" value="Login" />
+          </form>
+          <br />
+        </>
+      ) : (
+        <>
+          <button onClick={logout}>
+            Logout
+          </button>
+        </>
+      )}
+    </>
   )
 };

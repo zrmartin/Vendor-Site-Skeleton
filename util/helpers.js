@@ -1,5 +1,15 @@
 import { toast } from 'react-toastify'
-const { HTTP_CODES: { Success, Not_Found ,Validation_Error }} = require('./constants/httpCodes')
+const { HTTP_CODES: { Success, Unauthenticated }} = require('./constants/httpCodes')
+
+export function getCookie(cookie, name) {
+  var match = cookie?.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  if (match) {
+    return match[2];
+  }
+  else{
+    return null;
+  }
+}
 
 export const getId = (obj) => {
  return obj?.ref['@ref']?.id
@@ -13,18 +23,29 @@ export const getPrice = (price) => {
   return `${price/100}`
 }
 
-export const showToast = (data) => {
-  switch(data.code) {
-    case Success:
-      if (data.message) toast.success(data.message)
-      break
-    case Not_Found:
-    case Validation_Error:
-      if (data.message) toast.error(data.message)
-      break
+
+export const handleFaunaResults = (results, mutate = null, redirectUrl = null, router = null) => {
+  if (results.code === Success && results.message) {
+    if (results.message) toast.success(results.message)
+    if (mutate) mutate()
+    if (redirectUrl && router) router.push(redirectUrl)
+  }
+  else {
+    if (results.message) {
+      toast.error(results.message)
+    }
   }
 }
 
-export const showFetchToastError = (msg) => {
-  toast.error(msg)
+export const handleFaunaError = (accountContext, error) => {
+  if(error.status === Unauthenticated){
+    accountContext.setBusy(true)
+    accountContext.setAccessToken(null)
+    accountContext.setAccount(null)
+  }
+  else {
+    if (error.message) {
+      toast.error(error.message)
+    }
+  }
 }

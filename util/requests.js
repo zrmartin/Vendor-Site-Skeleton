@@ -1,98 +1,37 @@
 const { HTTP_CODES: { Validation_Error }} = require('../util/constants/httpCodes')
-const { NETLIFY_FUNCTIONS: { Call_Function, Refresh_Fauna_Token }} = require('../util/constants/netlifyFunctions')
-
-async function getNetlifyToken() {
-  const currentUser = netlifyIdentity.currentUser()
-  if (!currentUser) {
-    return ''
-  }
-  // fetchs new netlify JWT token only if expired
-  await currentUser.jwt()
-  return currentUser.token.access_token
-}
-
-async function getFaunaToken(accessToken) {
-  if (accessToken) {
-    return accessToken
-  }
-  // TODO error handle if this fails
-  // If this fails, refresh token is not valid and user needs to log in again
-  var response = await fetch(`/.netlify/functions/${Refresh_Fauna_Token}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-  })
-  var results = await response.json()
-
-  return results.secret
-}
+const { VERCEL_FUNCTIONS: { Call_Function }} = require('../util/constants/vercelFunctions')
 
 export async function GET(api) {
-  const netlifyToken = await getNetlifyToken()
-  var response = await fetch(`/.netlify/functions/${api}`, {
-    headers: { Authorization: `Bearer ${netlifyToken}` }
-  })
+  var response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/${api}`)
 
   if (!response.ok) {
-    let info = await response.json()
-    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
-    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
-    const error = new Error()
-
-    if (errorMessage) {
-      error.message = errorMessage
-    }
-    else {
-      error.message = 'An error occurred while contacting the server'
-    }
-
-    // Attach extra info to the error object.
-    error.info = info
-    error.status = response.status  
+    const info = await response.json()
+    const error = createError(info)
     throw error
   }
 
-  return await response.json()
+  return (await response.json()).body
 }
 
 export async function POST(api, body) {
-  const netlifyToken = await getNetlifyToken()
-
-  var response = await fetch(`/.netlify/functions/${api}`, {
+  var response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/${api}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${netlifyToken}`
     },
     body: JSON.stringify(body)
   })
-
   if (!response.ok) {
-    let info = await response.json()
-    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
-    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
-    const error = new Error()
-
-    if (errorMessage) {
-      error.message = errorMessage
-    }
-    else {
-      error.message = 'An error occurred while contacting the server'
-    }
-
-    // Attach extra info to the error object.
-    error.info = info
-    error.status = response.status  
+    const info = await response.json()
+    const error = createError(info)
     throw error
   }
 
-  return await response.json()
+  return (await response.json()).body
 }
 
-export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessToken, schema = null, body = {}) {
+export async function CALL_FAUNA_FUNCTION(functionName, accessToken, schema = null, body = {}) {
   if (schema) {
     try {
       await schema.validate(body)
@@ -106,43 +45,40 @@ export async function CALL_FAUNA_FUNCTION(functionName, accessToken, setAccessTo
     }
   }
 
-  const netlifyToken = await getNetlifyToken()
-  accessToken = await getFaunaToken(accessToken)
-  setAccessToken(accessToken)
   body = {
     ...body,
     accessToken,
     functionName
   }
 
-  var response = await fetch(`/.netlify/functions/${Call_Function}`, {
+  var response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/${Call_Function}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${netlifyToken}`
     },
     body: JSON.stringify(body)
   })
-
   if (!response.ok) {
-    let info = await response.json()
-    // Error message from database error. I.E No permissions to perform database action (update/delete etc)
-    let errorMessage = info?.requestResult?.responseContent?.errors[0]?.cause[0]?.description
-    const error = new Error()
-
-    if (errorMessage) {
-      error.message = errorMessage
-    }
-    else {
-      error.message = 'An error occurred while contacting the server'
-    }
-
-    // Attach extra info to the error object.
-    error.info = info
-    error.status = response.status  
+    const info = await response.json()
+    const error = createError(info)
     throw error
   }
 
-  return await response.json()
+  return (await response.json()).body
+}
+
+
+const createError = (info) => {
+  const error = new Error()
+
+  // Error message from database error. I.E No permissions to perform database action (update/delete etc)
+  let errorMessage = info?.requestResult?.responseContent?.errors?.[0].cause?.[0].description
+  // Status code from fauandb call function failing, otherwise grab response status
+  let status = info.requestResult?.statusCode
+  
+  errorMessage ? error.message = errorMessage : error.message = info.message
+  status ? error.status = status : error.status = info.status
+
+  return error  
 }

@@ -1,27 +1,31 @@
 import useSWR from 'swr'
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION, POST } from "../../../util/requests"
-import { useUser } from '../../../context/userContext'
-import { getId, getCollection, getPrice, showToast, showFetchToastError } from '../../../util/helpers'
-import { HttpError, ServerError, DropZone } from '../../../components'
-import { updateProductSchema, getProductSchema, deleteProductSchema } from '../../../validators'
-const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Get_All_Products }} = require('../../../util/constants/database/functions')
-const { NETLIFY_FUNCTIONS: { Delete_S3_Files, Call_Function }} = require ('../../../util/constants/netlifyFunctions')
+import { useAccount } from '../../../context/accountContext'
+import { getId, getCollection, getPrice, handleFaunaResults, handleFaunaError } from '../../../util/helpers'
+import { HttpError, DropZone, ServerError } from '../../../components'
+import { updateProductSchema, getProductSchema, deleteProductSchema, createImagesSchema, deleteImageSchema } from '../../../validators'
+const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Delete_Image }} = require('../../../util/constants/database/functions')
+const { VERCEL_FUNCTIONS: { Delete_S3_Files }} = require ('../../../util/constants/vercelFunctions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
+const { URL_PATHS: { Owner_Products_Index_Page }} = require('../../../util/constants/urlPaths')
 
-const ProductPage = () => {
-  const { register, handleSubmit, errors } = useForm();
-  const { accessToken, setAccessToken } = useUser()
+const OwnerProductPage = () => {
+  const { register, handleSubmit, errors } = useForm({ 
+    resolver: yupResolver(updateProductSchema)
+  })
+  const accountContext = useAccount()
   const router = useRouter()
   const { productId } = router.query
 
-
   const { data, mutate, error } = useSWR(
-    [Get_Product, accessToken, setAccessToken, getProductSchema, productId], 
-    (url, token, setToken, validator, id) => 
+    [Get_Product, accountContext.accessToken, getProductSchema, productId], 
+    (url, token, validator, id) => 
     CALL_FAUNA_FUNCTION(
-      url, token, setToken, validator, { id }
+      url, token, validator, { id }
     )
   )
   if (error) return <div><ServerError error={error}/></div>
@@ -33,16 +37,15 @@ const ProductPage = () => {
 
   const createProductImages = async (imageKeys) => {
     try{
-      let results = await CALL_FAUNA_FUNCTION(Create_Images, accessToken, setAccessToken, null, {
+      let results = await CALL_FAUNA_FUNCTION(Create_Images, accountContext.accessToken, createImagesSchema, {
         entityId: getId(product),
         entityCollection: getCollection(product),
         imageKeys
       })
-      showToast(results)
-      mutate()
+      handleFaunaResults(results, mutate)
     }
     catch (e){
-      showFetchToastError(e.message)
+      handleFaunaError(accountContext, e)
     }
   }
   
@@ -63,19 +66,20 @@ const ProductPage = () => {
         let s3Results = await POST(Delete_S3_Files, {
           imageKeys
         })
+        if (s3Results.Errors.length > 0){
+          s3Results.Errors.forEach(
+            error => toast.error(error.message)
+          )
+        }
       }
 
-      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accessToken, setAccessToken, deleteProductSchema, {
+      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
         id
       })
-      console.log(databaseResults)
-      showToast(databaseResults)
-      if (databaseResults.code === Success) {
-        router.push('/owner/products')
-      }
+      handleFaunaResults(databaseResults, mutate, Owner_Products_Index_Page, router)
     }
     catch (e){
-      showFetchToastError(e.message)
+      handleFaunaError(accountContext, e)
     }
   }
 
@@ -90,35 +94,67 @@ const ProductPage = () => {
         }
       }
       mutate({ ...data, product: updatedProduct}, false)
-      let results = await CALL_FAUNA_FUNCTION(Update_Product, accessToken, setAccessToken, updateProductSchema, {
+      let results = await CALL_FAUNA_FUNCTION(Update_Product, accountContext.accessToken, updateProductSchema, {
         id: getId(product),
         name,
         price,
         quantity
       })
-      showToast(results)
-      mutate()
-      if (results.code === Success) {
-        router.push('/owner/products')
-      }
+      handleFaunaResults(results, mutate, Owner_Products_Index_Page, router)
     }
     catch (e){
-      showFetchToastError(e.message)
+      handleFaunaError(accountContext, e)
     }
   }
+
+  const deleteImage = async (id) => {
+    try{
+      const imageKeys = images.filter(image => (
+        getId(image) === id
+      )).map(image => (
+        image.data.key
+      ))
+
+      if (imageKeys.length > 0) {
+        let s3Results = await POST(Delete_S3_Files, {
+          imageKeys
+        })
+        if (s3Results.Errors.length > 0){
+          s3Results.Errors.forEach(
+            error => toast.error(error.message)
+          )
+        }
+      }
+
+      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Image, accountContext.accessToken, deleteImageSchema, {
+        id
+      })
+      handleFaunaResults(databaseResults, mutate)
+    }
+    catch (e){
+      handleFaunaError(accountContext, e)
+    }
+  }
+
 
   return (
       <>
           <h1>Update {product.data.name}</h1>
           <form onSubmit={handleSubmit(updateProduct)}>
+            <input hidden name="id" ref={register} defaultValue={getId(product)}/>
+            {errors.id && errors.id.message}
+
             <label htmlFor="name">Name</label>
             <input name="name" ref={register} defaultValue={product.data.name}/>
+            {errors.name && errors.name.message}
 
             <label htmlFor="price">Price</label>
             <input name="price" ref={register} defaultValue={getPrice(product.data.price)}/>
+            {errors.price && errors.price.message}
 
             <label htmlFor="quantity">Quantity</label>
             <input name="quantity" ref={register} defaultValue={product.data.quantity}/>
+            {errors.quantity && errors.quantity.message}
 
             <input type="submit" value="Save" />
           </form>
@@ -131,6 +167,7 @@ const ProductPage = () => {
             images?.map(image =>
               <div key={getId(image)}>
                 <img src={`${process.env.NEXT_PUBLIC_S3_URL_PREFIX}${image.data.key}`} style={{ width: 100, height: 100 }}/>
+                <button onClick={() => deleteImage(getId(image))}>Delete</button>
               </div>
             )
           }
@@ -138,32 +175,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage
-
-export async function getStaticPaths() {
-  const body = {
-    accessToken: process.env.FAUNADB_SECRET,
-    functionName: Get_All_Products,
-    
-  }
-  const response = await fetch(`${process.env.SITE_URL}.netlify/functions/${Call_Function}`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
-  const all_products = await response.json()
-
-  const paths = all_products.products.map((product) => ({
-    params: { productId: getId(product) },
-  }))
-
-  // We'll pre-render only these paths at build time.
-  // { fallback: false } means other routes should 404.
-  // Because of _redirects file, that means any invalid urls will default to /index
-  return { paths, fallback: false }
-}
-
-export async function getStaticProps() {
-  return { 
-    props: {} 
-  }
-}
+export default OwnerProductPage

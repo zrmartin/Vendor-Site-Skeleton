@@ -25,7 +25,7 @@ const client = new faunadb.Client({
   secret: ""
 })
 
-const main = async () => {
+export const destroyDatabase = async (client) => {
     const DeleteAllRoles = q.Map(Paginate(Roles()), Lambda('ref', Delete(Var('ref'))))
     const DeleteAllFunctions = q.Map(Paginate(Functions()), Lambda('ref', Delete(Var('ref'))))
     const DeleteAllCollections = q.Map(Paginate(Collections()), Lambda('ref', Delete(Var('ref'))))
@@ -40,4 +40,4 @@ const main = async () => {
     // Note, we don't delete keys since that would invalidate our admin key each time.
 }
 
-main()
+destroyDatabase(client)
