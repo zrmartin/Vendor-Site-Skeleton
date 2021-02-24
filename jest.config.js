@@ -5,5 +5,6 @@ module.exports = {
     'util', // a utility folder
   ],
   setupFiles: ["dotenv/config"],
+  "setupFilesAfterEnv": ["jest-extended"],
   testTimeout: 30000
 }

@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Count, If, Exists, GT, ToString, Concat } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Count, If, Exists, GT, ToString, Concat, Select } = q
 
 const { COLLECTIONS: { Images } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Images_For_Entity }} = require('../../util/constants/database/indexes')
@@ -32,9 +32,11 @@ function GetAllImagesForEntity(entityId, entityCollection) {
   return If(
     Exists(Index(All_Images_For_Entity)), 
     {
-      images: Map(
-        Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(entityCollection), entityId))),
-        Lambda("X", Get(Var("X")))
+      images: Select(["data"],
+        Map(
+          Paginate(Match(Index(All_Images_For_Entity), Ref(Collection(entityCollection), entityId))),
+          Lambda("X", Get(Var("X")))
+        )
       ),
       code: Success,
     },
@@ -49,7 +51,7 @@ function DeleteImage(id) {
   return If(
     Exists(Ref(Collection(Images), id)),
     {
-      deletedImages: Delete(Ref(Collection(Images), id)),
+      deletedImage: Delete(Ref(Collection(Images), id)),
       code: Success,
       message: "Image Deleted"
     },

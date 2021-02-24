@@ -56,7 +56,7 @@ test('Successfully gets existing product', async () => {
 
   expect(response.code).toEqual(Success);
   expect(response.images.length).toEqual(imageKeys.length)
-  expect(productImageKeys).toEqual(imageKeys)
+  expect(productImageKeys).toIncludeSameMembers(imageKeys)
   expect(response.product.data).toMatchObject(testProduct.data)
 });
 

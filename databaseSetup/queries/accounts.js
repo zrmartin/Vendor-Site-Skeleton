@@ -71,6 +71,7 @@ function LogoutCurrentSession() {
     {
       // we can return the results to see whether it worked
       // logout should return true or false on false.
+      // Passing false to logout as a param means it only deletes token used to create the client that called this function
       sessionLoggedOut: Logout(false), // this logs out the session token
       // while when we delete something with 'Delete' it would return the deleted object on success.
       // we'll modify that and just return a count of how many tokens that were deleted.

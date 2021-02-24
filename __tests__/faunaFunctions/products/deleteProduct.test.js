@@ -56,7 +56,7 @@ test('Successfully deletes existing product', async () => {
   expect(response.code).toEqual(Success);
   expect(response.message).toEqual("Product Deleted")
   expect(response.deletedImages.length).toEqual(imageKeys.length)
-  expect(deletedImageKeys).toEqual(imageKeys)
+  expect(deletedImageKeys).toIncludeSameMembers(imageKeys)
   expect(response.deletedProduct.data).toMatchObject(testProduct.data)
 });
 
