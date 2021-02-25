@@ -3,14 +3,13 @@ const q = faunadb.query
 const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Let, GT, Count} = q
 
 const { COLLECTIONS: { Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Shops }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Shops, All_Shops_For_Account }} = require('../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found, Validation_Error }} = require('../../util/constants/httpCodes')
 
 function CreateShop(name) {
   return Let(
   {
-    accountRef: CurrentIdentity(),
-    numShops: Count(Match(Index(All_Shops)))
+    numShops: Count(Match(Index(All_Shops_For_Account), CurrentIdentity()))
   },
   If(
     GT(Var("numShops"), 0),

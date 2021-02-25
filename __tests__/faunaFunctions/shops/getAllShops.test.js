@@ -32,24 +32,26 @@ afterEach(async () => {
   await destroyDatabase(databaseInfo)
 })
 
-test('Successfully gets all shops for given account', async () => {
+test('Successfully gets all shops for for all accounts', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
 
   // Create a second shop under a different account
   const shopData = {
-    name: "Test Shop"
+    name: "Test Shop 2"
   }
-  await userClient2.query(
+  const testShop2 = (await userClient2.query(
     Call(Create_Shop, [shopData])
-  )
+  )).shop
 
   const getAllShopsReponse = await userClient.query(
     Call(Get_All_Shops, [])
   )
+  const returnedShopData = getAllShopsReponse.shops.map(shop => shop.data)
 
-  expect(getAllShopsReponse.shops.length).toEqual(1)
+  expect(getAllShopsReponse.shops.length).toEqual(2)
   expect(getAllShopsReponse.code).toEqual(Success);
-  expect(getAllShopsReponse.shops[0].data).toMatchObject(testShop.data)
+  expect(returnedShopData).toContainEqual(testShop.data)
+  expect(returnedShopData).toContainEqual(testShop2.data)
 });
 
 test('Successfully returns error message is All_shops index does not exist', async () => {

@@ -51,16 +51,3 @@ test('Successfully returns error message if shop does not exist', async () => {
   expect(response.message).toEqual("Shop not found")
   expect(response.code).toEqual(Not_Found);
 });
-
-test('Successfully returns error message when trying to get a shop that is not yours', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
-
-  const getShopResponse = await userClient2.query(
-    Call(Get_Shop, [{
-      id: testShop.ref.id
-    }]),
-  )
-
-  expect(getShopResponse.message).toEqual("Shop not found")
-  expect(getShopResponse.code).toEqual(Not_Found);
-});

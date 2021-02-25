@@ -8,10 +8,11 @@ const INDEXES = {
 
   // Shops
   All_Shops: 'all_shops',
-  All_Shops_By_Account: 'all_shops_by_account',
+  All_Shops_For_Account: 'all_shops_for_account',
 
   // Products
   All_Products: 'all_products',
+  All_Products_For_Account: 'all_products_for_account',
 
   // Images
   All_Images_For_Entity: 'all_images_for_entity'

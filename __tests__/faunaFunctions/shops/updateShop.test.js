@@ -58,16 +58,21 @@ test('Successfully returns error message if shop does not exist', async () => {
   expect(response.code).toEqual(Not_Found);
 });
 
-test('Successfully returns error message when trying to update a shop that is not yours', async () => {
+test('Successfully throws an error when trying to update a shop that is not yours', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
+  let updateShopRepsonse
+  try {
+    updateShopRepsonse = await userClient2.query(
+      Call(Update_Shop, [{
+        id: testShop.ref.id,
+        name: "Updated Shop Name"
+      }]),
+    )
+  }
+  catch(e) {
+    updateShopRepsonse = e
+  }
 
-  const updateShopRepsonse = await userClient2.query(
-    Call(Update_Shop, [{
-      id: testShop.ref.id,
-      name: "Updated Shop Name"
-    }]),
-  )
-
-  expect(updateShopRepsonse.message).toEqual("Shop not found, could not update")
-  expect(updateShopRepsonse.code).toEqual(Not_Found);
+  expect(updateShopRepsonse.requestResult.responseContent.errors).not.toBeNull();
+  expect(updateShopRepsonse.requestResult.statusCode).not.toBeNull();
 });

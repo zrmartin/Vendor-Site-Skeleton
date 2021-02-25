@@ -70,16 +70,3 @@ test('Successfully returns error message if product does not exist', async () =>
   expect(response.message).toEqual("Product not found")
   expect(response.code).toEqual(Not_Found);
 });
-
-test('Successfully returns error message when trying to get a product that is not yours', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
-
-  const getProductResponse = await userClient2.query(
-    Call(Get_Product, [{
-      id: testProduct.ref.id
-    }]),
-  )
-
-  expect(getProductResponse.message).toEqual("Product not found")
-  expect(getProductResponse.code).toEqual(Not_Found);
-});

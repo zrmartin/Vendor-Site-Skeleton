@@ -62,6 +62,6 @@ test('Calling Logout All with invalid secret throws error', async () => {
     refreshTokenResponse = e
   }
   
-  expect(refreshTokenResponse.requestResult?.responseContent?.errors).not.toBeNull();
+  expect(refreshTokenResponse.requestResult.responseContent.errors).not.toBeNull();
   expect(refreshTokenResponse.requestResult.statusCode).not.toBeNull();
 });

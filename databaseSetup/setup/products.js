@@ -1,8 +1,8 @@
 const { DeleteIfExists, IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateProduct, GetAllProducts, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
+const { CreateProduct, GetAllProducts, GetAllProductsForAccount, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
 const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Products }} = require('../../util/constants/database/indexes')
-const { FUNCTIONS: { Create_Product, Get_All_Products, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
+const { INDEXES: { All_Products, All_Products_For_Account }} = require('../../util/constants/database/indexes')
+const { FUNCTIONS: { Create_Product, Get_All_Products, Get_All_Products_For_Account, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Product_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
@@ -22,6 +22,16 @@ const CreateIndexAllProducts = (productsCollection) => CreateIndex({
   serialized: true
 })
 
+const CreateIndexAllProductsForAccount = (productsCollection) => CreateIndex({
+  name: All_Products_For_Account,
+  source: productsCollection,
+  terms:[
+    { field: ['data', 'account']}
+  ],
+  serialized: true
+})
+
+
 /* Function Roles */
 
 /* Functions */
@@ -33,6 +43,11 @@ const CreateProductUDF = CreateOrUpdateFunction({
 const GetAllProductsUDF = CreateOrUpdateFunction({
   name: Get_All_Products,
   body: Query(Lambda([], GetAllProducts())),
+})
+
+const GetAllProductsForAccountUDF = CreateOrUpdateFunction({
+  name: Get_All_Products_For_Account,
+  body: Query(Lambda([], GetAllProductsForAccount())),
 })
 
 const GetProductUDF = CreateOrUpdateFunction({
@@ -51,7 +66,7 @@ const DeleteProductUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunction, getProductFunction, updateProductFunction, deleteProductFunction, allProductsIndex, productsCollection) => CreateOrUpdateRole({
+const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunction, getAllProductsForAccountFunction, getProductFunction, updateProductFunction, deleteProductFunction, allProductsIndex, allProductsForAccountIndex, productsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Product_Access,
   membership: [{ 
     resource: Collection(Accounts),
@@ -77,6 +92,12 @@ const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunctio
       }
     },
     {
+      resource: getAllProductsForAccountFunction,
+      actions: {
+        call: true
+      }
+    },
+    {
       resource: getProductFunction,
       actions: {
         call: true
@@ -96,6 +117,10 @@ const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunctio
     },
     {
       resource: allProductsIndex,
+      actions: { read: true }
+    },
+    {
+      resource: allProductsForAccountIndex,
       actions: { read: true }
     },
     {
@@ -126,15 +151,7 @@ const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunctio
           ))
         ), 
         create: true,
-        read: Query(
-          Lambda("productRef", Let(
-            {
-              product: Get(Var("productRef")),
-              accountRef: Select(["data", "account"], Var("product"))
-            },
-            Equals(Var("accountRef"), CurrentIdentity())
-          ))
-        ),
+        read: true,
       }
     }
   ]
@@ -154,6 +171,11 @@ async function createProductsCollection(client) {
           Select(["ref"], Var("products_collection"))
         ))
       },
+      {
+        all_products_for_account_index: IfNotExists(Index(All_Products_For_Account), CreateIndexAllProductsForAccount(
+          Select(["ref"], Var("products_collection"))
+        ))
+      },
       // Create Function Roles
       // Create Functions
       {
@@ -161,6 +183,9 @@ async function createProductsCollection(client) {
       },
       {
         get_all_products_function: GetAllProductsUDF
+      },
+      {
+        get_all_products_for_account_function: GetAllProductsForAccountUDF
       },
       {
         get_product_function: GetProductUDF
@@ -176,10 +201,12 @@ async function createProductsCollection(client) {
         create_shop_owner_product_role: CreateShopOwnerProductRole(
           Select(["ref"], Var("create_product_function")),
           Select(["ref"], Var("get_all_products_function")),
+          Select(["ref"], Var("get_all_products_for_account_function")),
           Select(["ref"], Var("get_product_function")),
           Select(["ref"], Var("update_product_function")),
           Select(["ref"], Var("delete_product_function")),
           Select(["ref"], Var("all_products_index")),
+          Select(["ref"], Var("all_products_for_account_index")),
           Select(["ref"], Var("products_collection")),
         ),
       },

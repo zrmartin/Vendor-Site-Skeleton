@@ -16,6 +16,7 @@ const FUNCTIONS = {
   // Product Functions
   Create_Product: 'create_product',
   Get_All_Products: 'get_all_products',
+  Get_All_Products_For_Account: 'get_all_products_for_account',
   Delete_Product: 'delete_product',
   Get_Product: 'get_product',
   Update_Product: 'update_product',

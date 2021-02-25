@@ -1,7 +1,7 @@
 const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
 const { CreateShop, GetShop, GetAllShops, DeleteShop, UpdateShop } = require('../queries/shops')
 const { COLLECTIONS: { Accounts, Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Shops, All_Shops_By_Account }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Shops, All_Shops_For_Account }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Create_Shop, Get_Shop, Get_All_Shops, Delete_Shop, Update_Shop }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Shop_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
@@ -22,8 +22,8 @@ const CreateIndexAllShops = (shopCollection) => CreateIndex({
   serialized: true
 })
 
-const CreateIndexAllShopsByAccount = (shopCollection) => CreateIndex({
-  name: All_Shops_By_Account,
+const CreateIndexAllShopsForAccount = (shopCollection) => CreateIndex({
+  name: All_Shops_For_Account,
   source: shopCollection,
   terms:[
     { field: ['data', 'account']}
@@ -60,7 +60,7 @@ const UpdateShopUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, updateShopFunction, deleteShopFunction, allShopsIndex, allShopsByAccountIndex, shopsCollection) => CreateOrUpdateRole({
+const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, updateShopFunction, deleteShopFunction, allShopsIndex, allShopsForAccountIndex, shopsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Shop_Access,
   membership: [{ 
     resource: Collection(Accounts),
@@ -108,7 +108,7 @@ const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getSho
       actions: { read: true }
     },
     {
-      resource: allShopsByAccountIndex,
+      resource: allShopsForAccountIndex,
       actions: { read: true }
     },
     {
@@ -139,15 +139,7 @@ const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getSho
           ))
         ), 
         create: true,
-        read: Query(
-          Lambda("shopRef", Let(
-            {
-              shop: Get(Var("shopRef")),
-              accountRef: Select(["data", "account"], Var("shop"))
-            },
-            Equals(Var("accountRef"), CurrentIdentity())
-          ))
-        ),
+        read: true,
       }
     }
   ]
@@ -168,7 +160,7 @@ async function createShopsCollection(client) {
         ))
       },
       {
-        all_shops_by_account_index: IfNotExists(Index(All_Shops_By_Account), CreateIndexAllShopsByAccount(
+        all_shops_for_account_index: IfNotExists(Index(All_Shops_For_Account), CreateIndexAllShopsForAccount(
           Select(["ref"], Var("shops_collection"))
         ))
       },
@@ -198,7 +190,7 @@ async function createShopsCollection(client) {
           Select(["ref"], Var("update_shop_function")),
           Select(["ref"], Var("delete_shop_function")),
           Select(["ref"], Var("all_shops_index")),
-          Select(["ref"], Var("all_shops_by_account_index")),
+          Select(["ref"], Var("all_shops_for_account_index")),
           Select(["ref"], Var("shops_collection")),
         ),
       },

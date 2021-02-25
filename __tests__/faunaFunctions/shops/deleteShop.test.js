@@ -53,15 +53,21 @@ test('Successfully returns error message if shop does not exist', async () => {
   expect(deleteShopResponse.code).toEqual(Not_Found);
 });
 
-test('Successfully returns error message when trying to delete a shop that is not yours', async () => {
+test('Successfully throws and error when trying to delete a shop that is not yours', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
+  let deleteShopResponse
 
-  const deleteShopResponse = await userClient2.query(
-    Call(Delete_Shop, [{
-      id: testShop.ref.id
-    }]),
-  )
+  try {
+    deleteShopResponse = await userClient2.query(
+      Call(Delete_Shop, [{
+        id: testShop.ref.id
+      }]),
+    )
+  }
+  catch(e) {
+    deleteShopResponse = e
+  }
 
-  expect(deleteShopResponse.message).toEqual("Shop not found, could not delete")
-  expect(deleteShopResponse.code).toEqual(Not_Found);
+  expect(deleteShopResponse.requestResult.responseContent.errors).not.toBeNull();
+  expect(deleteShopResponse.requestResult.statusCode).not.toBeNull();
 });
