@@ -69,3 +69,16 @@ test('Successfully returns error message if product does not exist', async () =>
   expect(response.message).toEqual("Product not found, could not delete")
   expect(response.code).toEqual(Not_Found);
 });
+
+test('Successfully returns error message when trying to delete a product that is not yours', async () => {
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+
+  const deleteProductResponse = await userClient2.query(
+    Call(Delete_Product, [{
+      id: testProduct.ref.id
+    }]),
+  )
+
+  expect(deleteProductResponse.message).toEqual("Product not found, could not delete")
+  expect(deleteProductResponse.code).toEqual(Not_Found);
+});

@@ -61,3 +61,17 @@ test('Successfully returns error message if product does not exist', async () =>
   expect(response.message).toEqual("Product not found, could not update")
   expect(response.code).toEqual(Not_Found);
 });
+
+test('Successfully returns error message when trying to update a product that is not yours', async () => {
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+
+  const updateProductRepsonse = await userClient2.query(
+    Call(Update_Product, [{
+      id: testProduct.ref.id,
+      name: "Updated Product Name"
+    }]),
+  )
+
+  expect(updateProductRepsonse.message).toEqual("Product not found, could not update")
+  expect(updateProductRepsonse.code).toEqual(Not_Found);
+});

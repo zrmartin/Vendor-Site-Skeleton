@@ -34,7 +34,17 @@ afterEach(async () => {
   await destroyDatabase(databaseInfo)
 })
 
-test('Successfully gets all products', async () => {
+test('Successfully gets all products for a given account', async () => {
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+  // Create a second product under a different account
+  await userClient2.query(
+    Call(Create_Product, [{
+      name: "Test Product 2",
+      price: 100,
+      quantity: 1
+  }])
+  )
+
   const response = await userClient.query(
     Call(Get_All_Products, [])
   )
