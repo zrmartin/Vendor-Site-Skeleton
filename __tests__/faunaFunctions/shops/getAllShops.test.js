@@ -7,6 +7,15 @@ const { Call, Delete, Index } = query
 let adminClient
 let userClient
 let databaseInfo
+let testShop
+
+async function setupTestShop() {
+  return await userClient.query(
+    Call(Create_Shop, [{
+        name: "Test Shop",
+    }])
+  )
+}
 
 beforeEach(async () => {
   databaseInfo = await createChildDatabase()
@@ -15,6 +24,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  testShop = (await setupTestShop()).shop
 })
 
 afterEach(async () => {
@@ -24,16 +34,12 @@ afterEach(async () => {
 test('Successfully gets all shops for given account', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
 
-  const testShop = {
+  // Create a second shop under a different account
+  const shopData = {
     name: "Test Shop"
   }
-
-  await userClient.query(
-    Call(Create_Shop, [testShop])
-  )
-  // Create a second shop under a different account
   await userClient2.query(
-    Call(Create_Shop, [testShop])
+    Call(Create_Shop, [shopData])
   )
 
   const getAllShopsReponse = await userClient.query(
@@ -42,7 +48,7 @@ test('Successfully gets all shops for given account', async () => {
 
   expect(getAllShopsReponse.shops.length).toEqual(1)
   expect(getAllShopsReponse.code).toEqual(Success);
-  expect(getAllShopsReponse.shops[0].data).toMatchObject(testShop)
+  expect(getAllShopsReponse.shops[0].data).toMatchObject(testShop.data)
 });
 
 test('Successfully returns error message is All_shops index does not exist', async () => {

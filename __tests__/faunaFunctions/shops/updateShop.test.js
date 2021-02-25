@@ -6,6 +6,15 @@ const { Call } = query
 let adminClient
 let userClient
 let databaseInfo
+let testShop
+
+async function setupTestShop() {
+  return await userClient.query(
+    Call(Create_Shop, [{
+        name: "Test Shop",
+    }])
+  )
+}
 
 beforeEach(async () => {
   databaseInfo = await createChildDatabase()
@@ -14,6 +23,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  testShop = (await setupTestShop()).shop
 })
 
 afterEach(async () => {
@@ -21,20 +31,13 @@ afterEach(async () => {
 })
 
 test('Successfully updates existing shop', async () => {
-  const originalShop = {
-    name: "Test Shop"
-  }
-  const createShopResponse = await userClient.query(
-    Call(Create_Shop, [originalShop])
-  )
-
   const UpdatedShop = {
     name: "Updated Shop Name",
   }
 
   const updateShopReponse = await userClient.query(
     Call(Update_Shop, [{
-      id: createShopResponse.shop.ref.id,
+      id: testShop.ref.id,
       ...UpdatedShop
     }])
   )
@@ -57,14 +60,9 @@ test('Successfully returns error message if shop does not exist', async () => {
 test('Successfully returns error message when trying to update a shop that is not yours', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
 
-  const createShopResponse = await userClient.query(
-    Call(Create_Shop, [{name: "Test Shop"}]
-    )
-  )
-
   const updateShopRepsonse = await userClient2.query(
     Call(Update_Shop, [{
-      id: createShopResponse.shop.ref.id,
+      id: testShop.ref.id,
       name: "Updated Shop Name"
     }]),
   )

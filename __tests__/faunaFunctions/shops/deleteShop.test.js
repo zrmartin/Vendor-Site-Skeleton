@@ -6,6 +6,15 @@ const { Call } = query
 let adminClient
 let userClient
 let databaseInfo
+let testShop
+
+async function setupTestShop() {
+  return await userClient.query(
+    Call(Create_Shop, [{
+        name: "Test Shop",
+    }])
+  )
+}
 
 beforeEach(async () => {
   databaseInfo = await createChildDatabase()
@@ -14,6 +23,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  testShop = (await setupTestShop()).shop
 })
 
 afterEach(async () => {
@@ -21,23 +31,15 @@ afterEach(async () => {
 })
 
 test('Successfully deletes existing shop', async () => {
-  const testShop = {
-    name: "Test Shop"
-  }
-  const createShopResponse = await userClient.query(
-    Call(Create_Shop, [testShop]
-    )
-  )
-
   const deleteShopResponse = await userClient.query(
     Call(Delete_Shop, [{
-      id: createShopResponse.shop.ref.id,
+      id: testShop.ref.id,
     }])
   )
 
   expect(deleteShopResponse.code).toEqual(Success);
   expect(deleteShopResponse.message).toEqual("Shop Deleted")
-  expect(deleteShopResponse.deletedShop.data).toMatchObject(testShop)
+  expect(deleteShopResponse.deletedShop.data).toMatchObject(testShop.data)
 });
 
 test('Successfully returns error message if shop does not exist', async () => {
@@ -53,14 +55,9 @@ test('Successfully returns error message if shop does not exist', async () => {
 test('Successfully returns error message when trying to delete a shop that is not yours', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
 
-  const createShopResponse = await userClient.query(
-    Call(Create_Shop, [{name: "Test Shop"}]
-    )
-  )
-  
   const deleteShopResponse = await userClient2.query(
     Call(Delete_Shop, [{
-      id: createShopResponse.shop.ref.id
+      id: testShop.ref.id
     }]),
   )
 
