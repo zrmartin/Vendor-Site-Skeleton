@@ -11,7 +11,7 @@ export const ServerError = ({ error }) => {
 
   return (
     <>
-      Could not reach server, please try again. If this issue persists please contact Admin.
+      An Error Occured
       <br/>
       Status Code: {error.status}
       <br/>

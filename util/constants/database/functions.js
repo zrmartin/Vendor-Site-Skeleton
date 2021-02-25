@@ -5,6 +5,13 @@ const FUNCTIONS = {
   Refresh_Token: 'refresh_token',
   Logout_All: 'logout_all',
   Logout: 'logout',
+
+  // Shop Functions
+  Create_Shop: 'create_shop',
+  Get_Shop: 'get_shop',
+  Get_All_Shops: 'get_all_shops',
+  Delete_Shop: 'delete_shop',
+  Update_Shop: 'update_shop',
   
   // Product Functions
   Create_Product: 'create_product',

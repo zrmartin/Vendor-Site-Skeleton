@@ -6,6 +6,10 @@ const INDEXES = {
   Account_Sessions_By_Account: 'account_sessions_by_account',
   Tokens_By_Instance: 'tokens_by_instance',
 
+  // Shops
+  All_Shops: 'all_shops',
+  All_Shops_By_Account: 'all_shops_by_account',
+
   // Products
   All_Products: 'all_products',
 

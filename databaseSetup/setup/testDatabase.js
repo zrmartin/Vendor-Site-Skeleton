@@ -2,10 +2,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { query, Client } from 'faunadb'
 const { CreateDatabase, CreateKey, Database, Delete, Do, Call } = query
 const { createAccountCollection } = require('./accounts')
+const { createShopsCollection } = require('./shops')
 const { createProductsCollection } = require('./products')
 const { createImagesCollection } = require('./images')
 const { handleSetupError } = require('../helpers/errors')
-const { FUNCTIONS: { Login, Register, Create_Product }} = require('../../util/constants/database/functions')
+const { FUNCTIONS: { Login, Register }} = require('../../util/constants/database/functions')
 
 export async function createChildDatabase() {
   const testDatabaseName = uuidv4()
@@ -32,6 +33,7 @@ export async function createChildDatabase() {
 
 export async function setupDatabase(client) {
   await handleSetupError(createAccountCollection(client), 'collections/indexes - accounts collection')
+  await handleSetupError(createShopsCollection(client), 'collections/indexes - shops collection')
   await handleSetupError(createProductsCollection(client), 'collections/indexes - products collection')
   await handleSetupError(createImagesCollection(client), 'collections/indexes - images collection')
 }
@@ -49,11 +51,11 @@ export async function destroyDatabase(databaseInfo) {
   )
 }
 
-export async function createTestUserAndClient(adminClient) {
+export async function createTestUserAndClient(adminClient, email, password) {
   const user = await adminClient.query(
     Do(
-      Call(Register, ["test@test.com", "password"]),
-      Call(Login, ["test@test.com", "password"])
+      Call(Register, [email, password]),
+      Call(Login, [email, password])
     )
 
   )

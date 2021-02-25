@@ -26,7 +26,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient)
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
   testProduct = (await setupTestProduct()).product
 })
 

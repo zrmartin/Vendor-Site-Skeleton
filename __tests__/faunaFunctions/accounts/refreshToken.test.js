@@ -50,5 +50,6 @@ test('Calling Refresh Token with invalid secret throws error', async () => {
     refreshTokenResponse = e
   }
   
-  expect(refreshTokenResponse.requestResult?.responseContent?.errors).not.toEqual(null);
+  expect(refreshTokenResponse.requestResult?.responseContent?.errors).not.toBeNull();
+  expect(refreshTokenResponse.requestResult.statusCode).not.toBeNull();
 });

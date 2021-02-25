@@ -15,7 +15,7 @@ function DeleteIfExists(ref) {
 }
 
 function IfNotExists(ref, FqlCode) {
-  return If(Exists(ref), false, FqlCode)
+  return If(Exists(ref), {ref: ref}, FqlCode)
 }
 
 // A convenience function to either create or update a function.

@@ -1,8 +1,7 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Register, Login, Logout }} = require('../../../util/constants/database/functions')
-const { COLLECTIONS: { Account_Sessions }} = require('../../../util/constants/database/collections')
-const { Call, Count, Tokens, Documents, Collection } = query
+const { Call, Count, Tokens } = query
 let adminClient
 let databaseInfo
 
@@ -53,12 +52,13 @@ test('Calling Logout with invalid secret throws error', async () => {
   let refreshTokenResponse
   try{
     refreshTokenResponse = await adminClient.query(
-      Call(Logout_All)
+      Call(Logout)
     )
   }
   catch(e) {
     refreshTokenResponse = e
   }
   
-  expect(refreshTokenResponse.requestResult?.responseContent?.errors).not.toEqual(null);
+  expect(refreshTokenResponse.requestResult.responseContent.errors).not.toBeNull();
+  expect(refreshTokenResponse.requestResult.statusCode).not.toBeNull();
 });
