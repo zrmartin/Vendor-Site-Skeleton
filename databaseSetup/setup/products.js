@@ -1,13 +1,14 @@
-const { DeleteIfExists, IfNotExists, executeFQL, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
+const { DeleteIfExists, IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
 const { CreateProduct, GetAllProducts, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
 const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Products }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Create_Product, Get_All_Products, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Product_Access }} = require('../../util/constants/database/membershipRoles')
+const { ROLES: { owner }} = require('../../util/constants/roles')
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes, And } = q
+const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, Function, Select, Let, CurrentIdentity, Get, Equals, Indexes, And, ContainsValue } = q
 
 /* Collection */
 const CreateProductsCollection = CreateCollection({ name: Products })
@@ -52,7 +53,16 @@ const DeleteProductUDF = CreateOrUpdateFunction({
 /* Membership Roles */
 const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunction, getProductFunction, updateProductFunction, deleteProductFunction, allProductsIndex, productsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Product_Access,
-  membership: [{ resource: Collection(Accounts) }],
+  membership: [{ 
+    resource: Collection(Accounts),
+    predicate:
+      Query(
+        Lambda(
+          "accountRef",
+          ContainsValue(owner, Select(["data","roles"], Get(Var("accountRef"))))
+        )
+      )
+  }],
   privileges: [
     {
       resource: createProductFunction,

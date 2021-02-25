@@ -4,6 +4,7 @@ const { FUNCTIONS: { Create_Images, Create_Product, Get_All_Images_For_Entity }}
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
 const { INDEXES: { All_Images_For_Entity }} = require('../../../util/constants/database/indexes')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call, Delete, Index } = query
 let adminClient
 let userClient
@@ -15,7 +16,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
 })
 afterEach(async () => {
   await destroyDatabase(databaseInfo)

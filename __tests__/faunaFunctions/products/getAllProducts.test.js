@@ -3,7 +3,8 @@ import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDat
 const { FUNCTIONS: { Get_All_Products, Create_Product }} = require('../../../util/constants/database/functions')
 const { INDEXES: { All_Products }} = require('../../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
-const { Call, Do, Delete, Index } = query
+const { ROLES: { owner }} = require('../../../util/constants/roles')
+const { Call, Delete, Index } = query
 let adminClient
 let userClient
 let databaseInfo
@@ -26,7 +27,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
   testProduct = (await setupTestProduct()).product
 })
 
@@ -35,7 +36,7 @@ afterEach(async () => {
 })
 
 test('Successfully gets all products for a given account', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
   // Create a second product under a different account
   await userClient2.query(
     Call(Create_Product, [{

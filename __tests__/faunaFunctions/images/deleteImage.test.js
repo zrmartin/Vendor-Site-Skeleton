@@ -3,6 +3,7 @@ import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDat
 const { FUNCTIONS: { Create_Images, Create_Product, Delete_Image }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call, Delete, Index } = query
 let adminClient
 let userClient
@@ -14,7 +15,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
 })
 afterEach(async () => {
   await destroyDatabase(databaseInfo)

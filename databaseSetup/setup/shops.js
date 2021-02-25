@@ -4,10 +4,11 @@ const { COLLECTIONS: { Accounts, Shops } } = require('../../util/constants/datab
 const { INDEXES: { All_Shops, All_Shops_By_Account }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Create_Shop, Get_Shop, Get_All_Shops, Delete_Shop, Update_Shop }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Shop_Access }} = require('../../util/constants/database/membershipRoles')
+const { ROLES: { owner }} = require('../../util/constants/roles')
 
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Query, Lambda, Var, Role, CreateCollection, CreateIndex, Collection, Index, If, Select, Let, CurrentIdentity, Get, Equals, Indexes, And, Match, Count } = q
+const { Query, Lambda, Var, CreateCollection, CreateIndex, Collection, Index, If, Select, Let, CurrentIdentity, Get, Equals, Indexes, And, ContainsValue } = q
 
 /* Collection */
 const CreateShopsCollection = CreateCollection({ name: Shops })
@@ -61,7 +62,16 @@ const UpdateShopUDF = CreateOrUpdateFunction({
 /* Membership Roles */
 const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, updateShopFunction, deleteShopFunction, allShopsIndex, allShopsByAccountIndex, shopsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Shop_Access,
-  membership: [{ resource: Collection(Accounts) }],
+  membership: [{ 
+    resource: Collection(Accounts),
+    predicate:
+    Query(
+      Lambda(
+        "accountRef",
+        ContainsValue(owner, Select(["data","roles"], Get(Var("accountRef"))))
+      )
+    )
+  }],
   privileges: [
     {
       resource: createShopFunction,

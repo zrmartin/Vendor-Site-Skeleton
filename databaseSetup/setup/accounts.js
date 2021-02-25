@@ -162,7 +162,7 @@ const CreateFnRoleRefreshTokenLogout = (accountsCollection, accountSessionsColle
 /* Functions */
 const RegisterUDF = (registerFunctionRole) => CreateOrUpdateFunction({
   name: Register,
-  body: Query(Lambda(['email', 'password'], RegisterAccount(Var('email'), Var('password')))),
+  body: Query(Lambda(['email', 'password', 'roles'], RegisterAccount(Var('email'), Var('password'), Var('roles')))),
   role: registerFunctionRole
 })
 

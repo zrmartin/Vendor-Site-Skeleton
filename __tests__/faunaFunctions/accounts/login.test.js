@@ -1,6 +1,7 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Register, Login }} = require('../../../util/constants/database/functions')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call } = query
 let adminClient
 let databaseInfo
@@ -20,7 +21,7 @@ test('Successfully login to existing account', async () => {
   const email = "test@test.com"
   const password = "password"
   const registerResponse = await adminClient.query(
-    Call(Register, [email, password])
+    Call(Register, [email, password, [owner]])
   )
 
   const loginResponse = await adminClient.query(
@@ -49,7 +50,7 @@ test('Return false when password is invalid', async () => {
   const email = "test@test.com"
   const password = "password"
   const registerResponse = await adminClient.query(
-    Call(Register, [email, password])
+    Call(Register, [email, password, [owner]])
   )
 
   const loginResponse = await adminClient.query(

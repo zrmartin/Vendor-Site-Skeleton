@@ -2,6 +2,7 @@ import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Delete_Shop, Create_Shop }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call } = query
 let adminClient
 let userClient
@@ -22,7 +23,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
   testShop = (await setupTestShop()).shop
 })
 
@@ -53,7 +54,7 @@ test('Successfully returns error message if shop does not exist', async () => {
 });
 
 test('Successfully returns error message when trying to delete a shop that is not yours', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
 
   const deleteShopResponse = await userClient2.query(
     Call(Delete_Shop, [{

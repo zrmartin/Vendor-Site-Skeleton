@@ -2,6 +2,7 @@ import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Register, Login, Logout_All }} = require('../../../util/constants/database/functions')
 const { COLLECTIONS: { Account_Sessions }} = require('../../../util/constants/database/collections')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call, Count, Tokens, Documents, Collection } = query
 let adminClient
 let databaseInfo
@@ -21,7 +22,7 @@ test('Logout All deletes all refresh tokens, access tokens, and account sessions
   const email = "test@test.com"
   const password = "password"
   const registerResponse = await adminClient.query(
-    Call(Register, [email, password])
+    Call(Register, [email, password, [owner]])
   )
 
   const loginResponse = await adminClient.query(

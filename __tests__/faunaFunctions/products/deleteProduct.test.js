@@ -3,6 +3,7 @@ import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDat
 const { FUNCTIONS: { Delete_Product, Create_Product, Create_Images }} = require('../../../util/constants/database/functions')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call } = query
 let adminClient
 let userClient
@@ -26,7 +27,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
   testProduct = (await setupTestProduct()).product
 })
 
@@ -71,7 +72,7 @@ test('Successfully returns error message if product does not exist', async () =>
 });
 
 test('Successfully returns error message when trying to delete a product that is not yours', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
 
   const deleteProductResponse = await userClient2.query(
     Call(Delete_Product, [{

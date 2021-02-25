@@ -3,6 +3,7 @@ import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDat
 const { FUNCTIONS: { Get_All_Shops, Create_Shop }} = require('../../../util/constants/database/functions')
 const { INDEXES: { All_Shops }} = require('../../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
+const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call, Delete, Index } = query
 let adminClient
 let userClient
@@ -23,7 +24,7 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password")
+  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
   testShop = (await setupTestShop()).shop
 })
 
@@ -32,7 +33,7 @@ afterEach(async () => {
 })
 
 test('Successfully gets all shops for given account', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password")
+  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
 
   // Create a second shop under a different account
   const shopData = {

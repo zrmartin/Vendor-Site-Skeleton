@@ -111,14 +111,15 @@ function DeleteAllAndCount(pageOfTokens) {
   return Count(q.Map(pageOfTokens, Lambda(['tokenRef'], Delete(Var('tokenRef')))))
 }
 
-function RegisterAccount(email, password) {
+function RegisterAccount(email, password, roles) {
   return Create(Collection(Accounts), {
     // credentials is a special field, the contents will never be returned
     // and will be encrypted. { password: ... } is the only format it currently accepts.
     credentials: { password: password },
     // everything you want to store in the document should be scoped under 'data'
     data: {
-      email: email
+      email: email,
+      roles: roles
     }
   })
 }

@@ -51,10 +51,10 @@ export async function destroyDatabase(databaseInfo) {
   )
 }
 
-export async function createTestUserAndClient(adminClient, email, password) {
+export async function createTestUserAndClient(adminClient, email, password, roles) {
   const user = await adminClient.query(
     Do(
-      Call(Register, [email, password]),
+      Call(Register, [email, password, roles]),
       Call(Login, [email, password])
     )
 
