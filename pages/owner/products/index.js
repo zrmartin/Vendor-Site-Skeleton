@@ -7,13 +7,13 @@ import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useAccount } from '../../../context/accountContext'
 import { getId, getPrice } from '../../../util/helpers'
 import { HttpError, ServerError } from '../../../components'
-const { FUNCTIONS: { Get_All_Products }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Get_All_Products_For_Account }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../util/constants/httpCodes')
 const { URL_PATHS: { Owner_Product_Index_Page, Owner_Product_Create_Page }} = require('../../../util/constants/urlPaths')
 
 const OwnerProductsHome = () => {
   const { accessToken } = useAccount()
-  const { data, error } = useSWR([Get_All_Products, accessToken], CALL_FAUNA_FUNCTION)
+  const { data, error } = useSWR([Get_All_Products_For_Account, accessToken], CALL_FAUNA_FUNCTION)
   if (error) return <ServerError error={error}/>
   if (!data) return <div>loading...</div>
   if (data.code !== Success) return <HttpError error={data}/>

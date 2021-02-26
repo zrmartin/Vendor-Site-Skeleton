@@ -31,9 +31,9 @@ export default function Home() {
                 <Link href={Owner_Index_Page}>
                   <a>Owner Home Page</a>
                 </Link>
-                <br/ >
+                <br />
                 <Link href={Owner_Products_Index_Page}>
-                  <a>Owner Products</a>
+                  <a>All Owner Products</a>
                 </Link>
               </>
             }
@@ -41,10 +41,11 @@ export default function Home() {
         }
         <br/>
         <Link href={Products_Index_Page}>
-            <a>Products</a>
+            <a>All Products</a>
         </Link>
         <br/>
         <Login />
+        <br/>
         <RegisterAccount />
       </main>
     </div>
