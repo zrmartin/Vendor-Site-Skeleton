@@ -1,10 +1,10 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Get_Product, Create_Product, Create_Shop, Create_Images }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Get_Product, Create_Product, Create_Images }} = require('../../../util/constants/database/functions')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call, Let, Select, Var } = query
+const { Call } = query
 let adminClient
 let userClient
 let databaseInfo

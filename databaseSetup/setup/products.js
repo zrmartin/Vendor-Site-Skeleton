@@ -1,8 +1,8 @@
-const { DeleteIfExists, IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateProduct, GetAllProducts, GetAllProductsForAccount, GetAllProductsForShop, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
+const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
+const { CreateProduct, GetAllProducts, GetAllProductsForShop, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
 const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Products, All_Products_For_Account, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
-const { FUNCTIONS: { Create_Product, Get_All_Products, Get_All_Products_For_Account, Get_All_Products_For_Shop, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
+const { INDEXES: { All_Products, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
+const { FUNCTIONS: { Create_Product, Get_All_Products, Get_All_Products_For_Shop, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Product_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
@@ -19,15 +19,6 @@ const CreateIndexAllProducts = (productsCollection) => CreateIndex({
   source: productsCollection,
   // this is the default collection index, no terms or values are provided
   // which means the index will sort by reference and return only the reference.
-  serialized: true
-})
-
-const CreateIndexAllProductsForAccount = (productsCollection) => CreateIndex({
-  name: All_Products_For_Account,
-  source: productsCollection,
-  terms:[
-    { field: ['data', 'account']}
-  ],
   serialized: true
 })
 
@@ -54,10 +45,6 @@ const GetAllProductsUDF = CreateOrUpdateFunction({
   body: Query(Lambda([], GetAllProducts())),
 })
 
-const GetAllProductsForAccountUDF = CreateOrUpdateFunction({
-  name: Get_All_Products_For_Account,
-  body: Query(Lambda([], GetAllProductsForAccount())),
-})
 
 const GetAllProductsForShopUDF = CreateOrUpdateFunction({
   name: Get_All_Products_For_Shop,
@@ -80,7 +67,7 @@ const DeleteProductUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunction, getAllProductsForAccountFunction, getProductFunction, updateProductFunction, deleteProductFunction, allProductsIndex, allProductsForAccountIndex, productsCollection) => CreateOrUpdateRole({
+const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunction, getAllProductsForShopFunction, getProductFunction, updateProductFunction, deleteProductFunction, allProductsIndex, allProductsForShopIndex, productsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Product_Access,
   membership: [{ 
     resource: Collection(Accounts),
@@ -106,7 +93,7 @@ const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunctio
       }
     },
     {
-      resource: getAllProductsForAccountFunction,
+      resource: getAllProductsForShopFunction,
       actions: {
         call: true
       }
@@ -134,7 +121,7 @@ const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunctio
       actions: { read: true }
     },
     {
-      resource: allProductsForAccountIndex,
+      resource: allProductsForShopIndex,
       actions: { read: true }
     },
     {
@@ -190,11 +177,6 @@ async function createProductsCollection(client) {
         ))
       },
       {
-        all_products_for_account_index: IfNotExists(Index(All_Products_For_Account), CreateIndexAllProductsForAccount(
-          Select(["ref"], Var("products_collection"))
-        ))
-      },
-      {
         all_products_for_shop_index: IfNotExists(Index(All_Products_For_Shop), CreateIndexAllProductsForShop(
           Select(["ref"], Var("products_collection"))
         ))
@@ -206,9 +188,6 @@ async function createProductsCollection(client) {
       },
       {
         get_all_products_function: GetAllProductsUDF
-      },
-      {
-        get_all_products_for_account_function: GetAllProductsForAccountUDF
       },
       {
         get_all_products_for_shop_function: GetAllProductsForShopUDF
@@ -227,12 +206,12 @@ async function createProductsCollection(client) {
         create_shop_owner_product_role: CreateShopOwnerProductRole(
           Select(["ref"], Var("create_product_function")),
           Select(["ref"], Var("get_all_products_function")),
-          Select(["ref"], Var("get_all_products_for_account_function")),
+          Select(["ref"], Var("get_all_products_for_shop_function")),
           Select(["ref"], Var("get_product_function")),
           Select(["ref"], Var("update_product_function")),
           Select(["ref"], Var("delete_product_function")),
           Select(["ref"], Var("all_products_index")),
-          Select(["ref"], Var("all_products_for_account_index")),
+          Select(["ref"], Var("all_products_for_shop_index")),
           Select(["ref"], Var("products_collection")),
         ),
       },
@@ -241,15 +220,4 @@ async function createProductsCollection(client) {
   )
 }
 
-async function deleteProductsCollection(client) {
-  await client.query(DeleteIfExists(Collection(Products)))
-  await client.query(DeleteIfExists(Index(All_Products)))
-  await client.query(DeleteIfExists(Function(Create_Product)))
-  await client.query(DeleteIfExists(Function(Get_All_Products)))
-  await client.query(DeleteIfExists(Function(Get_Product)))
-  await client.query(DeleteIfExists(Function(Update_Product)))
-  await client.query(DeleteIfExists(Function(Delete_Product)))
-  await client.query(DeleteIfExists(Role(CreateShopOwnerProductRole)))
-}
-
-module.exports = { createProductsCollection, deleteProductsCollection }
+module.exports = { createProductsCollection }

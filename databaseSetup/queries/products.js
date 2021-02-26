@@ -3,7 +3,7 @@ const q = faunadb.query
 const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Call, Function } = q
 
 const { COLLECTIONS: { Products, Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Products, All_Images_For_Entity, All_Products_For_Account, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Products, All_Images_For_Entity, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Get_All_Images_For_Entity }} = require('../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/httpCodes')
 
@@ -39,26 +39,6 @@ function GetAllProducts() {
     {
       code: Not_Found,
       message: "Could not find All_Products Index"
-    }
-  )
-}
-
-function GetAllProductsForAccount() {
-  return If(
-    Exists(Index(All_Products_For_Account)), 
-    {
-      products: Select(
-        ["data"], 
-        Map(
-          Paginate(Match(Index(All_Products_For_Account), CurrentIdentity())),
-          Lambda("X", Get(Var("X")))
-        )
-      ),
-      code: Success,
-    },
-    {
-      code: Not_Found,
-      message: "Could not find All_Products_For_Account Index"
     }
   )
 }
@@ -142,4 +122,4 @@ function DeleteProduct(id) {
     }
   )
 }
-module.exports = { CreateProduct, GetAllProducts, GetAllProductsForAccount, GetAllProductsForShop, GetProduct, UpdateProduct, DeleteProduct }
+module.exports = { CreateProduct, GetAllProducts, GetAllProductsForShop, GetProduct, UpdateProduct, DeleteProduct }

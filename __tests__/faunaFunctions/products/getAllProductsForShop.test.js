@@ -1,10 +1,10 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Get_All_Products_For_Account, Create_Product, Create_Shop }} = require('../../../util/constants/database/functions')
-const { INDEXES: { All_Products_For_Account }} = require('../../../util/constants/database/indexes')
+const { FUNCTIONS: { Get_All_Products_For_Shop, Create_Product }} = require('../../../util/constants/database/functions')
+const { INDEXES: { All_Products_For_Shop }} = require('../../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call, Delete, Index, Let, Var, Select } = query
+const { Call, Delete, Index } = query
 let adminClient
 let userClient
 let databaseInfo
@@ -37,12 +37,12 @@ afterEach(async () => {
   await destroyDatabase(databaseInfo)
 })
 
-test('Successfully gets all products for a given account', async () => {
+test('Successfully gets all products for a given shop', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
   // Create a second product under a different account
   const testProduct2 = (await userClient2.query(
     Call(Create_Product, [{
-      shopId: "123",
+      shopId: "456",
       name: "Test Product 2",
       price: 100,
       quantity: 1
@@ -50,7 +50,9 @@ test('Successfully gets all products for a given account', async () => {
   )).product
 
   const response = await userClient.query(
-    Call(Get_All_Products_For_Account, [])
+    Call(Get_All_Products_For_Shop, [{
+      shopId: "123"
+    }])
   )
   const productData = response.products.map(product => product.data)
 
@@ -59,13 +61,15 @@ test('Successfully gets all products for a given account', async () => {
   expect(productData).toContainEqual(testProduct.data)
 });
 
-test('Successfully returns error message is All_Products_For_Account index does not exist', async () => {
+test('Successfully returns error message is All_Products_For_Shop index does not exist', async () => {
   await adminClient.query(
-    Delete(Index(All_Products_For_Account))
+    Delete(Index(All_Products_For_Shop))
   )
   const response = await userClient.query(
-    Call(Get_All_Products_For_Account, []),
+    Call(Get_All_Products_For_Shop, [{
+      shopId: '123'
+    }]),
   )
-  expect(response.message).toEqual("Could not find All_Products_For_Account Index")
+  expect(response.message).toEqual("Could not find All_Products_For_Shop Index")
   expect(response.code).toEqual(Not_Found);
 });
