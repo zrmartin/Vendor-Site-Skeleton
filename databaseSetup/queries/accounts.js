@@ -1,6 +1,7 @@
 const faunadb = require('faunadb')
 const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/database/indexes')
 const { COLLECTIONS: { Accounts, Account_Sessions } } = require('../../util/constants/database/collections')
+const { HTTP_CODES: { Success }} = require('../../util/constants/httpCodes')
 
 const q = faunadb.query
 const {
@@ -112,16 +113,20 @@ function DeleteAllAndCount(pageOfTokens) {
 }
 
 function RegisterAccount(email, password, roles) {
-  return Create(Collection(Accounts), {
-    // credentials is a special field, the contents will never be returned
-    // and will be encrypted. { password: ... } is the only format it currently accepts.
-    credentials: { password: password },
-    // everything you want to store in the document should be scoped under 'data'
-    data: {
-      email: email,
-      roles: roles
-    }
-  })
+  return {
+    data: Create(Collection(Accounts), {
+      // credentials is a special field, the contents will never be returned
+      // and will be encrypted. { password: ... } is the only format it currently accepts.
+      credentials: { password: password },
+      // everything you want to store in the document should be scoped under 'data'
+      data: {
+        email: email,
+        roles: roles
+      },
+    }),
+    code: Success,
+    message: "Account Created"
+  }
 }
 
 function CreateAccessToken(instance, sessionDoc) {

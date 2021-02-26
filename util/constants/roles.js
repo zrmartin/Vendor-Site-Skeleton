@@ -1,5 +1,6 @@
 const ROLES = {
-  owner: "owner"
+  owner: "owner",
+  guest: "guest"
 };
 Object.freeze(ROLES)
 
