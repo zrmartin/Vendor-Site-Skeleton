@@ -13,6 +13,7 @@ const INDEXES = {
   // Products
   All_Products: 'all_products',
   All_Products_For_Account: 'all_products_for_account',
+  All_Products_For_Shop: 'all_products_for_shop',
 
   // Images
   All_Images_For_Entity: 'all_images_for_entity'

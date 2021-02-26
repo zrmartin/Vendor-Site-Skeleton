@@ -114,7 +114,7 @@ function DeleteAllAndCount(pageOfTokens) {
 
 function RegisterAccount(email, password, roles) {
   return {
-    data: Create(Collection(Accounts), {
+    data: Select(["data"], Create(Collection(Accounts), {
       // credentials is a special field, the contents will never be returned
       // and will be encrypted. { password: ... } is the only format it currently accepts.
       credentials: { password: password },
@@ -123,7 +123,7 @@ function RegisterAccount(email, password, roles) {
         email: email,
         roles: roles
       },
-    }),
+    })),
     code: Success,
     message: "Account Created"
   }

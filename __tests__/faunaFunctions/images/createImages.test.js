@@ -23,6 +23,7 @@ afterEach(async () => {
 
 test('Successfully create a single new image for a product', async () => {
   const productBody = {
+    shopId: "123",
     name: "Test Product",
     price: 100,
     quantity: 1
@@ -48,6 +49,7 @@ test('Successfully create a single new image for a product', async () => {
 
 test('Successfully create multiple new images for a product', async () => {
   const productBody = {
+    shopId: "123",
     name: "Test Product",
     price: 100,
     quantity: 1

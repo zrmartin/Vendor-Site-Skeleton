@@ -21,7 +21,13 @@ test('Successfully Refresh token', async () => {
   const email = "test@test.com"
   const password = "password"
   const registerResponse = await adminClient.query(
-    Call(Register, [email, password, [owner]])
+    Call(Register, [
+      {
+        email, 
+        password, 
+        roles: [owner]
+      }
+    ])
   )
 
   const loginResponse = await adminClient.query(

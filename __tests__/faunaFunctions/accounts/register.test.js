@@ -20,7 +20,14 @@ afterEach(async () => {
 test('Successfully create (register) a new account', async () => {
   const email = "test@test.com"
   const registerResponse = await adminClient.query(
-    Call(Register, [email, "password", [owner]])
+    Call(Register, [
+      {
+        email,
+        password: "password",
+        roles: [owner]
+      }
+    ]
+    )
   )
 
   expect(registerResponse.data.email).toEqual(email);

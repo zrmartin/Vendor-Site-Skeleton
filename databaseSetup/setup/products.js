@@ -1,8 +1,8 @@
 const { DeleteIfExists, IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateProduct, GetAllProducts, GetAllProductsForAccount, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
+const { CreateProduct, GetAllProducts, GetAllProductsForAccount, GetAllProductsForShop, GetProduct, UpdateProduct, DeleteProduct } = require('../queries/products')
 const { COLLECTIONS: { Products, Accounts } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Products, All_Products_For_Account }} = require('../../util/constants/database/indexes')
-const { FUNCTIONS: { Create_Product, Get_All_Products, Get_All_Products_For_Account, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
+const { INDEXES: { All_Products, All_Products_For_Account, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
+const { FUNCTIONS: { Create_Product, Get_All_Products, Get_All_Products_For_Account, Get_All_Products_For_Shop, Get_Product, Delete_Product, Update_Product }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Product_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
@@ -31,13 +31,22 @@ const CreateIndexAllProductsForAccount = (productsCollection) => CreateIndex({
   serialized: true
 })
 
+const CreateIndexAllProductsForShop = (productsCollection) => CreateIndex({
+  name: All_Products_For_Shop,
+  source: productsCollection,
+  terms:[
+    { field: ['data', 'shop']}
+  ],
+  serialized: true
+})
+
 
 /* Function Roles */
 
 /* Functions */
 const CreateProductUDF = CreateOrUpdateFunction({
   name: Create_Product,
-  body: Query(Lambda(['data'], CreateProduct(Select(['name'], Var('data')), Select(['price'], Var('data')), Select(['quantity'], Var('data'))))),
+  body: Query(Lambda(['data'], CreateProduct(Select(['shopId'], Var('data')), Select(['name'], Var('data')), Select(['price'], Var('data')), Select(['quantity'], Var('data'))))),
 })
 
 const GetAllProductsUDF = CreateOrUpdateFunction({
@@ -48,6 +57,11 @@ const GetAllProductsUDF = CreateOrUpdateFunction({
 const GetAllProductsForAccountUDF = CreateOrUpdateFunction({
   name: Get_All_Products_For_Account,
   body: Query(Lambda([], GetAllProductsForAccount())),
+})
+
+const GetAllProductsForShopUDF = CreateOrUpdateFunction({
+  name: Get_All_Products_For_Shop,
+  body: Query(Lambda(['data'], GetAllProductsForShop(Select(['shopId'], Var('data'))))),
 })
 
 const GetProductUDF = CreateOrUpdateFunction({
@@ -137,6 +151,10 @@ const CreateShopOwnerProductRole = (createProductFunction, getAllProductsFunctio
               Equals(
                 Select(["data", "account"], Var("oldData")),
                 Select(["data", "account"], Var("newData"))
+              ),
+              Equals(
+                Select(["data", "shop"], Var("oldData")),
+                Select(["data", "shop"], Var("newData"))
               )
             )
           )
@@ -176,6 +194,11 @@ async function createProductsCollection(client) {
           Select(["ref"], Var("products_collection"))
         ))
       },
+      {
+        all_products_for_shop_index: IfNotExists(Index(All_Products_For_Shop), CreateIndexAllProductsForShop(
+          Select(["ref"], Var("products_collection"))
+        ))
+      },
       // Create Function Roles
       // Create Functions
       {
@@ -186,6 +209,9 @@ async function createProductsCollection(client) {
       },
       {
         get_all_products_for_account_function: GetAllProductsForAccountUDF
+      },
+      {
+        get_all_products_for_shop_function: GetAllProductsForShopUDF
       },
       {
         get_product_function: GetProductUDF

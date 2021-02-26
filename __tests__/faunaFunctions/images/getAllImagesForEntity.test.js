@@ -24,6 +24,7 @@ afterEach(async () => {
 
 test('Successfully gets all images for a given product', async () => {
   const productBody = {
+    shopId: "123",
     name: "Test Product",
     price: 100,
     quantity: 1

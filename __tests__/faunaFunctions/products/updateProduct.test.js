@@ -1,23 +1,25 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Update_Product, Create_Product }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Update_Product, Create_Product, Create_Shop }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call } = query
+const { Call, Let, Var, Select } = query
 let adminClient
 let userClient
 let databaseInfo
 let testProduct
 
-
-async function setupTestProduct() {
-  return await userClient.query(
-    Call(Create_Product, [{
+async function setupTestEntities() {
+  testProduct = (await userClient.query(
+    Call(Create_Product, [
+      {
+        shopId: "123",
         name: "Test Product",
         price: 100,
         quantity: 1
-    }])
-  )
+      }
+    ])
+  )).product
 }
 
 beforeEach(async () => {
@@ -27,7 +29,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
-  testProduct = (await setupTestProduct()).product
+  await setupTestEntities()
 })
 
 afterEach(async () => {

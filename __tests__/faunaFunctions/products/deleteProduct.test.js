@@ -1,24 +1,26 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Delete_Product, Create_Product, Create_Images }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Shop, Delete_Product, Create_Product, Create_Images }} = require('../../../util/constants/database/functions')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call } = query
+const { Call, Let, Select, Var } = query
 let adminClient
 let userClient
 let databaseInfo
 let testProduct
 
-
-async function setupTestProduct() {
-  return await userClient.query(
-    Call(Create_Product, [{
+async function setupTestEntities() {
+  testProduct = (await userClient.query(
+    Call(Create_Product, [
+      {
+        shopId: "123",
         name: "Test Product",
         price: 100,
         quantity: 1
-    }])
-  )
+      }
+    ])
+  )).product
 }
 
 beforeEach(async () => {
@@ -28,7 +30,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
-  testProduct = (await setupTestProduct()).product
+  await setupTestEntities()
 })
 
 afterEach(async () => {
