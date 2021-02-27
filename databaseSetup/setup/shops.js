@@ -1,8 +1,8 @@
 const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateShop, GetShop, GetAllShops, DeleteShop, UpdateShop } = require('../queries/shops')
+const { CreateShop, GetShop, GetAllShops, GetShopForAccount, DeleteShop, UpdateShop } = require('../queries/shops')
 const { COLLECTIONS: { Accounts, Shops } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Shops, All_Shops_For_Account }} = require('../../util/constants/database/indexes')
-const { FUNCTIONS: { Create_Shop, Get_Shop, Get_All_Shops, Delete_Shop, Update_Shop }} = require('../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Shop, Get_Shop, Get_Shop_For_Account, Get_All_Shops, Delete_Shop, Update_Shop, }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Shop_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
@@ -49,6 +49,11 @@ const GetAllShopsUDF = CreateOrUpdateFunction({
   body: Query(Lambda([], GetAllShops())),
 })
 
+const GetShopForAccountUDF = CreateOrUpdateFunction({
+  name: Get_Shop_For_Account,
+  body: Query(Lambda([], GetShopForAccount())),
+})
+
 const DeleteShopUDF = CreateOrUpdateFunction({
   name: Delete_Shop,
   body: Query(Lambda(['data'], DeleteShop(Select(['id'], Var('data'))))),
@@ -60,7 +65,7 @@ const UpdateShopUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, updateShopFunction, deleteShopFunction, allShopsIndex, allShopsForAccountIndex, shopsCollection) => CreateOrUpdateRole({
+const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, getShopForAccountFunction, updateShopFunction, deleteShopFunction, allShopsIndex, allShopsForAccountIndex, shopsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Shop_Access,
   membership: [{ 
     resource: Collection(Accounts),
@@ -87,6 +92,12 @@ const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getSho
     },
     {
       resource: getShopFunction,
+      actions: {
+        call: true
+      }
+    },
+    {
+      resource: getShopForAccountFunction,
       actions: {
         call: true
       }
@@ -172,6 +183,9 @@ async function createShopsCollection(client) {
         get_shop_function: GetShopUDF
       },
       {
+        get_shop_for_account_function: GetShopForAccountUDF
+      },
+      {
         update_shop_function: UpdateShopUDF
       },
       {
@@ -183,6 +197,7 @@ async function createShopsCollection(client) {
           Select(["ref"], Var("create_shop_function")),
           Select(["ref"], Var("get_all_shops_function")),
           Select(["ref"], Var("get_shop_function")),
+          Select(["ref"], Var("get_shop_for_account_function")),
           Select(["ref"], Var("update_shop_function")),
           Select(["ref"], Var("delete_shop_function")),
           Select(["ref"], Var("all_shops_index")),

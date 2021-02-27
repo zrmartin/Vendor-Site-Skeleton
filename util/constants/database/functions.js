@@ -9,6 +9,7 @@ const FUNCTIONS = {
   // Shop Functions
   Create_Shop: 'create_shop',
   Get_Shop: 'get_shop',
+  Get_Shop_For_Account: 'get_shop_for_account',
   Get_All_Shops: 'get_all_shops',
   Delete_Shop: 'delete_shop',
   Update_Shop: 'update_shop',

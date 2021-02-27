@@ -64,6 +64,27 @@ function GetShop(id) {
   )
 }
 
+function GetShopForAccount() {
+  return If(
+    Exists(Index(All_Shops_For_Account)), 
+    {
+      shop: Select(
+        ["data", 0], 
+        Map(
+          Paginate(Match(Index(All_Shops_For_Account), CurrentIdentity())),
+          Lambda("X", Get(Var("X")))
+        ),
+        {}
+      ),
+      code: Success,
+    },
+    {
+      code: Not_Found,
+      message: "Could not find All_Shops_For_Account Index"
+    }
+  )
+}
+
 function UpdateShop(id, name) {
   return If(
     Exists(Ref(Collection(Shops), id)),
@@ -100,4 +121,4 @@ function DeleteShop(id) {
     }
   )
 }
-module.exports = { CreateShop, GetAllShops, GetShop, UpdateShop, DeleteShop }
+module.exports = { CreateShop, GetAllShops, GetShop, GetShopForAccount, UpdateShop, DeleteShop }

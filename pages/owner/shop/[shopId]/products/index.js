@@ -32,14 +32,14 @@ const OwnerProductsHome = () => {
       <>
           <h1>Products</h1>
           <br/>
-          <Link href={Owner_Product_Create_Page}>
+          <Link href={Owner_Product_Create_Page(shopId)}>
               <a>Create New Product</a>
           </Link>
           <br/>
           {
             products?.map(product =>
               <div key={getId(product)}>
-                <Link href={Owner_Product_Index_Page(getId(product))}>
+                <Link href={Owner_Product_Index_Page(shopId, getId(product))}>
                   <a>{product.data.name}</a>
                 </Link>
                  - price ${getPrice(product.data.price)} - quantity - {product.data.quantity}
