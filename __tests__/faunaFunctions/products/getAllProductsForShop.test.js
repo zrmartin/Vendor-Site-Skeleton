@@ -1,26 +1,28 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Get_All_Products_For_Shop, Create_Product }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Get_All_Products_For_Shop }} = require('../../../util/constants/database/functions')
+const { COLLECTIONS: { Products, Shops }} = require('../../../util/constants/database/collections')
 const { INDEXES: { All_Products_For_Shop }} = require('../../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call, Delete, Index } = query
+const { Call, Delete, Index, Collection, Create, CurrentIdentity, Ref } = query
 let adminClient
 let userClient
 let databaseInfo
 let testProduct
 
 async function setupTestEntities() {
-  testProduct = (await userClient.query(
-    Call(Create_Product, [
-      {
-        shopId: "123",
+  testProduct = await userClient.query(
+    Create(Collection(Products), {
+      data: {
+        account: CurrentIdentity(),
+        shop: Ref(Collection(Shops), "123"),
         name: "Test Product",
         price: 100,
         quantity: 1
       }
-    ])
-  )).product
+    })
+  )
 }
 
 beforeEach(async () => {
@@ -40,14 +42,17 @@ afterEach(async () => {
 test('Successfully gets all products for a given shop', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
   // Create a second product under a different account
-  const testProduct2 = (await userClient2.query(
-    Call(Create_Product, [{
-      shopId: "456",
-      name: "Test Product 2",
-      price: 100,
-      quantity: 1
-    }])
-  )).product
+  const testProduct2 = await userClient2.query(
+    Create(Collection(Products), {
+      data: {
+        account: CurrentIdentity(),
+        shop: Ref(Collection(Shops), "456"),
+        name: "Test Product",
+        price: 100,
+        quantity: 1
+      }
+    })
+  )
 
   const response = await userClient.query(
     Call(Get_All_Products_For_Shop, [{

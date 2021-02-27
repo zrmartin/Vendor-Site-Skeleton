@@ -1,20 +1,24 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Get_All_Shops, Create_Shop }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Get_All_Shops }} = require('../../../util/constants/database/functions')
 const { INDEXES: { All_Shops }} = require('../../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call, Delete, Index } = query
+const { COLLECTIONS: { Shops }} = require('../../../util/constants/database/collections')
+const { Call, Delete, Index, Create, Collection, CurrentIdentity } = query
 let adminClient
 let userClient
 let databaseInfo
 let testShop
 
-async function setupTestShop() {
-  return await userClient.query(
-    Call(Create_Shop, [{
-        name: "Test Shop",
-    }])
+async function setupTestEntities() {
+  testShop = await userClient.query(
+    Create(Collection(Shops), {
+      data: {
+        account: CurrentIdentity(),
+        name: "Test Shop"
+      }
+    })
   )
 }
 
@@ -25,7 +29,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
-  testShop = (await setupTestShop()).shop
+  await setupTestEntities()
 })
 
 afterEach(async () => {
@@ -36,12 +40,14 @@ test('Successfully gets all shops for for all accounts', async () => {
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
 
   // Create a second shop under a different account
-  const shopData = {
-    name: "Test Shop 2"
-  }
-  const testShop2 = (await userClient2.query(
-    Call(Create_Shop, [shopData])
-  )).shop
+  const testShop2 = await userClient2.query(
+    Create(Collection(Shops), {
+      data: {
+        account: CurrentIdentity(),
+        name: "Test Shop"
+      }
+    })
+  )
 
   const getAllShopsReponse = await userClient.query(
     Call(Get_All_Shops, [])

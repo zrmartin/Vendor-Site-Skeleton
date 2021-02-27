@@ -1,6 +1,6 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Create_Images, Create_Product }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Images }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require('../../../util/constants/httpCodes')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
@@ -22,21 +22,11 @@ afterEach(async () => {
 })
 
 test('Successfully create a single new image for a product', async () => {
-  const productBody = {
-    shopId: "123",
-    name: "Test Product",
-    price: 100,
-    quantity: 1
-  }
-  const productResponse = await userClient.query(
-    Call(Create_Product, [productBody])
-  )
-
   const imageKeys = ["123"]
   const imageResponse = await userClient.query(
     Call(Create_Images, [{
       imageKeys,
-      entityId: productResponse.product.ref.id,
+      entityId: "123",
       entityCollection: Products
     }])
   )
@@ -48,21 +38,11 @@ test('Successfully create a single new image for a product', async () => {
 });
 
 test('Successfully create multiple new images for a product', async () => {
-  const productBody = {
-    shopId: "123",
-    name: "Test Product",
-    price: 100,
-    quantity: 1
-  }
-  const productResponse = await userClient.query(
-    Call(Create_Product, [productBody])
-  )
-
   const imageKeys = ["123", "456"]
   const imageResponse = await userClient.query(
     Call(Create_Images, [{
       imageKeys,
-      entityId: productResponse.product.ref.id,
+      entityId: "123",
       entityCollection: Products
     }])
   )

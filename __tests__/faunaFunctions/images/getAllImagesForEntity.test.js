@@ -1,14 +1,29 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Create_Images, Create_Product, Get_All_Images_For_Entity }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Images, Get_All_Images_For_Entity }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
-const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
+const { COLLECTIONS: { Products, Shops }} = require('../../../util/constants/database/collections')
 const { INDEXES: { All_Images_For_Entity }} = require('../../../util/constants/database/indexes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call, Delete, Index } = query
+const { Call, Delete, Index, Create, Collection, CurrentIdentity, Ref } = query
 let adminClient
 let userClient
 let databaseInfo
+let testProduct
+
+async function setupTestEntities() {
+  testProduct = await userClient.query(
+    Create(Collection(Products), {
+      data: {
+        account: CurrentIdentity(),
+        shop: Ref(Collection(Shops), "123"),
+        name: "Test Product",
+        price: 100,
+        quantity: 1
+      }
+    })
+  )
+}
 
 beforeEach(async () => {
   databaseInfo = await createChildDatabase()
@@ -17,34 +32,25 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
+  await setupTestEntities()
 })
 afterEach(async () => {
   await destroyDatabase(databaseInfo)
 })
 
 test('Successfully gets all images for a given product', async () => {
-  const productBody = {
-    shopId: "123",
-    name: "Test Product",
-    price: 100,
-    quantity: 1
-  }
-  const productResponse = await userClient.query(
-    Call(Create_Product, [productBody])
-  )
-
   const imageKeys = ["123"]
   const imageResponse = await userClient.query(
     Call(Create_Images, [{
       imageKeys,
-      entityId: productResponse.product.ref.id,
+      entityId: testProduct.ref.id,
       entityCollection: Products
     }])
   )
 
   const allImagesForEntityRepsonse = await userClient.query(
     Call(Get_All_Images_For_Entity, [{
-      entityId: productResponse.product.ref.id,
+      entityId: testProduct.ref.id,
       entityCollection: Products
     }])
   )

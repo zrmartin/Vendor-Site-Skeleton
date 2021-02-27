@@ -1,6 +1,6 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Create_Images, Create_Product, Delete_Image }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Images, Delete_Image }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { COLLECTIONS: { Products }} = require('../../../util/constants/database/collections')
 const { ROLES: { owner }} = require('../../../util/constants/roles')

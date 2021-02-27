@@ -1,26 +1,41 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Call, Function } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Call, Function, Equals, Let } = q
 
 const { COLLECTIONS: { Products, Shops } } = require('../../util/constants/database/collections')
 const { INDEXES: { All_Products, All_Images_For_Entity, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Get_All_Images_For_Entity }} = require('../../util/constants/database/functions')
-const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/httpCodes')
+const { HTTP_CODES: { Success, Not_Found, Bad_Request }} = require('../../util/constants/httpCodes')
 
 function CreateProduct(shopId, name, price, quantity) {
-  return {
-    code: Success,
-    message: "Product Created",
-    product: Create(Collection(Products), {
-      data: {
-        account: CurrentIdentity(),
-        shop: Ref(Collection(Shops), shopId),
-        name,
-        price,
-        quantity
+  return Let(
+    {
+      shop: Get(
+        Ref(Collection(Shops), shopId)
+      ),
+      accountRef: Select(["data", "account"], Var("shop"))
+    },
+    If(
+      Equals(Var("accountRef"), CurrentIdentity()),
+      {
+        code: Success,
+        message: "Product Created",
+        product: Create(Collection(Products), {
+          data: {
+            account: CurrentIdentity(),
+            shop: Ref(Collection(Shops), shopId),
+            name,
+            price,
+            quantity
+          }
+        })
+      },
+      {
+        code: Bad_Request,
+        message: "Cannot create product for a store that is not yours"
       }
-    })
-  }
+    )
+  )
 }
 
 function GetAllProducts() {

@@ -112,10 +112,6 @@ const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getSho
       actions: { read: true }
     },
     {
-      resource: Indexes(),
-      actions: { read: true }
-    },
-    {
       resource: shopsCollection,
       actions: {
         write: Query(

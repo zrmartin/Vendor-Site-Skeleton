@@ -1,19 +1,23 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Get_Shop, Create_Shop }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Get_Shop }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call } = query
+const { COLLECTIONS: { Shops }} = require('../../../util/constants/database/collections')
+const { Call, Create, Collection, CurrentIdentity } = query
 let adminClient
 let userClient
 let databaseInfo
 let testShop
 
-async function setupTestShop() {
-  return await userClient.query(
-    Call(Create_Shop, [{
-        name: "Test Shop",
-    }])
+async function setupTestEntities() {
+  testShop = await userClient.query(
+    Create(Collection(Shops), {
+      data: {
+        account: CurrentIdentity(),
+        name: "Test Shop"
+      }
+    })
   )
 }
 
@@ -24,7 +28,7 @@ beforeEach(async () => {
   })
   await setupDatabase(adminClient)
   userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
-  testShop = (await setupTestShop()).shop
+  await setupTestEntities()
 })
 
 afterEach(async () => {
