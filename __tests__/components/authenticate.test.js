@@ -11,7 +11,9 @@ jest.mock("next/router", () => ({
       return {
           route: "/",
           pathname: "/owner",
-          query: "",
+          query: {
+            shopId: 123
+          },
           asPath: "",
       };
   },
@@ -58,7 +60,7 @@ test('User is authenticated then component is displayed', async () => {
   expect(await findByText('Hello Owner')).toBeInTheDocument()
 });
 
-test('User Refresh Token has expired and must login again', async () => {
+test('Refresh Token throws an error I.E User is not logged in', async () => {
   server.use(
     rest.get('http://localhost:3000/api/refreshFaunaToken', (req, res, ctx) => {
       return res(
@@ -71,8 +73,7 @@ test('User Refresh Token has expired and must login again', async () => {
   )
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
 
-  // Session has expired
-  expect(await findByText('Your session has expired, please login again')).toBeInTheDocument()
+  expect(await findByText('Please login to view this page')).toBeInTheDocument()
 });
 
 test('User is not logged in and is trying to view role-restircted page', async () => {
@@ -88,7 +89,6 @@ test('User is not logged in and is trying to view role-restircted page', async (
   )
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
 
-  // User does not have specified role
   expect(await findByText('Please login to view this page')).toBeInTheDocument()
 });
 
@@ -113,7 +113,53 @@ test('User does not have role/permission to view page', async () => {
   )
   const { findByText } = render(<Authenticate Component={TestComponent}/>)
 
-  // Session has expired
+  expect(await findByText('You do not have permission to access to this page')).toBeInTheDocument()
+});
+
+test('User is trying to access a shop that is not theirs', async () => {
+  server.use(
+    rest.get('http://localhost:3000/api/refreshFaunaToken', (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          body: {
+            secret: "abc-123",
+            account: {
+              ref: {
+                ['@ref']: {
+                  id: 123
+                }
+              },
+              data: {
+                email: "test@test.com",
+                roles: ["owner"]
+              }
+            }
+          }
+        })
+      )
+    }),
+    rest.post('http://localhost:3000/api/callFunction', (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          body: {
+            shop: {
+              data: {
+                account: {
+                  ['@ref']: {
+                    id: "456"
+                  }
+                }
+              }
+            }
+          }
+        })
+      )
+    })
+  )
+  const { findByText } = render(<Authenticate Component={TestComponent}/>)
+
   expect(await findByText('You do not have permission to access to this page')).toBeInTheDocument()
 });
 

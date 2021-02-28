@@ -34,7 +34,6 @@ export const Authenticate = ({ Component, pageProps }) => {
       setAccessToken(results.secret)
     }
     catch(e) {
-      console.log(e)
     }
   }
 
@@ -47,7 +46,6 @@ export const Authenticate = ({ Component, pageProps }) => {
       setShopOwnerAccountId(getId(getShopResponse?.shop.data?.account))
     }
     catch(e) {
-      console.log(e)
     }
   }
 
