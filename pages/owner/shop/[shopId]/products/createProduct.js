@@ -8,7 +8,7 @@ import { createProductSchema, } from '../../../../../validators'
 const { FUNCTIONS: { Create_Product }} = require('../../../../../util/constants/database/functions')
 const { URL_PATHS: { Owner_Product_Index_Page }} = require('../../../../../util/constants/urlPaths')
 
-const NewProductPage = () => {
+const CreateProductPage = () => {
   const { register, handleSubmit, errors } = useForm({ 
     resolver: yupResolver(createProductSchema)
   })
@@ -55,4 +55,4 @@ const NewProductPage = () => {
   );
 };
 
-export default NewProductPage
+export default CreateProductPage

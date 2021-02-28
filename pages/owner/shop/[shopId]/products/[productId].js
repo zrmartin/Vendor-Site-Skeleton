@@ -3,15 +3,15 @@ import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/router'
-import { CALL_FAUNA_FUNCTION, POST } from "../../../../util/requests"
-import { useAccount } from '../../../../context/accountContext'
-import { getId, getCollection, getPrice, handleFaunaResults, handleFaunaError } from '../../../../util/helpers'
-import { HttpError, DropZone, ServerError } from '../../../../components'
-import { updateProductSchema, getProductSchema, deleteProductSchema, createImagesSchema, deleteImageSchema } from '../../../../validators'
-const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Delete_Image }} = require('../../../../util/constants/database/functions')
-const { VERCEL_FUNCTIONS: { Delete_S3_Files }} = require ('../../../../util/constants/vercelFunctions')
-const { HTTP_CODES: { Success }} = require ('../../../../util/constants/httpCodes')
-const { URL_PATHS: { Owner_Products_Index_Page }} = require('../../../../util/constants/urlPaths')
+import { CALL_FAUNA_FUNCTION, POST } from "../../../../../util/requests"
+import { useAccount } from '../../../../../context/accountContext'
+import { getId, getCollection, getPrice, handleFaunaResults, handleFaunaError } from '../../../../../util/helpers'
+import { HttpError, DropZone, ServerError } from '../../../../../components'
+import { updateProductSchema, getProductSchema, deleteProductSchema, createImagesSchema, deleteImageSchema } from '../../../../../validators'
+const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Delete_Image }} = require('../../../../../util/constants/database/functions')
+const { VERCEL_FUNCTIONS: { Delete_S3_Files }} = require ('../../../../../util/constants/vercelFunctions')
+const { HTTP_CODES: { Success }} = require ('../../../../../util/constants/httpCodes')
+const { URL_PATHS: { Owner_Products_Index_Page }} = require('../../../../../util/constants/urlPaths')
 
 const OwnerProductPage = () => {
   const { register, handleSubmit, errors } = useForm({ 

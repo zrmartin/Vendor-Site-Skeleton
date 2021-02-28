@@ -6,7 +6,7 @@ import { handleFaunaResults } from '../util/helpers'
 const { VERCEL_FUNCTIONS: { Register }} = require ('../util/constants/vercelFunctions')
 
 export const RegisterAccount = () => {
-  let { setAccessToken, setAccount, setSessionExpired, account, accessToken } = useAccount()
+  let { setAccessToken, setAccount, account, accessToken } = useAccount()
   const { register, handleSubmit, errors } = useForm()
 
   let registerNewUser = async (formData) => {

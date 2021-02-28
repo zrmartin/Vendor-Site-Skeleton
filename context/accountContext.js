@@ -6,7 +6,7 @@ export const AccountProvider = ({ children }) => {
   const [account, setAccount] = useState(undefined)
   const [accessToken, setAccessToken] = useState(undefined)
   const [busy, setBusy] = useState(false)
-  const [sessionExpired, setSessionExpired] = useState(false)
+  const [shopOwnerAccountId, setShopOwnerAccountId] = useState(undefined)
 
   const context = {
     account,
@@ -15,8 +15,8 @@ export const AccountProvider = ({ children }) => {
     setAccessToken,
     setBusy,
     busy,
-    sessionExpired,
-    setSessionExpired
+    shopOwnerAccountId,
+    setShopOwnerAccountId,
   }
   return <AccountContext.Provider value={context}>{children}</AccountContext.Provider>
 }

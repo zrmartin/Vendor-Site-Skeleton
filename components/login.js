@@ -5,7 +5,7 @@ import { POST, GET } from "../util/requests"
 const { VERCEL_FUNCTIONS: { LogIn, LogOut }} = require ('../util/constants/vercelFunctions')
 
 export const Login = () => {
-  let { setAccessToken, setAccount, setSessionExpired, account, accessToken } = useAccount()
+  let { setAccessToken, setAccount, account, accessToken } = useAccount()
   const { register, handleSubmit, errors } = useForm()
 
   let login = async (formData) => {
@@ -17,7 +17,6 @@ export const Login = () => {
       })
       setAccessToken(results.secret)
       setAccount(results.account)
-      setSessionExpired(false)
     }
     catch (e) {
       toast.error(e.message)

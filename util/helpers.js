@@ -12,7 +12,13 @@ export function getCookie(cookie, name) {
 }
 
 export const getId = (obj) => {
- return obj?.ref['@ref']?.id
+  if (obj?.ref?.['@ref']?.id) {
+    return obj.ref['@ref'].id
+  }
+  else if (obj?.['@ref']?.id) {
+    return obj['@ref'].id
+  }
+  return undefined
 }
 
 export const getCollection = (obj) => {
