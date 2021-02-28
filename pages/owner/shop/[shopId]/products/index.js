@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { CALL_FAUNA_FUNCTION } from "../../../../../util/requests"
 import { useAccount } from '../../../../../context/accountContext'
 import { getId, getPrice } from '../../../../../util/helpers'
-import { HttpError, ServerError } from '../../../../../components'
+import { HttpError, ServerError, Loading } from '../../../../../components'
 const { FUNCTIONS: { Get_All_Products_For_Shop }} = require('../../../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../../../../util/constants/httpCodes')
 const { URL_PATHS: { Owner_Product_Index_Page, Owner_Product_Create_Page }} = require('../../../../../util/constants/urlPaths')
@@ -23,7 +23,7 @@ const OwnerProductsHome = () => {
   )
 
   if (error) return <ServerError error={error}/>
-  if (!data) return <div>loading...</div>
+  if (!data) return <Loading/>
   if (data.code !== Success) return <HttpError error={data}/>
 
   const products = data.products

@@ -6,6 +6,7 @@ import { HttpError } from './httpError'
 import { ServerError } from './serverError'
 import { DropZone } from './dropZone'
 import { ErrorBoundary } from './errorBoundary'
+import { Loading } from './loading'
 
 export {
   RegisterAccount,
@@ -14,5 +15,6 @@ export {
   HttpError,
   ServerError,
   DropZone,
-  ErrorBoundary
+  ErrorBoundary,
+  Loading
 }

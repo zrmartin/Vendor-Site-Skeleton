@@ -5,6 +5,7 @@ import Unauthenticated from '../pages/unauthenticated';
 import { ROLES } from '../util/constants/roles';
 import { GET, CALL_FAUNA_FUNCTION } from '../util/requests';
 import { getId } from '../util/helpers';
+import { Loading } from '../components';
 const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
 const { FUNCTIONS: { Get_Shop }} = require('../util/constants/database/functions')
 
@@ -50,9 +51,7 @@ export const Authenticate = ({ Component, pageProps }) => {
   }
 
   if (busy) {
-    return (
-      <h1>Loading</h1>
-    )
+    return <Loading/>
   }
 
   //User is not logged in and trying to access restricted paths
