@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useAccount } from '../../../../context/accountContext'
 import { HttpError, ServerError, Loading } from '../../../../components'
 import { CALL_FAUNA_FUNCTION } from "../../../../util/requests"
-import { getShopSchema } from '../../../../../validators'
+import { getShopSchema } from '../../../../validators'
 const { HTTP_CODES: { Success }} = require ('../../../../util/constants/httpCodes')
 const { URL_PATHS: { Owner_Products_Index_Page }} = require('../../../../util/constants/urlPaths')
 const { FUNCTIONS: { Get_Shop }} = require('../../../../util/constants/database/functions')
