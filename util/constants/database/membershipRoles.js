@@ -10,6 +10,9 @@ const MEMBERSHIP_ROLES = {
 
   // Images
   MembershipRole_Shop_Owner_Image_Access: 'membership_role_shop_owner_image_access',
+
+  // Shopping Cart
+  MembershipRole_Shopping_Cart_Access: 'membership_role_shopping_cart_access',
 };
 Object.freeze(MEMBERSHIP_ROLES)
 

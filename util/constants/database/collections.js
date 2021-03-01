@@ -3,7 +3,8 @@ const COLLECTIONS = {
   Account_Sessions: 'account_sessions',
   Shops: 'shops',
   Products: 'products',
-  Images: 'images'
+  Images: 'images',
+  ShoppingCarts: 'shoppingCarts'
 };
 Object.freeze(COLLECTIONS)
 

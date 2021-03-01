@@ -8,14 +8,17 @@ const INDEXES = {
 
   // Shops
   All_Shops: 'all_shops',
-  All_Shops_For_Account: 'all_shops_for_account',
+  Shop_For_Account: 'shop_for_account',
 
   // Products
   All_Products: 'all_products',
   All_Products_For_Shop: 'all_products_for_shop',
 
   // Images
-  All_Images_For_Entity: 'all_images_for_entity'
+  All_Images_For_Entity: 'all_images_for_entity',
+
+  // Shopping Cart
+  Shopping_Cart_For_Account: 'shopping_cart_for_account'
 };
 Object.freeze(INDEXES)
 

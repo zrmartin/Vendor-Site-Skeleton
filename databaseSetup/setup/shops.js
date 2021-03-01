@@ -1,7 +1,7 @@
 const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
 const { CreateShop, GetShop, GetAllShops, GetShopForAccount, DeleteShop, UpdateShop } = require('../queries/shops')
 const { COLLECTIONS: { Accounts, Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Shops, All_Shops_For_Account }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Shops, Shop_For_Account }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Create_Shop, Get_Shop, Get_Shop_For_Account, Get_All_Shops, Delete_Shop, Update_Shop, }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Shop_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
@@ -22,13 +22,14 @@ const CreateIndexAllShops = (shopCollection) => CreateIndex({
   serialized: true
 })
 
-const CreateIndexAllShopsForAccount = (shopCollection) => CreateIndex({
-  name: All_Shops_For_Account,
+const CreateIndexShopForAccount = (shopCollection) => CreateIndex({
+  name: Shop_For_Account,
   source: shopCollection,
   terms:[
     { field: ['data', 'account']}
   ],
-  serialized: true
+  serialized: true,
+  unique: true
 })
 
 /* Function Roles */
@@ -167,7 +168,7 @@ async function createShopsCollection(client) {
         ))
       },
       {
-        all_shops_for_account_index: IfNotExists(Index(All_Shops_For_Account), CreateIndexAllShopsForAccount(
+        shop_for_account_index: IfNotExists(Index(Shop_For_Account), CreateIndexShopForAccount(
           Select(["ref"], Var("shops_collection"))
         ))
       },
@@ -201,7 +202,7 @@ async function createShopsCollection(client) {
           Select(["ref"], Var("update_shop_function")),
           Select(["ref"], Var("delete_shop_function")),
           Select(["ref"], Var("all_shops_index")),
-          Select(["ref"], Var("all_shops_for_account_index")),
+          Select(["ref"], Var("shop_for_account_index")),
           Select(["ref"], Var("shops_collection")),
         ),
       },

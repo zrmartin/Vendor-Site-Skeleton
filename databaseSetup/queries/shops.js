@@ -3,21 +3,11 @@ const q = faunadb.query
 const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Let, GT, Count} = q
 
 const { COLLECTIONS: { Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Shops, All_Shops_For_Account }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Shops, Shop_For_Account }} = require('../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found, Validation_Error }} = require('../../util/constants/httpCodes')
 
 function CreateShop(name) {
-  return Let(
-  {
-    numShops: Count(Match(Index(All_Shops_For_Account), CurrentIdentity()))
-  },
-  If(
-    GT(Var("numShops"), 0),
-    {
-      code: Validation_Error,
-      message: "You cannot create more than 1 Shop"
-    },
-    {
+  return {
       code: Success,
       message: "Shop Created",
       shop: Create(Collection(Shops), {
@@ -26,8 +16,7 @@ function CreateShop(name) {
           name,
         }
       })
-    }
-  ))
+  }
 }
 
 function GetAllShops() {
@@ -66,12 +55,12 @@ function GetShop(id) {
 
 function GetShopForAccount() {
   return If(
-    Exists(Index(All_Shops_For_Account)), 
+    Exists(Index(Shop_For_Account)), 
     {
       shop: Select(
         ["data", 0], 
         Map(
-          Paginate(Match(Index(All_Shops_For_Account), CurrentIdentity())),
+          Paginate(Match(Index(Shop_For_Account), CurrentIdentity())),
           Lambda("X", Get(Var("X")))
         ),
         {}
@@ -80,7 +69,7 @@ function GetShopForAccount() {
     },
     {
       code: Not_Found,
-      message: "Could not find All_Shops_For_Account Index"
+      message: "Could not find Shop_For_Account Index"
     }
   )
 }
