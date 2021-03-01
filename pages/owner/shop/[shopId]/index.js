@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { useAccount } from '../../../../context/accountContext'
 import { HttpError, ServerError, Loading } from '../../../../components'
 import { CALL_FAUNA_FUNCTION } from "../../../../util/requests"
+import { getShopSchema } from '../../../../../validators'
 const { HTTP_CODES: { Success }} = require ('../../../../util/constants/httpCodes')
 const { URL_PATHS: { Owner_Products_Index_Page }} = require('../../../../util/constants/urlPaths')
 const { FUNCTIONS: { Get_Shop }} = require('../../../../util/constants/database/functions')
@@ -13,7 +14,7 @@ const OwnerShopIndex = () =>  {
   const router = useRouter()
   const { shopId } = router.query
   const { data, mutate, error } = useSWR(
-    [Get_Shop, accountContext.accessToken, null, shopId], 
+    [Get_Shop, accountContext.accessToken, getShopSchema, shopId], 
     (url, token, validator, id) => 
     CALL_FAUNA_FUNCTION(
       url, token, validator, { id }

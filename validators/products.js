@@ -5,6 +5,11 @@ export const getProductSchema = yup.object().shape({
       .required("Id is required"),
 });
 
+export const getAllProductsForShopSchema = yup.object().shape({
+  shopId: yup.string().typeError("Id must be a string")
+      .required("Id is required"),
+});
+
 export const deleteProductSchema = yup.object().shape({
   id: yup.string().typeError("Id must be a string")
       .required("Id is required"),

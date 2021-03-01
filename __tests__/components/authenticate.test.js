@@ -35,9 +35,32 @@ const server = setupServer(
         body: {
           secret: "abc-123",
           account: {
+            ref: {
+              ['@ref']: {
+                id: 123
+              }
+            },
             data: {
               email: "test@test.com",
               roles: ["owner"]
+            }
+          }
+        }
+      })
+    )
+  }),
+  rest.post('http://localhost:3000/api/callFunction', (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        body: {
+          shop: {
+            data: {
+              account: {
+                ['@ref']: {
+                  id: 123
+                }
+              }
             }
           }
         }
