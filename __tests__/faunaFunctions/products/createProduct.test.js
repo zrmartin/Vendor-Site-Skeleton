@@ -1,20 +1,24 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
-const { FUNCTIONS: { Create_Product, Create_Shop }} = require('../../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
+const { COLLECTIONS: { Shops }} = require('../../../util/constants/database/collections')
 const { HTTP_CODES: { Success, Bad_Request }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
-const { Call } = query
+const { Call, Create, Collection, CurrentIdentity } = query
 let adminClient
 let userClient
 let databaseInfo
 let testShop
 
 async function setupTestEntities() {
-  testShop = (await userClient.query(
-    Call(Create_Shop, [{
+  testShop = await userClient.query(
+    Create(Collection(Shops), {
+      data: {
+        account: CurrentIdentity(),
         name: "Test Shop",
-    }])
-  )).shop
+      }
+    })
+  )
 }
 
 beforeEach(async () => {
@@ -54,7 +58,7 @@ test('Successfully returns error when trying to create new product under a diffe
   const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
   
   const body = {
-    shop: testShop.ref.id,
+    shopId: testShop.ref.id,
     name: "Test Product",
     price: 100,
     quantity: 1,

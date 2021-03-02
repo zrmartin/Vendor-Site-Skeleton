@@ -96,5 +96,5 @@ test('Succesfully displays session timeout if error is un-authenticated and refr
   )
 
   // Session has expired
-  expect(await findByText('Your session has expired, please login again')).toBeInTheDocument()
+  expect(await findByText('Please login to view this page')).toBeInTheDocument()
 });
