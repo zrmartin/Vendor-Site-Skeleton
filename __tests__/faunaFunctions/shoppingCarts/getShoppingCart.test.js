@@ -46,12 +46,12 @@ test('Successfully gets existing shopping cart', async () => {
   expect(response.shoppingCart.data).toMatchObject(testShoppingCart.data)
 });
 
-test('Successfully returns error message if shopping cart does not exist', async () => {
-  const response = await userClient.query(
-    Call(Get_Shopping_Cart, [{
-      id: "-1"
-    }]),
-  )
-  expect(response.message).toEqual("Shopping Cart not found")
-  expect(response.code).toEqual(Not_Found);
-});
+// test('Successfully returns error message if shopping cart does not exist', async () => {
+//   const response = await userClient.query(
+//     Call(Get_Shopping_Cart, [{
+//       id: "-1"
+//     }]),
+//   )
+//   expect(response.message).toEqual("Shopping Cart not found")
+//   expect(response.code).toEqual(Not_Found);
+// });

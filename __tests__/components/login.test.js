@@ -44,7 +44,7 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
  
-test('Successfully logs user in and out and sets cookie', async () => {
+test('Successfully logs user in and out and sets cookie/localStorage', async () => {
   const { findByText } = render(<Login />)
 
   // Login
@@ -55,12 +55,18 @@ test('Successfully logs user in and out and sets cookie', async () => {
   // Cookie is set
   expect(document.cookie).toMatch(/refreshToken=abc-123/i)
 
+  // Local Storage is set
+  expect(localStorage.getItem('loggedIn')).not.toEqual(null)
+
   // Logout
   fireEvent.click(await findByText('Logout'))
   expect(await findByText('Login')).toBeInTheDocument()
 
   // Cookie is deleted
   expect(document.cookie).not.toMatch(/refreshToken=abc-123/i)
+
+  // Local Storage is removed
+  expect(localStorage.getItem('loggedIn')).toEqual(null)
 });
 
 test('Invalid Credentails Succesfully displays toast', async () => {
@@ -84,4 +90,7 @@ test('Invalid Credentails Succesfully displays toast', async () => {
 
   // Invalid Credentials Toast
   expect(await findByText(errorMessage)).toBeInTheDocument()
+
+  // Local Storage is not set
+  expect(localStorage.getItem('loggedIn')).toEqual(null)
 });

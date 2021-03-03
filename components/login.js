@@ -17,6 +17,7 @@ export const Login = () => {
       })
       setAccessToken(results.secret)
       setAccount(results.account)
+      localStorage.setItem("loggedIn", true)
     }
     catch (e) {
       toast.error(e.message)
@@ -28,6 +29,7 @@ export const Login = () => {
       await GET(LogOut)
       setAccessToken(null)
       setAccount(null)
+      localStorage.removeItem("loggedIn")
     }
     catch (e) {
       toast.error(e.message)

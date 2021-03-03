@@ -9,7 +9,7 @@ const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/http
 function CreateShoppingCart() {
   return {
     code: Success,
-    product: Create(Collection(ShoppingCarts), {
+    shoppingCart: Create(Collection(ShoppingCarts), {
       data: {
         account: CurrentIdentity(),
         products: {}

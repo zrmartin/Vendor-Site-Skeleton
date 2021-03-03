@@ -44,6 +44,9 @@ const server = setupServer(
   })
 )
 
+beforeEach(() => {
+  localStorage.clear();
+});
 beforeAll(() => {
   server.listen()
   jest.resetModules()
@@ -67,6 +70,7 @@ test('Succesfully display non-unauthenticated error message', async () => {
 });
 
 test('Succesfully refreshes Access Token if error is un-authenticated and displays component', async () => {
+  localStorage.setItem('loggedIn', true)
   const { findByText } = render(
     <Authenticate Component={TestComponent}>
       <ServerError/>
@@ -78,6 +82,7 @@ test('Succesfully refreshes Access Token if error is un-authenticated and displa
 });
 
 test('Succesfully displays session timeout if error is un-authenticated and refreshToken is expired', async () => {
+  localStorage.setItem('loggedIn', true)
   server.use(
     rest.get('http://localhost:3000/api/refreshFaunaToken', (req, res, ctx) => {
       return res(
