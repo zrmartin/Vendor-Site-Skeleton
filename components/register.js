@@ -2,8 +2,8 @@ import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { useAccount } from '../context/accountContext'
 import { CALL_FAUNA_FUNCTION } from "../util/requests"
-import { handleFaunaResults } from '../util/helpers'
-const { VERCEL_FUNCTIONS: { Register }} = require ('../util/constants/vercelFunctions')
+import { handleFaunaResults, getId } from '../util/helpers'
+const { FUNCTIONS: { Create_Shopping_Cart, Register }} = require ('../util/constants/database/functions')
 
 export const RegisterAccount = () => {
   let { setAccessToken, setAccount, account, accessToken } = useAccount()
@@ -12,12 +12,15 @@ export const RegisterAccount = () => {
   let registerNewUser = async (formData) => {
     try {
       const { email, password } = formData
-      let results = await CALL_FAUNA_FUNCTION(Register, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, {
+      let registerResult = await CALL_FAUNA_FUNCTION(Register, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, {
         email,
         password,
         roles: ["guest"]
       })
-      handleFaunaResults(results)
+      handleFaunaResults(registerResult)
+      await CALL_FAUNA_FUNCTION(Create_Shopping_Cart, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, {
+        accountId: getId(registerResult.account)
+      })
     }
     catch (e) {
       toast.error(e.message)

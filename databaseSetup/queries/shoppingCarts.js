@@ -2,16 +2,16 @@ const faunadb = require('faunadb')
 const q = faunadb.query
 const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Add, Ref, CurrentIdentity, Update, If, Exists, Select, Replace, Equals, Let, ToObject } = q
 
-const { COLLECTIONS: { ShoppingCarts } } = require('../../util/constants/database/collections')
+const { COLLECTIONS: { ShoppingCarts, Accounts } } = require('../../util/constants/database/collections')
 const { INDEXES: { Shopping_Cart_For_Account }} = require('../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/httpCodes')
 
-function CreateShoppingCart() {
+function CreateShoppingCart(accountId) {
   return {
     code: Success,
     shoppingCart: Create(Collection(ShoppingCarts), {
       data: {
-        account: CurrentIdentity(),
+        account: Ref(Collection(Accounts), accountId),
         products: {}
       }
     })

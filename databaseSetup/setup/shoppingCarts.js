@@ -28,7 +28,7 @@ const CreateIndexShoppingCartForAccount = (shoppingCartsCollection) => CreateInd
 /* Functions */
 const CreateShoppingCartUDF = CreateOrUpdateFunction({
   name: Create_Shopping_Cart,
-  body: Query(Lambda([], CreateShoppingCart())),
+  body: Query(Lambda(['data'], CreateShoppingCart(Select(['accountId'], Var('data'))))),
 })
 
 const GetShoppingCartForAccountUDF = CreateOrUpdateFunction({
