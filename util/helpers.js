@@ -44,7 +44,7 @@ export const handleFaunaResults = (results, mutate = null, redirectUrl = null, r
 }
 
 export const handleFaunaError = (accountContext, error) => {
-  if(error.status === Unauthenticated){
+  if(error.status === Unauthenticated && localStorage.getItem("loggedIn")){
     accountContext.setBusy(true)
     accountContext.setAccessToken(null)
     accountContext.setAccount(null)
