@@ -7,6 +7,8 @@ import { ServerError } from './serverError'
 import { DropZone } from './dropZone'
 import { ErrorBoundary } from './errorBoundary'
 import { Loading } from './loading'
+import { QuantitySelector } from './quantitySelector'
+import { LoginRegisterModal } from './loginRegisterModal'
 
 export {
   RegisterAccount,
@@ -16,5 +18,7 @@ export {
   ServerError,
   DropZone,
   ErrorBoundary,
-  Loading
+  Loading,
+  QuantitySelector,
+  LoginRegisterModal
 }

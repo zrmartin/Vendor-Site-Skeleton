@@ -1,9 +1,10 @@
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { useAccount } from '../context/accountContext'
-import { CALL_FAUNA_FUNCTION } from "../util/requests"
+import { CALL_FAUNA_FUNCTION, POST } from "../util/requests"
 import { handleFaunaResults, getId } from '../util/helpers'
 const { FUNCTIONS: { Create_Shopping_Cart, Register }} = require ('../util/constants/database/functions')
+const { VERCEL_FUNCTIONS: { LogIn }} = require ('../util/constants/vercelFunctions')
 
 export const RegisterAccount = () => {
   let { setAccessToken, setAccount, account, accessToken } = useAccount()
@@ -21,6 +22,13 @@ export const RegisterAccount = () => {
       await CALL_FAUNA_FUNCTION(Create_Shopping_Cart, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, {
         accountId: getId(registerResult.account)
       })
+      let results = await POST(LogIn, {
+        email,
+        password,
+      })
+      setAccessToken(results.secret)
+      setAccount(results.account)
+      localStorage.setItem("loggedIn", true)
     }
     catch (e) {
       toast.error(e.message)

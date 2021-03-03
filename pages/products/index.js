@@ -1,6 +1,3 @@
-/* Make a table with alternating color rows
-   Each row will have a small image of the product, name, price, quantity, description
-*/
 import useSWR from 'swr'
 import Link from 'next/link';
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
