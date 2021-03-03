@@ -19,7 +19,7 @@ const OwnerProductPage = () => {
   })
   const accountContext = useAccount()
   const router = useRouter()
-  const { productId } = router.query
+  const { productId, shopId } = router.query
 
   const { data, mutate, error } = useSWR(
     [Get_Product, accountContext.accessToken, getProductSchema, productId], 
@@ -76,7 +76,7 @@ const OwnerProductPage = () => {
       let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
         id
       })
-      handleFaunaResults(databaseResults, mutate, Owner_Products_Index_Page, router)
+      handleFaunaResults(databaseResults, mutate, Owner_Products_Index_Page(shopId), router)
     }
     catch (e){
       handleFaunaError(accountContext, e)
@@ -100,7 +100,7 @@ const OwnerProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, mutate, Owner_Products_Index_Page, router)
+      handleFaunaResults(results, mutate, Owner_Products_Index_Page(shopId), router)
     }
     catch (e){
       handleFaunaError(accountContext, e)

@@ -25,7 +25,7 @@ const CreateProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, null, Owner_Product_Index_Page(getId(results.product)), router)
+      handleFaunaResults(results, null, Owner_Product_Index_Page(shopId, getId(results.product)), router)
     }
     catch (e){
       handleFaunaError(accountContext, e)
