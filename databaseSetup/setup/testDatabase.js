@@ -53,7 +53,7 @@ export async function destroyDatabase(databaseInfo) {
   )
 }
 
-export async function createTestUserAndClient(adminClient, email, password, roles) {
+export async function createTestUser(adminClient, email, password, roles) {
   const registerBody ={
     email,
     password,
@@ -66,9 +66,7 @@ export async function createTestUserAndClient(adminClient, email, password, role
     )
 
   )
-  return new Client({
-    secret: user.access.secret
-  })
+  return user
 }
 
 

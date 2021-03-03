@@ -1,11 +1,12 @@
 import { query, Client } from 'faunadb'
-import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
+import { createChildDatabase, setupDatabase, createTestUser, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Remove_Product_From_Shopping_Cart }} = require('../../../util/constants/database/functions')
 const { COLLECTIONS: { ShoppingCarts }} = require('../../../util/constants/database/collections')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
 const { Call, Create, Collection, CurrentIdentity, Ref } = query
 let adminClient
 let userClient
+let userData
 let databaseInfo
 let testShoppingCart
 
@@ -28,7 +29,10 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [])
+  userData = await createTestUser(adminClient, "test@test.com", "password", [])
+  userClient = new Client({
+    secret: userData.access.secret
+  })
   await setupTestEntities()
 })
 
@@ -72,7 +76,10 @@ test('Successfully returns shopping cart if trying to remove product by Id that 
 });
 
 test('Successfully throws and error when trying to update a shopping cart that is not yours', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [])
+  const userData2 = await createTestUser(adminClient, "test2@test.com", "password", [])
+  const userClient2 = new Client({
+    secret: userData2.access.secret
+  })
   let removeProductFromShoppingCartRepsonse
 
   try {

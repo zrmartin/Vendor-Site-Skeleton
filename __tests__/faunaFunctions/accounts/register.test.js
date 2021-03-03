@@ -30,6 +30,6 @@ test('Successfully create (register) a new account', async () => {
     )
   )
 
-  expect(registerResponse.data.email).toEqual(email);
-  expect(registerResponse.data.roles).toContain(owner);
+  expect(registerResponse.account.data.email).toEqual(email);
+  expect(registerResponse.account.data.roles).toContain(owner);
 });

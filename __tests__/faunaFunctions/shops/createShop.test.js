@@ -1,11 +1,12 @@
 import { query, Client } from 'faunadb'
-import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
+import { createChildDatabase, setupDatabase, createTestUser, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Create_Shop }} = require('../../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call } = query
 let adminClient
 let userClient
+let userData
 let databaseInfo
 
 beforeEach(async () => {
@@ -14,7 +15,10 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
+  userData = await createTestUser(adminClient, "test@test.com", "password", [owner])
+  userClient = new Client({
+    secret: userData.access.secret
+  })
 })
 afterEach(async () => {
   await destroyDatabase(databaseInfo)

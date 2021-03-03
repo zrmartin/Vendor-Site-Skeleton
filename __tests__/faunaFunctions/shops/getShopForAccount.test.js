@@ -1,5 +1,5 @@
 import { query, Client } from 'faunadb'
-import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
+import { createChildDatabase, setupDatabase, createTestUser, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Get_Shop_For_Account }} = require('../../../util/constants/database/functions')
 const { INDEXES: { Shop_For_Account }} = require('../../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../../util/constants/httpCodes')
@@ -8,6 +8,7 @@ const { COLLECTIONS: { Shops }} = require('../../../util/constants/database/coll
 const { Call, Create, Collection, CurrentIdentity, Delete, Index, Ref } = query
 let adminClient
 let userClient
+let userData
 let databaseInfo
 let testShop
 
@@ -28,7 +29,10 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
+  userData = await createTestUser(adminClient, "test@test.com", "password", [owner])
+  userClient = new Client({
+    secret: userData.access.secret
+  })
   await setupTestEntities()
 })
 

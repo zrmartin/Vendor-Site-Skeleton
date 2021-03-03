@@ -1,5 +1,5 @@
 import { query, Client } from 'faunadb'
-import { createChildDatabase, setupDatabase, createTestUserAndClient, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
+import { createChildDatabase, setupDatabase, createTestUser, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Create_Product }} = require('../../../util/constants/database/functions')
 const { COLLECTIONS: { Shops }} = require('../../../util/constants/database/collections')
 const { HTTP_CODES: { Success, Bad_Request }} = require('../../../util/constants/httpCodes')
@@ -7,6 +7,7 @@ const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call, Create, Collection, CurrentIdentity } = query
 let adminClient
 let userClient
+let userData
 let databaseInfo
 let testShop
 
@@ -27,7 +28,10 @@ beforeEach(async () => {
     secret: databaseInfo.key.secret
   })
   await setupDatabase(adminClient)
-  userClient = await createTestUserAndClient(adminClient, "test@test.com", "password", [owner])
+  userData = await createTestUser(adminClient, "test@test.com", "password", [owner])
+  userClient = new Client({
+    secret: userData.access.secret
+  })
   await setupTestEntities()
 })
 afterEach(async () => {
@@ -55,7 +59,10 @@ test('Successfully create new product', async () => {
 });
 
 test('Successfully returns error when trying to create new product under a different user shop', async () => {
-  const userClient2 = await createTestUserAndClient(adminClient, "test2@test.com", "password", [owner])
+  const userData2 = await createTestUser(adminClient, "test2@test.com", "password", [owner])
+  const userClient2 = new Client({
+    secret: userData2.access.secret
+  })
   
   const body = {
     shopId: testShop.ref.id,
