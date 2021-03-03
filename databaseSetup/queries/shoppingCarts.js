@@ -78,47 +78,25 @@ function UpdateShoppingCart(id, products) {
 function AddProductToShoppingCart(id, productId, quantity) {
   return If(
     Exists(Ref(Collection(ShoppingCarts), id)),
-    Let(
-      {
-        shoppingCart: Get(Ref(Collection(ShoppingCarts), id)),
-        currentQuantity: Select(['data', 'products', productId], Var('shoppingCart'), false)
-      },
-      If(
-        Equals(Var('currentQuantity'), false),
-        // Product is not in cart yet, add it to products object
+    {
+      updatedShoppingCart: Update(
+        Ref(Collection(ShoppingCarts), id),
         {
-          updatedShoppingCart: Update(
-            Ref(Collection(ShoppingCarts), id),
-            {
-              data: {
-                products: ToObject([[productId, quantity]])
-              }
-            }
-          ),
-          code: Success,
-          message: "Product Added"
-        },
-        // Product already exists in shopping cart, add passed in quantity to currentQuantity
-        {
-          updatedShoppingCart: Update(
-            Ref(Collection(ShoppingCarts), id),
-            {
-              data: {
-                products: ToObject([[productId, Add(Var("currentQuantity"), quantity)]]) 
-              }
-            }
-          ),
-          code: Success,
-          message: "Product Added"
+          data: {
+            products: ToObject([[productId, quantity]])
+          }
         }
-      )
-    ),
+      ),
+      code: Success,
+      message: "Product Added"
+    },
     {
       code: Not_Found,
       message: "Shopping Cart not found, could not add product"
     }
   )
 }
+
 
 function RemoveProductFromShoppingCart(id, productId) {
   return If(

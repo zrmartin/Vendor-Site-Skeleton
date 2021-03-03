@@ -66,13 +66,13 @@ test('Successfully updated quantity of existing item', async () => {
     Call(Add_Product_To_Shopping_Cart, [{
       id: testShoppingCart.ref.id,
       productId: "1",
-      quantity: 1
+      quantity: 10
     }])
   )
   
   expect(removeProductFromShoppingCartRepsonse.code).toEqual(Success);
   expect(removeProductFromShoppingCartRepsonse.message).toEqual("Product Added")
-  expect(removeProductFromShoppingCartRepsonse.updatedShoppingCart.data.products["1"]).toEqual(2)
+  expect(removeProductFromShoppingCartRepsonse.updatedShoppingCart.data.products["1"]).toEqual(10)
 });
 
 test('Successfully returns error message if shopping cart does not exist', async () => {
