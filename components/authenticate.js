@@ -38,8 +38,11 @@ export const Authenticate = ({ Component, pageProps }) => {
       setAccessToken(results.secret)
     }
     catch(e) {
-      // Set Local Storage Logged In Variable to false
       localStorage.removeItem("loggedIn")
+      setAccessToken(null)
+      setAccount(null)
+      setShopOwnerAccountId(null)
+      setShoppingCartId(null)
     }
   }
 

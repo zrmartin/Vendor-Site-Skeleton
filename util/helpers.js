@@ -48,6 +48,8 @@ export const handleFaunaError = (accountContext, error) => {
     accountContext.setBusy(true)
     accountContext.setAccessToken(null)
     accountContext.setAccount(null)
+    accountContext.setShopOwnerAccountId(null)
+    accountContext.setShoppingCartId(null)
   }
   else {
     if (error.message) {
