@@ -1,7 +1,7 @@
 import { query, Client } from 'faunadb'
 import { createChildDatabase, setupDatabase, createTestUser, destroyDatabase } from '../../../databaseSetup/setup/testDatabase'
 const { FUNCTIONS: { Create_Shop }} = require('../../../util/constants/database/functions')
-const { HTTP_CODES: { Success }} = require('../../../util/constants/httpCodes')
+const { HTTP_CODES: { Success, Validation_Error}} = require('../../../util/constants/httpCodes')
 const { ROLES: { owner }} = require('../../../util/constants/roles')
 const { Call } = query
 let adminClient
@@ -38,7 +38,7 @@ test('Successfully create new shop', async () => {
   expect(createShopResponse.message).toEqual("Shop Created")
 });
 
-test('Successfully throws error if user trys to create more than one shop', async () => {
+test('Successfully returns error message if user trys to create more than one shop', async () => {
   const testShop = {
     name: "Test Shop",
   }
@@ -46,16 +46,10 @@ test('Successfully throws error if user trys to create more than one shop', asyn
   const createShopOneResponse = await userClient.query(
     Call(Create_Shop, [testShop])
   )
-  let createShopTwoResponse
-  try {
-    createShopTwoResponse = await userClient.query(
-      Call(Create_Shop, [testShop])
-    )
-  }
-  catch(e) {
-    createShopTwoResponse = e
-  }
+  const createShopTwoResponse = await userClient.query(
+    Call(Create_Shop, [testShop])
+  )
 
-  expect(createShopTwoResponse.requestResult.responseContent.errors).not.toBeNull();
-  expect(createShopTwoResponse.requestResult.statusCode).not.toBeNull();
+  expect(createShopTwoResponse.code).toEqual(Validation_Error);
+  expect(createShopTwoResponse.message).toEqual("You cannot create more than 1 Shop")
 });
