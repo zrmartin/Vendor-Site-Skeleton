@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Head from 'next/head'
 import { useAccount } from '../context/accountContext'
 import { Login, RegisterAccount } from '../components'
-const { URL_PATHS: { Owner_Index_Page, Products_Index_Page }} = require('../util/constants/urlPaths')
+const { URL_PATHS: { Owner_Index_Page, Products_Index_Page, Shopping_Cart_Index_Page }} = require('../util/constants/urlPaths')
 
 export default function Home() {
   let { account } = useAccount()
@@ -39,6 +39,10 @@ export default function Home() {
         <br/>
         <Link href={Products_Index_Page}>
             <a>All Products</a>
+        </Link>
+        <br/>
+        <Link href={Shopping_Cart_Index_Page}>
+            <a>Shopping Cart</a>
         </Link>
         <br/>
         <Login />

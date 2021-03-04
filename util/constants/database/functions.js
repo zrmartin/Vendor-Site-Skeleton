@@ -31,6 +31,7 @@ const FUNCTIONS = {
   Create_Shopping_Cart: 'create_shopping_cart',
   Get_Shopping_Cart: 'get_shopping_cart',
   Get_Shopping_Cart_For_Account: 'get_shopping_cart_for_account',
+  Get_Shopping_Cart_Products_For_Account: 'get_shopping_cart_products_for_account',
   Update_Shopping_Cart: 'update_shopping_cart',
   Add_Product_To_Shopping_Cart: 'add_product_to_shopping_cart',
   Remove_Product_From_Shopping_Cart: 'remove_product_from_shopping_cart',

@@ -1,8 +1,8 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Add, Ref, CurrentIdentity, Update, If, Exists, Select, Replace, Equals, Let, ToObject } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Add, Ref, CurrentIdentity, Update, If, Exists, Select, Replace, Equals, Let, ToObject, ToArray } = q
 
-const { COLLECTIONS: { ShoppingCarts, Accounts } } = require('../../util/constants/database/collections')
+const { COLLECTIONS: { ShoppingCarts, Accounts, Products } } = require('../../util/constants/database/collections')
 const { INDEXES: { Shopping_Cart_For_Account }} = require('../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found }} = require('../../util/constants/httpCodes')
 
@@ -32,6 +32,53 @@ function GetShoppingCartForAccount() {
       ),
       code: Success,
     },
+    {
+      code: Not_Found,
+      message: "Could not find Shopping_Cart_For_Account Index"
+    }
+  )
+}
+
+function GetShoppingCartProductsForAccount() {
+  return If(
+    Exists(Index(Shopping_Cart_For_Account)),
+    Let(
+      {
+        shoppingCart: Select(
+          ["data", 0], 
+          Map(
+            Paginate(Match(Index(Shopping_Cart_For_Account), CurrentIdentity())),
+            Lambda("X", Get(Var("X")))
+          ),
+          false
+        ),
+      },
+      If(
+        Equals(Var('shoppingCart'), false),
+        {
+          code: Success,
+          products: {}
+        },
+        Let(
+          {
+            productsArray: ToArray(Select(['data', 'products'], Var("shoppingCart")))
+          },
+          {
+            code: Success,
+            shoppingCart: Map(
+              Var('productsArray'),
+              Lambda(
+                ['productId','quantity'],
+                {
+                  product: Get(Ref(Collection(Products), Var('productId'))),
+                  quantity: Var('quantity')
+                }
+              )
+            )
+          }
+        )
+      )
+    ),
     {
       code: Not_Found,
       message: "Could not find Shopping_Cart_For_Account Index"
@@ -141,4 +188,4 @@ function ClearShoppingCart(id) {
     }
   )
 }
-module.exports = { CreateShoppingCart, GetShoppingCartForAccount, GetShoppingCart, UpdateShoppingCart, AddProductToShoppingCart, RemoveProductFromShoppingCart, ClearShoppingCart }
+module.exports = { CreateShoppingCart, GetShoppingCartForAccount, GetShoppingCartProductsForAccount, GetShoppingCart, UpdateShoppingCart, AddProductToShoppingCart, RemoveProductFromShoppingCart, ClearShoppingCart }

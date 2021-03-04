@@ -1,8 +1,8 @@
 const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateShoppingCart, GetShoppingCart, GetShoppingCartForAccount, UpdateShoppingCart, AddProductToShoppingCart, RemoveProductFromShoppingCart, ClearShoppingCart } = require('../queries/shoppingCarts')
+const { CreateShoppingCart, GetShoppingCart, GetShoppingCartForAccount, GetShoppingCartProductsForAccount, UpdateShoppingCart, AddProductToShoppingCart, RemoveProductFromShoppingCart, ClearShoppingCart } = require('../queries/shoppingCarts')
 const { COLLECTIONS: { ShoppingCarts, Accounts } } = require('../../util/constants/database/collections')
 const { INDEXES: { Shopping_Cart_For_Account }} = require('../../util/constants/database/indexes')
-const { FUNCTIONS: { Create_Shopping_Cart, Get_Shopping_Cart, Get_Shopping_Cart_For_Account, Update_Shopping_Cart, Add_Product_To_Shopping_Cart, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart}} = require('../../util/constants/database/functions')
+const { FUNCTIONS: { Create_Shopping_Cart, Get_Shopping_Cart, Get_Shopping_Cart_For_Account, Get_Shopping_Cart_Products_For_Account, Update_Shopping_Cart, Add_Product_To_Shopping_Cart, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart}} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shopping_Cart_Access }} = require('../../util/constants/database/membershipRoles')
 
 const faunadb = require('faunadb')
@@ -36,6 +36,11 @@ const GetShoppingCartForAccountUDF = CreateOrUpdateFunction({
   body: Query(Lambda([], GetShoppingCartForAccount())),
 })
 
+const GetShoppingCartProductsForAccountUDF = CreateOrUpdateFunction({
+  name: Get_Shopping_Cart_Products_For_Account,
+  body: Query(Lambda([], GetShoppingCartProductsForAccount())),
+})
+
 const GetShoppingCartUDF = CreateOrUpdateFunction({
   name: Get_Shopping_Cart,
   body: Query(Lambda(['data'], GetShoppingCart(Select(['id'], Var('data'))))),
@@ -62,7 +67,7 @@ const ClearShoppingCartUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShoppingCartRole = (createShoppingCartFunction, getShoppingCartFunction, getShoppingCartForAccountFunction, updateShoppingCartFunction, addProductToShoppingCartFunction, removeProductFromShoppingCartFunction, clearShoppingCartFunction, shoppingCartForAccountIndex, shoppingCartCollection) => CreateOrUpdateRole({
+const CreateShoppingCartRole = (createShoppingCartFunction, getShoppingCartFunction, getShoppingCartForAccountFunction, getShoppingCartProductsForAccountFunction, updateShoppingCartFunction, addProductToShoppingCartFunction, removeProductFromShoppingCartFunction, clearShoppingCartFunction, shoppingCartForAccountIndex, shoppingCartCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shopping_Cart_Access,
   membership: [{ 
     resource: Collection(Accounts)
@@ -82,6 +87,12 @@ const CreateShoppingCartRole = (createShoppingCartFunction, getShoppingCartFunct
     },
     {
       resource: getShoppingCartForAccountFunction,
+      actions: {
+        call: true
+      }
+    },
+    {
+      resource: getShoppingCartProductsForAccountFunction,
       actions: {
         call: true
       }
@@ -174,6 +185,9 @@ async function createShoppingCartsCollection(client) {
         get_shopping_cart_for_account_function: GetShoppingCartForAccountUDF
       },
       {
+        get_shopping_cart_products_for_account_function: GetShoppingCartProductsForAccountUDF
+      },
+      {
         update_shopping_cart_function: UpdateShoppingCartUDF
       },
       {
@@ -191,6 +205,7 @@ async function createShoppingCartsCollection(client) {
           Select(["ref"], Var("create_shopping_cart_function")),
           Select(["ref"], Var("get_shopping_cart_function")),
           Select(["ref"], Var("get_shopping_cart_for_account_function")),
+          Select(["ref"], Var("get_shopping_cart_products_for_account_function")),
           Select(["ref"], Var("update_shopping_cart_function")),
           Select(["ref"], Var("add_product_to_shopping_cart_function")),
           Select(["ref"], Var("remove_product_from_shopping_cart_function")),

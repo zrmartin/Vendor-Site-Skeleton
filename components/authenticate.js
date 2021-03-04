@@ -62,7 +62,7 @@ export const Authenticate = ({ Component, pageProps }) => {
     setBusy(true)
     try {
       const getShoppingCartReponse = await CALL_FAUNA_FUNCTION(Get_Shopping_Cart_For_Account, accessToken, null, {})
-      setShoppingCartId(getId(getShoppingCartReponse?.shoppingCart))
+      setShoppingCartId(getId(getShoppingCartReponse.shoppingCart))
     }
     catch(e) {
     }
