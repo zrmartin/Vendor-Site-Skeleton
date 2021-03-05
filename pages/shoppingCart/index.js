@@ -3,10 +3,10 @@ import useSWR from 'swr'
 import { useAccount } from '../../context/accountContext'
 import { HttpError, ServerError, Loading, LoginRegisterModal } from '../../components'
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
-import { getId, getPrice } from '../../util/helpers'
+import { getId, getPrice, handleFaunaResults, handleFaunaError } from '../../util/helpers'
 const { HTTP_CODES: { Success, Unauthenticated }} = require ('../../util/constants/httpCodes')
-const { FUNCTIONS: { Get_Shopping_Cart_Products_For_Account }} = require('../../util/constants/database/functions')
-const { URL_PATHS: {  }} = require('../../util/constants/urlPaths')
+const { FUNCTIONS: { Get_Shopping_Cart_Products_For_Account, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart }} = require('../../util/constants/database/functions')
+const { URL_PATHS: { Products_Index_Page }} = require('../../util/constants/urlPaths')
 
 const ShoppingCartHome = () =>  {
   const accountContext = useAccount()
@@ -25,18 +25,68 @@ const ShoppingCartHome = () =>  {
 
   const shoppingCart = data.shoppingCart
 
+  const removeFromCart = async (productId) => {
+    try{
+      const updatedShoppingCart = shoppingCart.filter(item => getId(item.product) !== productId )
+      console.log(updatedShoppingCart)
+      mutate({ ...data, shoppingCart: updatedShoppingCart}, false)
+      let results = await CALL_FAUNA_FUNCTION(Remove_Product_From_Shopping_Cart, accountContext.accessToken, null, {
+        id: accountContext.shoppingCartId,
+        productId
+      })
+      handleFaunaResults(results)
+      mutate()
+    }
+    catch (e){
+      handleFaunaError(accountContext, e)
+    }
+  }
+
+  const clearCart = async () => {
+    try{
+      const updatedShoppingCart = []
+      mutate({ ...data, shoppingCart: updatedShoppingCart}, false)
+      let results = await CALL_FAUNA_FUNCTION(Clear_Shopping_Cart, accountContext.accessToken, null, {
+        id: accountContext.shoppingCartId
+      })
+      handleFaunaResults(results)
+      mutate()
+    }
+    catch (e){
+      handleFaunaError(accountContext, e)
+    }
+  }
+
+
   return (
     <>
       <h1>Shopping Cart</h1>
-      {
-        shoppingCart.map(item => 
-          <div key={getId(item.product)}>
-            Name - {item.product.data.name}<br/>
-            quantity - {item.quantity}<br/>
-            price - ${getPrice(item.product.data.price * item.quantity)}<br/><br/>
-          </div>
-        )
-      }
+      {shoppingCart.length > 0 ? (
+        <>
+          <button onClick={() => clearCart()}>Clear Cart</button><br/><br/>
+          {
+            shoppingCart.map(item => 
+              <div key={getId(item.product)}>
+                Name - {item.product.data.name}<br/>
+                quantity - {item.quantity}<br/>
+                price - ${getPrice(item.product.data.price * item.quantity)}<br/>
+                <button onClick={() => removeFromCart(getId(item.product))}>Remove From Cart</button><br/><br/>
+              </div>
+            )
+          }
+        </>
+      ) : (
+        <>
+          <p>
+            Your shopping cart is empty<br/>
+            <Link href={Products_Index_Page}>
+              <a>Click Here </a>
+             </Link>
+             to view products
+          </p>
+        </>
+      )}
+
     </>
   )
 }

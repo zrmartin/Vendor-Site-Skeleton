@@ -175,6 +175,7 @@ function ClearShoppingCart(id) {
         Ref(Collection(ShoppingCarts), id),
         {
           data: {
+            account: CurrentIdentity(),
             products: {}
           }
         }
