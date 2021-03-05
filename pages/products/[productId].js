@@ -9,7 +9,7 @@ import { HttpError, ServerError, Loading, QuantitySelector, LoginRegisterModal }
 import { getProductSchema } from '../../validators'
 const { FUNCTIONS: { Get_Product, Add_Product_To_Shopping_Cart }} = require('../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../util/constants/httpCodes')
-const { URL_PATHS: { Products_Index_Page }} = require('../../util/constants/urlPaths')
+const { URL_PATHS: { Products_Index_Page, Shopping_Cart_Index_Page }} = require('../../util/constants/urlPaths')
 
 const ProductsHome = () => {
   const [quantity, setQuantity] = useState(1)
@@ -38,8 +38,7 @@ const ProductsHome = () => {
         productId: getId(product),
         quantity
       })
-      // Redirect to Shopping Cart Page
-      handleFaunaResults(results)
+      handleFaunaResults(results, null, Shopping_Cart_Index_Page, router)
     }
     catch (e){
       setShowLoginModal(true)
