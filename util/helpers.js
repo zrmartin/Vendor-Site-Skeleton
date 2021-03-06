@@ -30,7 +30,7 @@ export const getPrice = (price) => {
 }
 
 
-export const handleFaunaResults = async ({results, toastId, mutate = null, redirectUrl = null, urlParams = null, router = null }) => {
+export const handleFaunaResults = async ({results, toastId, mutate = null, redirectUrl = null, router = null }) => {
   if (results.message) {
     toast.success(results.message, {
       id: toastId
@@ -41,23 +41,8 @@ export const handleFaunaResults = async ({results, toastId, mutate = null, redir
   }
   if (mutate) mutate()
   if (redirectUrl && router){
-    if (urlParams) {
-      urlParams = calculateUrlParams(urlParams, results)
-      router.push(redirectUrl(urlParams))
-    }
-    else {
       router.push(redirectUrl)
-    }
   }
-}
-
-const calculateUrlParams = (urlParams, results) => {
-  for (let [key, value] of Object.entries(urlParams)) {
-    if (value instanceof Function) {
-      urlParams[key] = value(results)
-    }
-  }
-  return urlParams
 }
 
 export const handleFaunaError = (accountContext, error, toastId) => {

@@ -26,10 +26,9 @@ const CreateShopPage = () => {
       handleFaunaResults({
         results,
         toastId,
-        redirectUrl: Owner_Shop_Index_Page,
-        urlParams: {
-          shopId: (results) => getId(results.shop)
-        },
+        redirectUrl: Owner_Shop_Index_Page({
+          shopId: getId(results.shop)
+        }),
         router
       })
     }

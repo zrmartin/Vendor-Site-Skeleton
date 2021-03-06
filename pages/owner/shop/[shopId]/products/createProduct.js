@@ -30,11 +30,10 @@ const CreateProductPage = () => {
       handleFaunaResults({
         results,
         toastId,
-        redirectUrl: Owner_Product_Index_Page,
-        urlParams: {
-          shopId, 
-          productId: (results) => getId(results.product)
-        },
+        redirectUrl: Owner_Product_Index_Page({
+          shopId,
+          productId: getId(results.product)
+        }),
         router
       })
     }

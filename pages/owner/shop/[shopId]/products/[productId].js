@@ -87,10 +87,9 @@ const OwnerProductPage = () => {
         results,
         toastId,
         mutate,
-        redirectUrl: Owner_Products_Index_Page,
-        urlParams: {
+        redirectUrl: Owner_Products_Index_Page({
           shopId
-        },
+        }),
         router
       })
     }
@@ -121,10 +120,9 @@ const OwnerProductPage = () => {
         results,
         toastId,
         mutate,
-        redirectUrl: Owner_Products_Index_Page,
-        urlParams: {
+        redirectUrl: Owner_Products_Index_Page({
           shopId
-        },
+        }),
         router
       })
     }
