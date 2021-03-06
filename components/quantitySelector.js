@@ -1,9 +1,4 @@
-import { useEffect } from 'react'
-
-export const QuantitySelector = ({ quantity, setQuantity, maxQuantity }) => {
-  useEffect(() => {
-    setQuantity(quantity)
-  }, [quantity])
+export const QuantitySelector = ({ quantity, setQuantity, maxQuantity, name }) => {
 
   const updateQuantity = (e) => {
     setQuantity(parseInt(e.target.value))
@@ -25,7 +20,7 @@ export const QuantitySelector = ({ quantity, setQuantity, maxQuantity }) => {
         </p>
       </div>
       <div>
-        <select value={quantity} onChange={updateQuantity}>
+      <select key={quantity} defaultValue={quantity} onChange={updateQuantity}>
          {buildOptions()}
         </select>
       </div>

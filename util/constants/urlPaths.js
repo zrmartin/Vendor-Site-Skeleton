@@ -12,7 +12,10 @@ const URL_PATHS = {
   Product_Index_Page: (slug) => `/products/${slug}`,
 
   // Shopping Cart
-  Shopping_Cart_Index_Page: '/shoppingCart'
+  Shopping_Cart_Index_Page: '/shoppingCart',
+
+  // Checkout
+  Checkout_Index_Page: '/checkout'
 };
 Object.freeze(URL_PATHS)
 

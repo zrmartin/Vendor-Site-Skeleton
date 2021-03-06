@@ -1,15 +1,17 @@
+import { useState } from 'react'
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import useSWR from 'swr'
 import { useAccount } from '../../context/accountContext'
-import { HttpError, ServerError, Loading, LoginRegisterModal } from '../../components'
+import { HttpError, ServerError, Loading, LoginRegisterModal, QuantitySelector } from '../../components'
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
 import { getId, getPrice, handleFaunaResults, handleFaunaError } from '../../util/helpers'
 const { HTTP_CODES: { Success, Unauthenticated }} = require ('../../util/constants/httpCodes')
-const { FUNCTIONS: { Get_Shopping_Cart_Products_For_Account, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart }} = require('../../util/constants/database/functions')
-const { URL_PATHS: { Products_Index_Page }} = require('../../util/constants/urlPaths')
+const { FUNCTIONS: { Get_Shopping_Cart_Products_For_Account, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart, Update_Shopping_Cart }} = require('../../util/constants/database/functions')
+const { URL_PATHS: { Products_Index_Page, Checkout_Index_Page }} = require('../../util/constants/urlPaths')
 
 const ShoppingCartHome = () =>  {
+  const [shoppingCartQuantities, setShoppingCartQuantities] = useState({})
   const accountContext = useAccount()
   const { data, mutate, error } = useSWR(
     [Get_Shopping_Cart_Products_For_Account, accountContext.accessToken], 
@@ -64,7 +66,41 @@ const ShoppingCartHome = () =>  {
       handleFaunaError(accountContext, e, toastId)
     }
   }
+  
+  const updateShoppingCart = async () => {
+    const toastId = toast.loading("Loading")
+    try {
+      const updatedShoppingCart = shoppingCart.map((item) => {
+        const quantity = shoppingCartQuantities[getId(item.product)]
+        if (quantity) {
+          return {
+            product: item.product,
+            quantity: shoppingCartQuantities[getId(item.product)]
+          }
+        }
+        else {
+          return {
+            product: item.product,
+            quantity: item.quantity
+          }
+        }
 
+      })
+      mutate({ ...data, shoppingCart: updatedShoppingCart}, false)
+      let results = await CALL_FAUNA_FUNCTION(Update_Shopping_Cart, accountContext.accessToken, null, {
+        id: accountContext.shoppingCartId,
+        products: shoppingCartQuantities
+      })
+      handleFaunaResults({
+        results,
+        toastId,
+        mutate
+      })
+    }
+    catch (e){
+      handleFaunaError(accountContext, e, toastId)
+    }
+  }
 
   return (
     <>
@@ -72,16 +108,32 @@ const ShoppingCartHome = () =>  {
       {shoppingCart.length > 0 ? (
         <>
           <button onClick={() => clearCart()}>Clear Cart</button><br/><br/>
-          {
-            shoppingCart.map(item => 
-              <div key={getId(item.product)}>
-                Name - {item.product.data.name}<br/>
-                quantity - {item.quantity}<br/>
-                price - ${getPrice(item.product.data.price * item.quantity)}<br/>
-                <button onClick={() => removeFromCart(getId(item.product))}>Remove From Cart</button><br/><br/>
-              </div>
-            )
-          }
+          <Link href={Checkout_Index_Page}>
+            <a>Checkout</a>
+          </Link>
+          <br/>
+          <br/>
+          {shoppingCart.map(item => 
+
+            <div key={getId(item.product)}>
+              Name - {item.product.data.name}<br/>
+              <QuantitySelector 
+                name={getId(item.product)} 
+                quantity={item.quantity} 
+                setQuantity={(quantity) => setShoppingCartQuantities({...shoppingCartQuantities, [getId(item.product)]: quantity})} 
+                maxQuantity={item.product.data.quantity}
+              />
+              <br/>
+              price - ${
+                shoppingCartQuantities[getId(item.product)] ? 
+                getPrice(item.product.data.price * shoppingCartQuantities[getId(item.product)]) :
+                getPrice(item.product.data.price * item.quantity)
+              }<br/>
+              <button onClick={() => removeFromCart(getId(item.product))}>Remove From Cart</button><br/><br/>
+            </div>
+          )}
+          
+          <button onClick={() => updateShoppingCart()}>Save</button>
         </>
       ) : (
         <>
