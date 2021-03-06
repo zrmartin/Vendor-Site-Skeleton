@@ -1,12 +1,12 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import { ToastContainer } from 'react-toastify';
+import { Toaster } from 'react-hot-toast';
 import { AccountProvider } from '../context/accountContext'
 
 const AllTheProviders = ({ children }) => {
   return (
     <AccountProvider>
-      <ToastContainer />
+      <Toaster />
       {children}
     </AccountProvider>
   )

@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form'
 import { useAccount } from '../context/accountContext'
 import { POST, GET } from "../util/requests"

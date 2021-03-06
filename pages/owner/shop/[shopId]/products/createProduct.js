@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -17,7 +18,8 @@ const CreateProductPage = () => {
   const { shopId } = router.query
 
   const createProduct = async (formData) => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       const { name, price, quantity } = formData
       let results = await CALL_FAUNA_FUNCTION(Create_Product, accountContext.accessToken, createProductSchema, {
         shopId,
@@ -25,10 +27,19 @@ const CreateProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, null, Owner_Product_Index_Page(shopId, getId(results.product)), router)
+      handleFaunaResults({
+        results,
+        toastId,
+        redirectUrl: Owner_Product_Index_Page,
+        urlParams: {
+          shopId, 
+          productId: (results) => getId(results.product)
+        },
+        router
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 

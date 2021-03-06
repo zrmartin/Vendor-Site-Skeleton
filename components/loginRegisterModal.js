@@ -1,13 +1,13 @@
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form'
 import { useAccount } from '../context/accountContext'
 import { POST, CALL_FAUNA_FUNCTION } from "../util/requests"
-import { handleFaunaResults, getId } from '../util/helpers'
+import { handleFaunaResults, handleFaunaError, getId } from '../util/helpers'
 const { VERCEL_FUNCTIONS: { LogIn }} = require ('../util/constants/vercelFunctions')
 const { FUNCTIONS: { Register, Create_Shopping_Cart }} = require ('../util/constants/database/functions')
 
 export const LoginRegisterModal = ({show, setShow, message}) => {
-  let { setAccessToken, setAccount } = useAccount()
+  let accountContext = useAccount()
   const { 
     register: loginRegister,
     handleSubmit: handleLoginSubmit,
@@ -26,8 +26,8 @@ export const LoginRegisterModal = ({show, setShow, message}) => {
         email,
         password,
       })
-      setAccessToken(results.secret)
-      setAccount(results.account)
+      accountContext.setAccessToken(results.secret)
+      accountContext.setAccount(results.account)
       localStorage.setItem("loggedIn", true)
       setShow(false)
     }
@@ -38,14 +38,18 @@ export const LoginRegisterModal = ({show, setShow, message}) => {
 
   
   let registerNewUser = async (formData) => {
+    const { email, password } = formData
+    const toastId = toast.loading("Loading")
     try {
-      const { email, password } = formData
       let registerResult = await CALL_FAUNA_FUNCTION(Register, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, {
         email,
         password,
         roles: ["guest"]
       })
-      handleFaunaResults(registerResult)
+      handleFaunaResults({
+        results: registerResult,
+        toastId,
+      })
       await CALL_FAUNA_FUNCTION(Create_Shopping_Cart, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, {
         accountId: getId(registerResult.account)
       })
@@ -54,8 +58,8 @@ export const LoginRegisterModal = ({show, setShow, message}) => {
         password
       })
     }
-    catch (e) {
-      toast.error(e.message)
+    catch (e){
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 

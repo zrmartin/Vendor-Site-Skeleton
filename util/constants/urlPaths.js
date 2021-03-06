@@ -2,10 +2,10 @@ const URL_PATHS = {
   // Owner
   Owner_Index_Page: '/owner',
   Owner_Shop_Create_Page: 'owner/shop/createShop',
-  Owner_Shop_Index_Page: (shopId) => `/owner/shop/${shopId}`,
-  Owner_Product_Create_Page: (shopId) => `/owner/shop/${shopId}/products/createProduct`,
-  Owner_Products_Index_Page: (shopId) => `/owner/shop/${shopId}/products`,
-  Owner_Product_Index_Page: (shopId, productId) => `/owner/shop/${shopId}/products/${productId}`,
+  Owner_Shop_Index_Page: ({shopId}) => `/owner/shop/${shopId}`,
+  Owner_Product_Create_Page: ({shopId}) => `/owner/shop/${shopId}/products/createProduct`,
+  Owner_Products_Index_Page: ({shopId}) => `/owner/shop/${shopId}/products`,
+  Owner_Product_Index_Page: ({shopId, productId}) => `/owner/shop/${shopId}/products/${productId}`,
   
   // Products
   Products_Index_Page: `/products/`,

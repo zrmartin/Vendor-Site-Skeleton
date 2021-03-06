@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState } from 'react'
 import useSWR from 'swr'
 import Link from 'next/link';
@@ -32,13 +33,19 @@ const ProductsHome = () => {
   const images = data.images
 
   const addToCart = async () => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       let results = await CALL_FAUNA_FUNCTION(Add_Product_To_Shopping_Cart, accountContext.accessToken, null, {
         id: accountContext.shoppingCartId,
         productId: getId(product),
         quantity
       })
-      handleFaunaResults(results, null, Shopping_Cart_Index_Page, router)
+      handleFaunaResults({
+        results, 
+        toastId, 
+        router,
+        redirectUrl: Shopping_Cart_Index_Page, 
+      })
     }
     catch (e){
       setShowLoginModal(true)

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast';
 const { VERCEL_FUNCTIONS: { Upload_Url }} = require ('../util/constants/vercelFunctions')
 
 export const DropZone = ({ createProductImages }) => {

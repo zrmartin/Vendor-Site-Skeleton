@@ -1,6 +1,7 @@
 import faunadb from 'faunadb'
 const q = faunadb.query
 const { Call } = q
+const { HTTP_CODES: { Success }} = require('../../util/constants/httpCodes')
 
 module.exports = async (req, res) => {
   let { accessToken, functionName, ...body } = req.body;
@@ -17,9 +18,14 @@ module.exports = async (req, res) => {
     let results = await client.query(
       Call(functionName, body)
     )
-    res.json({
-      body: results
-    })
+    if (results.code === Success) {
+      res.json({
+        body: results
+      })
+    }
+    else {
+      res.status(results.code).json(results)
+    }
   } 
   catch (error) {
     console.log(`Error in 'Call Function - ${functionName}'`, error)

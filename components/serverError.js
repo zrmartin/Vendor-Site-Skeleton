@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useEffect } from 'react'
 import { useAccount } from '../context/accountContext';
 import { handleFaunaError } from '../util/helpers'
@@ -6,16 +7,17 @@ export const ServerError = ({ error }) => {
   const accountContext = useAccount();
 
   useEffect(() => {
-    handleFaunaError(accountContext, error)
+    const toastId = toast.loading("Loading")
+    handleFaunaError(accountContext, error, toastId)
   }, [])
 
   return (
     <>
       An Error Occured
       <br/>
-      Status Code: {error.status}
+      <p data-testid="errorStatus">Status Code: {error.status}</p>
       <br/>
-      Error Message: {error.message}
+      <p data-testid="errorMessage">Error Message: {error.message}</p>
     </>
   )
 

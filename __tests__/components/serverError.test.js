@@ -62,11 +62,11 @@ test('Succesfully display non-unauthenticated error message', async () => {
     status: 404,
     message: "Not Found"
   }
-  const { findByText } = render(<ServerError error={error}/>)
+  const { findByTestId } = render(<ServerError error={error}/>)
 
   // Error Details displayed
-  expect(await findByText(error.status, { exact: false })).toBeInTheDocument()
-  expect(await findByText(error.message, { exact: false })).toBeInTheDocument()
+  expect(await findByTestId("errorStatus")).toHaveTextContent(error.status)
+  expect(await findByTestId("errorMessage")).toHaveTextContent(error.message)
 });
 
 test('Succesfully refreshes Access Token if error is un-authenticated and displays component', async () => {

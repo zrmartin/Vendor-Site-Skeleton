@@ -10,7 +10,7 @@ function CreateShop(name) {
   return Let(
   {
     accountRef: CurrentIdentity(),
-    numShops: Count(Match(Index(All_Shops)))
+    numShops: Count(Match(Index(Shop_For_Account), CurrentIdentity()))
   },
   If(
     GT(Var("numShops"), 0),

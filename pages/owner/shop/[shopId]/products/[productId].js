@@ -1,5 +1,5 @@
+import toast from 'react-hot-toast';
 import useSWR from 'swr'
-import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/router'
@@ -36,23 +36,30 @@ const OwnerProductPage = () => {
   const images = data.images
 
   const createProductImages = async (imageKeys) => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       let results = await CALL_FAUNA_FUNCTION(Create_Images, accountContext.accessToken, createImagesSchema, {
         entityId: getId(product),
         entityCollection: getCollection(product),
         imageKeys
       })
-      handleFaunaResults(results, mutate)
+
+      handleFaunaResults({
+        results,
+        toastId,
+        mutate
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
   
   const deleteProduct = async (id) => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       const imageKeys = images.map(image => (
-          image.data.key
+        image.data.key
       ))
       /* Results looks like
         {
@@ -73,18 +80,28 @@ const OwnerProductPage = () => {
         }
       }
 
-      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
+      let results = await CALL_FAUNA_FUNCTION(Delete_Product, accountContext.accessToken, deleteProductSchema, {
         id
       })
-      handleFaunaResults(databaseResults, mutate, Owner_Products_Index_Page(shopId), router)
+      handleFaunaResults({
+        results,
+        toastId,
+        mutate,
+        redirectUrl: Owner_Products_Index_Page,
+        urlParams: {
+          shopId
+        },
+        router
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 
   const updateProduct = async ({ name, price, quantity }) => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       const updatedProduct = {
         ...product,
         data: {
@@ -100,21 +117,31 @@ const OwnerProductPage = () => {
         price,
         quantity
       })
-      handleFaunaResults(results, mutate, Owner_Products_Index_Page(shopId), router)
+      handleFaunaResults({
+        results,
+        toastId,
+        mutate,
+        redirectUrl: Owner_Products_Index_Page,
+        urlParams: {
+          shopId
+        },
+        router
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 
   const deleteImage = async (id) => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       const imageKeys = images.filter(image => (
         getId(image) === id
       )).map(image => (
         image.data.key
       ))
-
+  
       if (imageKeys.length > 0) {
         let s3Results = await POST(Delete_S3_Files, {
           imageKeys
@@ -125,17 +152,21 @@ const OwnerProductPage = () => {
           )
         }
       }
-
-      let databaseResults = await CALL_FAUNA_FUNCTION(Delete_Image, accountContext.accessToken, deleteImageSchema, {
+  
+      let results = await CALL_FAUNA_FUNCTION(Delete_Image, accountContext.accessToken, deleteImageSchema, {
         id
       })
-      handleFaunaResults(databaseResults, mutate)
+      handleFaunaResults({
+        results, 
+        toastId,
+        mutate
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
-  }
 
+  }
 
   return (
       <>

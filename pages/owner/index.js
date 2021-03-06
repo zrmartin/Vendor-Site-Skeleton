@@ -32,12 +32,16 @@ const OwnerHome = () =>  {
           </Link>
           <br/>
           <br/>
-          <Link href={Owner_Shop_Index_Page(getId(shop))}>
+          <Link href={Owner_Shop_Index_Page({
+            shopId: getId(shop)
+          })}>
             <a>View Store</a> 
           </Link>
           <br/>
           <br/>
-          <Link href={Owner_Products_Index_Page(getId(shop))}>
+          <Link href={Owner_Products_Index_Page({
+            shopId: getId(shop)
+          })}>
             <a>View Products</a> 
           </Link>
         </>

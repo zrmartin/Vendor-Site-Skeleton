@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import useSWR from 'swr'
 import { useAccount } from '../../context/accountContext'
@@ -26,34 +27,41 @@ const ShoppingCartHome = () =>  {
   const shoppingCart = data.shoppingCart
 
   const removeFromCart = async (productId) => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       const updatedShoppingCart = shoppingCart.filter(item => getId(item.product) !== productId )
-      console.log(updatedShoppingCart)
       mutate({ ...data, shoppingCart: updatedShoppingCart}, false)
       let results = await CALL_FAUNA_FUNCTION(Remove_Product_From_Shopping_Cart, accountContext.accessToken, null, {
         id: accountContext.shoppingCartId,
         productId
       })
-      handleFaunaResults(results)
-      mutate()
+      handleFaunaResults({
+        results,
+        toastId,
+        mutate
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 
   const clearCart = async () => {
-    try{
+    const toastId = toast.loading("Loading")
+    try {
       const updatedShoppingCart = []
       mutate({ ...data, shoppingCart: updatedShoppingCart}, false)
       let results = await CALL_FAUNA_FUNCTION(Clear_Shopping_Cart, accountContext.accessToken, null, {
         id: accountContext.shoppingCartId
       })
-      handleFaunaResults(results)
-      mutate()
+      handleFaunaResults({
+        results,
+        toastId,
+        mutate
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 

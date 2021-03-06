@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
@@ -15,15 +16,25 @@ const CreateShopPage = () => {
   const router = useRouter()
 
   const createShop = async (formData) => {
-    try{
-      const { name } = formData
+    const { name } = formData
+    const toastId = toast.loading("Loading")
+    try {
       let results = await CALL_FAUNA_FUNCTION(Create_Shop, accountContext.accessToken, null, {
         name
       })
-      handleFaunaResults(results, null, Owner_Shop_Index_Page(getId(results.shop)), router)
+
+      handleFaunaResults({
+        results,
+        toastId,
+        redirectUrl: Owner_Shop_Index_Page,
+        urlParams: {
+          shopId: (results) => getId(results.shop)
+        },
+        router
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e)
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 

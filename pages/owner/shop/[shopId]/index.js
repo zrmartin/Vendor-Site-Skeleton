@@ -29,7 +29,9 @@ const OwnerShopIndex = () =>  {
   return (
     <>
       <h1>This is shop { shop.data.name }</h1>
-      <Link href={Owner_Products_Index_Page(shopId)}>
+      <Link href={Owner_Products_Index_Page({
+        shopId
+      })}>
         <a>View Products</a> 
       </Link>
     </>
