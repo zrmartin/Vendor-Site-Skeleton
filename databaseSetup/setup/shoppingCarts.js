@@ -1,6 +1,6 @@
 const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
 const { CreateShoppingCart, GetShoppingCart, GetShoppingCartForAccount, GetShoppingCartProductsForAccount, UpdateShoppingCart, AddProductToShoppingCart, RemoveProductFromShoppingCart, ClearShoppingCart } = require('../queries/shoppingCarts')
-const { COLLECTIONS: { ShoppingCarts, Accounts } } = require('../../util/constants/database/collections')
+const { COLLECTIONS: { ShoppingCarts, Accounts, Products } } = require('../../util/constants/database/collections')
 const { INDEXES: { Shopping_Cart_For_Account }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Create_Shopping_Cart, Get_Shopping_Cart, Get_Shopping_Cart_For_Account, Get_Shopping_Cart_Products_For_Account, Update_Shopping_Cart, Add_Product_To_Shopping_Cart, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart}} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shopping_Cart_Access }} = require('../../util/constants/database/membershipRoles')
@@ -128,6 +128,12 @@ const CreateShoppingCartRole = (createShoppingCartFunction, getShoppingCartFunct
     {
       resource: Indexes(),
       actions: { read: true }
+    },
+    {
+      resource: Collection(Products),
+      actions: {
+        read: true,
+      }
     },
     {
       resource: shoppingCartCollection,
