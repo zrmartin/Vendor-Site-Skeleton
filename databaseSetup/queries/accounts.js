@@ -1,7 +1,7 @@
 const faunadb = require('faunadb')
 const { INDEXES: { Accounts_By_Email, Access_Tokens_By_Session, Tokens_By_Instance, Account_Sessions_By_Account }} = require('../../util/constants/database/indexes')
 const { COLLECTIONS: { Accounts, Account_Sessions } } = require('../../util/constants/database/collections')
-const { HTTP_CODES: { Success }} = require('../../util/constants/httpCodes')
+const { HTTP_CODES: { Success, Validation_Error }} = require('../../util/constants/httpCodes')
 
 const q = faunadb.query
 const {
@@ -25,7 +25,8 @@ const {
   Collection,
   Tokens,
   TimeAdd,
-  Now
+  Now,
+
 } = q
 
 /* We can write our own custom login function by using 'Identify()' in combination with 'Create(Tokens(), ...)' instead of 'Login()'
@@ -113,20 +114,27 @@ function DeleteAllAndCount(pageOfTokens) {
 }
 
 function RegisterAccount(email, password, roles) {
-  return {
-    account: Create(Collection(Accounts), {
-      // credentials is a special field, the contents will never be returned
-      // and will be encrypted. { password: ... } is the only format it currently accepts.
-      credentials: { password: password },
-      // everything you want to store in the document should be scoped under 'data'
-      data: {
-        email: email,
-        roles: roles
-      },
-    }),
-    code: Success,
-    message: "Account Created"
-  }
+  return If(
+    Exists(Match(Index(Accounts_By_Email), email)),
+    {
+      code: Validation_Error,
+      message: "Email is taken"
+    },
+    {
+      account: Create(Collection(Accounts), {
+        // credentials is a special field, the contents will never be returned
+        // and will be encrypted. { password: ... } is the only format it currently accepts.
+        credentials: { password: password },
+        // everything you want to store in the document should be scoped under 'data'
+        data: {
+          email: email,
+          roles: roles
+        },
+      }),
+      code: Success,
+      message: "Account Created"
+    }
+  )
 }
 
 function CreateAccessToken(instance, sessionDoc) {

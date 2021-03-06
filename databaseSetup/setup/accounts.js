@@ -114,12 +114,16 @@ const CreateFnRoleLogin = (accountsByEmailIndex, accountsCollection, accountSess
  * when your app becomes more complex, it could be that you want to do more than creating an account to
  * preconfigure a new user in your app when the register UDF is called. In that case, you would add extra permissions here.
  */
-const CreateFnRoleRegister = (accountsCollection) => CreateOrUpdateRole({
+const CreateFnRoleRegister = (accountsCollection, accountsByEmailIndex) => CreateOrUpdateRole({
   name: FunctionRole_Register,
   privileges: [
     {
       resource: accountsCollection,
-      actions: { create: true }
+      actions: { create: true, read: true }
+    },
+    {
+      resource: accountsByEmailIndex,
+      actions: { read: true }
     }
   ]
 })
@@ -162,7 +166,7 @@ const CreateFnRoleRefreshTokenLogout = (accountsCollection, accountSessionsColle
 /* Functions */
 const RegisterUDF = (registerFunctionRole) => CreateOrUpdateFunction({
   name: Register,
-  body: Query(Lambda(['data'], RegisterAccount(Select(['email'], Var('data')), Select(['password'], Var('data')), Select(['roles'], Var('data')),))),
+  body: Query(Lambda(['data'], RegisterAccount(Select(['email'], Var('data')), Select(['password'], Var('data')), Select(['roles'], Var('data'))))),
   role: registerFunctionRole
 })
 
@@ -274,6 +278,7 @@ async function createAccountCollection(client) {
       {
         register_function_role: CreateFnRoleRegister(
           Select(["ref"], Var("accounts_collection")),
+          Select(["ref"], Var("accounts_by_email_index")),
         ),
       },
       {

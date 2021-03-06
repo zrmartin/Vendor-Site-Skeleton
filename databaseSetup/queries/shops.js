@@ -7,13 +7,8 @@ const { INDEXES: { All_Shops, Shop_For_Account }} = require('../../util/constant
 const { HTTP_CODES: { Success, Not_Found, Validation_Error }} = require('../../util/constants/httpCodes')
 
 function CreateShop(name) {
-  return Let(
-  {
-    accountRef: CurrentIdentity(),
-    numShops: Count(Match(Index(Shop_For_Account), CurrentIdentity()))
-  },
-  If(
-    GT(Var("numShops"), 0),
+  return If(
+    Exists(Match(Index(Shop_For_Account), CurrentIdentity())),
     {
       code: Validation_Error,
       message: "You cannot create more than 1 Shop"
@@ -28,7 +23,7 @@ function CreateShop(name) {
         }
       })
     }
-  ))
+  )
 }
 
 
