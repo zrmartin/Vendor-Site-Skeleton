@@ -1,3 +1,4 @@
+import { useDisclosure } from "@chakra-ui/react"
 import toast from 'react-hot-toast';
 import { useState } from 'react'
 import useSWR from 'swr'
@@ -13,8 +14,8 @@ const { HTTP_CODES: { Success }} = require ('../../util/constants/httpCodes')
 const { URL_PATHS: { Products_Index_Page, Shopping_Cart_Index_Page }} = require('../../util/constants/urlPaths')
 
 const ProductsHome = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [quantity, setQuantity] = useState(1)
-  const [showLoginModal, setShowLoginModal] = useState(false)
   const accountContext = useAccount()
   const router = useRouter()
   const { productId } = router.query
@@ -48,7 +49,8 @@ const ProductsHome = () => {
       })
     }
     catch (e){
-      setShowLoginModal(true)
+      onOpen()
+      toast.dismiss(toastId)
     }
   }
 
@@ -73,7 +75,7 @@ const ProductsHome = () => {
               </div>
             )
           }
-          <LoginRegisterModal show={showLoginModal} setShow={setShowLoginModal} message={"Please login to add this product to your cart"}/>
+          <LoginRegisterModal onClose={onClose} isOpen={isOpen} message={"Please login to add this product to your cart"}/>
 
       </>
   );
