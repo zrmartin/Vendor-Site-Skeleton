@@ -50,7 +50,7 @@ export const handleFaunaError = (accountContext, error, toastId) => {
     accountContext.setBusy(true)
     accountContext.setAccessToken(null)
     accountContext.setAccount(null)
-    accountContext.setShopOwnerAccountId(null)
+    accountContext.setShopId(null)
     accountContext.setShoppingCartId(null)
   }
   else {

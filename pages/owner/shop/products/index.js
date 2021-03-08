@@ -1,19 +1,21 @@
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import Link from 'next/link';
-import { CALL_FAUNA_FUNCTION } from "../../../../../util/requests"
-import { useAccount } from '../../../../../context/accountContext'
-import { getId, getPrice } from '../../../../../util/helpers'
-import { HttpError, ServerError, Loading } from '../../../../../components'
-import { getAllProductsForShopSchema } from '../../../../../validators'
-const { FUNCTIONS: { Get_All_Products_For_Shop }} = require('../../../../../util/constants/database/functions')
-const { HTTP_CODES: { Success }} = require ('../../../../../util/constants/httpCodes')
-const { URL_PATHS: { Owner_Product_Index_Page, Owner_Product_Create_Page }} = require('../../../../../util/constants/urlPaths')
+import { CALL_FAUNA_FUNCTION } from "../../../../util/requests"
+import { useAccount } from '../../../../context/accountContext'
+import { getId, getPrice } from '../../../../util/helpers'
+import { HttpError, ServerError, Loading } from '../../../../components'
+import { getAllProductsForShopSchema } from '../../../../validators'
+const { FUNCTIONS: { Get_All_Products_For_Shop }} = require('../../../../util/constants/database/functions')
+const { HTTP_CODES: { Success }} = require ('../../../../util/constants/httpCodes')
+const { URL_PATHS: { Owner_Product_Index_Page, Owner_Product_Create_Page, Owner_Index_Page }} = require('../../../../util/constants/urlPaths')
 
 const OwnerProductsHome = () => {
   const accountContext = useAccount()
+  const shopId = accountContext.shopId
   const router = useRouter()
-  const { shopId } = router.query
+  
+  if (!shopId) router.push(Owner_Index_Page)
 
   const { data, mutate, error } = useSWR(
     [Get_All_Products_For_Shop, accountContext.accessToken, getAllProductsForShopSchema, shopId], 
@@ -33,9 +35,7 @@ const OwnerProductsHome = () => {
       <>
           <h1>Products</h1>
           <br/>
-          <Link href={Owner_Product_Create_Page({
-            shopId
-          })}>
+          <Link href={Owner_Product_Create_Page}>
               <a>Create New Product</a>
           </Link>
           <br/>

@@ -21,7 +21,7 @@ test('handleFaunaError updates accountContext on Unauthentictaed and logged in',
     setBusy: jest.fn(() => {}),
     setAccessToken: jest.fn(() => {}),
     setAccount: jest.fn(() => {}),
-    setShopOwnerAccountId: jest.fn(() => {}),
+    setShopId: jest.fn(() => {}),
     setShoppingCartId: jest.fn(() => {}),
   }
 
@@ -36,7 +36,7 @@ test('handleFaunaError updates accountContext on Unauthentictaed and logged in',
   expect(mockedAccountContext.setBusy).toHaveBeenCalled()
   expect(mockedAccountContext.setAccessToken).toHaveBeenCalled()
   expect(mockedAccountContext.setAccount).toHaveBeenCalled()
-  expect(mockedAccountContext.setShopOwnerAccountId).toHaveBeenCalled()
+  expect(mockedAccountContext.setShopId).toHaveBeenCalled()
   expect(mockedAccountContext.setShoppingCartId).toHaveBeenCalled()
 });
 
@@ -45,7 +45,7 @@ test('handleFaunaError calls toast error on Unauthenticated and not logged in', 
     setBusy: jest.fn(() => {}),
     setAccessToken: jest.fn(() => {}),
     setAccount: jest.fn(() => {}),
-    setShopOwnerAccountId: jest.fn(() => {}),
+    setShopId: jest.fn(() => {}),
     setShoppingCartId: jest.fn(() => {}),
   }
 
@@ -64,7 +64,7 @@ test('handleFaunaError calls toast error on Unauthenticated and not logged in', 
   expect(mockedAccountContext.setBusy).not.toHaveBeenCalled()
   expect(mockedAccountContext.setAccessToken).not.toHaveBeenCalled()
   expect(mockedAccountContext.setAccount).not.toHaveBeenCalled()
-  expect(mockedAccountContext.setShopOwnerAccountId).not.toHaveBeenCalled()
+  expect(mockedAccountContext.setShopId).not.toHaveBeenCalled()
   expect(mockedAccountContext.setShoppingCartId).not.toHaveBeenCalled()
 });
 
@@ -73,7 +73,7 @@ test('handleFaunaError calls toast error, on Not Unauthenticated', () => {
     setBusy: jest.fn(() => {}),
     setAccessToken: jest.fn(() => {}),
     setAccount: jest.fn(() => {}),
-    setShopOwnerAccountId: jest.fn(() => {}),
+    setShopId: jest.fn(() => {}),
     setShoppingCartId: jest.fn(() => {}),
   }
   const toastErrorSpy = jest.spyOn(toast, 'error')
@@ -91,7 +91,7 @@ test('handleFaunaError calls toast error, on Not Unauthenticated', () => {
   expect(mockedAccountContext.setBusy).not.toHaveBeenCalled()
   expect(mockedAccountContext.setAccessToken).not.toHaveBeenCalled()
   expect(mockedAccountContext.setAccount).not.toHaveBeenCalled()
-  expect(mockedAccountContext.setShopOwnerAccountId).not.toHaveBeenCalled()
+  expect(mockedAccountContext.setShopId).not.toHaveBeenCalled()
   expect(mockedAccountContext.setShoppingCartId).not.toHaveBeenCalled()
 });
 
@@ -100,7 +100,7 @@ test('handleFaunaError calls dismiss toast, on Not Unauthenticated', () => {
     setBusy: jest.fn(() => {}),
     setAccessToken: jest.fn(() => {}),
     setAccount: jest.fn(() => {}),
-    setShopOwnerAccountId: jest.fn(() => {}),
+    setShopId: jest.fn(() => {}),
     setShoppingCartId: jest.fn(() => {}),
   }
   const toastErrorSpy = jest.spyOn(toast, 'error')
@@ -117,6 +117,6 @@ test('handleFaunaError calls dismiss toast, on Not Unauthenticated', () => {
   expect(mockedAccountContext.setBusy).not.toHaveBeenCalled()
   expect(mockedAccountContext.setAccessToken).not.toHaveBeenCalled()
   expect(mockedAccountContext.setAccount).not.toHaveBeenCalled()
-  expect(mockedAccountContext.setShopOwnerAccountId).not.toHaveBeenCalled()
+  expect(mockedAccountContext.setShopId).not.toHaveBeenCalled()
   expect(mockedAccountContext.setShoppingCartId).not.toHaveBeenCalled()
 });

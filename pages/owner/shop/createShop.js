@@ -6,12 +6,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useAccount } from '../../../context/accountContext'
 import { handleFaunaResults, handleFaunaError, getId } from '../../../util/helpers'
-import { createProductSchema, } from '../../../validators'
+import { createShopSchema, } from '../../../validators'
 const { FUNCTIONS: { Create_Shop }} = require('../../../util/constants/database/functions')
 const { URL_PATHS: { Owner_Index_Page, Owner_Shop_Index_Page }} = require('../../../util/constants/urlPaths')
 
 const CreateShopPage = () => {
-  const { register, handleSubmit, errors } = useForm()
+  const { register, handleSubmit, errors } = useForm({
+    resolver: yupResolver
+  })
   const accountContext = useAccount()
   const router = useRouter()
 
@@ -19,16 +21,14 @@ const CreateShopPage = () => {
     const { name } = formData
     const toastId = toast.loading("Loading")
     try {
-      let results = await CALL_FAUNA_FUNCTION(Create_Shop, accountContext.accessToken, null, {
+      let results = await CALL_FAUNA_FUNCTION(Create_Shop, accountContext.accessToken, createShopSchema, {
         name
       })
 
       handleFaunaResults({
         results,
         toastId,
-        redirectUrl: Owner_Shop_Index_Page({
-          shopId: getId(results.shop)
-        }),
+        redirectUrl: Owner_Shop_Index_Page,
         router
       })
     }

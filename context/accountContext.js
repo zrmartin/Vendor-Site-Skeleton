@@ -6,7 +6,7 @@ export const AccountProvider = ({ children }) => {
   const [account, setAccount] = useState(undefined)
   const [accessToken, setAccessToken] = useState(undefined)
   const [busy, setBusy] = useState(false)
-  const [shopOwnerAccountId, setShopOwnerAccountId] = useState(undefined)
+  const [shopId, setShopId] = useState(undefined)
   const [shoppingCartId, setShoppingCartId] = useState(undefined)
 
   const context = {
@@ -16,8 +16,8 @@ export const AccountProvider = ({ children }) => {
     setAccessToken,
     setBusy,
     busy,
-    shopOwnerAccountId,
-    setShopOwnerAccountId,
+    shopId,
+    setShopId,
     shoppingCartId,
     setShoppingCartId
   }

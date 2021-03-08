@@ -7,13 +7,12 @@ import { GET, CALL_FAUNA_FUNCTION } from '../util/requests';
 import { getId } from '../util/helpers';
 import { Loading } from '../components';
 const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
-const { FUNCTIONS: { Get_Shop, Get_Shopping_Cart_For_Account }} = require('../util/constants/database/functions')
+const { FUNCTIONS: { Get_Shop_For_Account, Get_Shopping_Cart_For_Account }} = require('../util/constants/database/functions')
 
 export const Authenticate = ({ Component, pageProps }) => {
-  const { pathname, query } = useRouter();
-  const { account, setAccount, accessToken, setAccessToken, busy, setBusy, shopOwnerAccountId, setShopOwnerAccountId, shoppingCartId, setShoppingCartId} = useAccount();
+  const { pathname } = useRouter();
+  const { account, setAccount, accessToken, setAccessToken, busy, setBusy, shopId, setShopId, shoppingCartId, setShoppingCartId} = useAccount();
   const role = pathname.split("/")[1].toLowerCase();
-  const { shopId } = query
   const accountRoles = account?.data?.roles
 
   // Page was reloaded OR accessToken expired
@@ -24,8 +23,8 @@ export const Authenticate = ({ Component, pageProps }) => {
     if (accessToken && !shoppingCartId) {
       await getShoppingCartId()
     }
-    if (accessToken && shopId && !shopOwnerAccountId) {
-      await verifyShopOwnership()
+    if (accessToken && !shopId) {
+      await getShopId()
     }
     setBusy(false)
   }, [accessToken, Component])
@@ -41,18 +40,16 @@ export const Authenticate = ({ Component, pageProps }) => {
       localStorage.removeItem("loggedIn")
       setAccessToken(null)
       setAccount(null)
-      setShopOwnerAccountId(null)
+      setShopId(null)
       setShoppingCartId(null)
     }
   }
 
-  const verifyShopOwnership = async () => {
+  const getShopId = async () => {
     setBusy(true)
     try {
-      const getShopResponse = await CALL_FAUNA_FUNCTION(Get_Shop, accessToken, null, {
-        id: shopId
-      })
-      setShopOwnerAccountId(getId(getShopResponse?.shop.data?.account))
+      const getShopForAccountResponse = await CALL_FAUNA_FUNCTION(Get_Shop_For_Account, accessToken, null, {})
+      setShopId(getId(getShopForAccountResponse?.shop))
     }
     catch(e) {
     }
@@ -72,13 +69,13 @@ export const Authenticate = ({ Component, pageProps }) => {
     return <Loading/>
   }
 
-  //User is not logged in and trying to access restricted paths
+  // User is not logged in and trying to access restricted paths
   if (!account && role in ROLES) {
     return <Unauthenticated message={"Please login to view this page"} showLogin={true}/>
   }
 
-  //User is logged in but they do not have the proper roles to view this page.
-  if((!accountRoles?.includes(role) && role in ROLES) || (shopOwnerAccountId && shopOwnerAccountId !== getId(account))) {
+  // User is logged in but they do not have the proper roles to view this page.
+  if((!accountRoles?.includes(role) && role in ROLES)) {
     return <Unauthenticated message={"You do not have permission to access to this page"} showLogin={false}/>
   }
 

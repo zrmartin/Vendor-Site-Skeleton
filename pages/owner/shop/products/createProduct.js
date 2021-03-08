@@ -2,20 +2,22 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
-import { CALL_FAUNA_FUNCTION } from "../../../../../util/requests"
-import { useAccount } from '../../../../../context/accountContext'
-import { handleFaunaResults, handleFaunaError, getId } from '../../../../../util/helpers'
-import { createProductSchema, } from '../../../../../validators'
-const { FUNCTIONS: { Create_Product }} = require('../../../../../util/constants/database/functions')
-const { URL_PATHS: { Owner_Product_Index_Page }} = require('../../../../../util/constants/urlPaths')
+import { CALL_FAUNA_FUNCTION } from "../../../../util/requests"
+import { useAccount } from '../../../../context/accountContext'
+import { handleFaunaResults, handleFaunaError, getId } from '../../../../util/helpers'
+import { createProductSchema, } from '../../../../validators'
+const { FUNCTIONS: { Create_Product }} = require('../../../../util/constants/database/functions')
+const { URL_PATHS: { Owner_Product_Index_Page, Owner_Index_Page}} = require('../../../../util/constants/urlPaths')
 
 const CreateProductPage = () => {
   const { register, handleSubmit, errors } = useForm({ 
     resolver: yupResolver(createProductSchema)
   })
   const accountContext = useAccount()
+  const shopId = accountContext.shopId
   const router = useRouter()
-  const { shopId } = router.query
+
+  if (!shopId) router.push(Owner_Index_Page)
 
   const createProduct = async (formData) => {
     const toastId = toast.loading("Loading")
