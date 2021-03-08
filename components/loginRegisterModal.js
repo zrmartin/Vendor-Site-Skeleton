@@ -1,17 +1,8 @@
 import { 
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Heading,
-  FormErrorMessage,
-  FormLabel,
-  FormControl,
-  Input,
-  Button
+  Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
+  Heading, Input, Button,
+  FormErrorMessage, FormLabel, FormControl,
+  Tabs, TabList, TabPanels, Tab, TabPanel
 } from "@chakra-ui/react"
 import { yupResolver } from '@hookform/resolvers/yup';
 import toast from 'react-hot-toast';
@@ -85,65 +76,75 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
     <>
       <Modal data-testid="modal" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{message}</ModalHeader>
+        <ModalContent w={["90%", "100%"]}>
+          <ModalHeader mt={5}>{message}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Heading>Login</Heading>
-            <form onSubmit={handleLoginSubmit(login)}>
-              <FormControl isInvalid={loginErrors.email}>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <Input
-                  name="email"
-                  ref={loginRegister}
-                />
-                <FormErrorMessage>
-                  {loginErrors.email && loginErrors.email.message}
-                </FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={loginErrors.password}>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <Input
-                  name="password"
-                  type="password"
-                  ref={loginRegister}
-                />
-                <FormErrorMessage>
-                  {loginErrors.password && loginErrors.password.message}
-                </FormErrorMessage>
-              </FormControl>
-              <Button data-testid="login" mt={4} colorScheme="teal" type="submit">
-                Login
-              </Button>
-            </form>
-            <br />
-            <Heading>Sign Up</Heading>
-            <form onSubmit={handleRegisterSubmit(registerNewUser)}>
-              <FormControl isInvalid={registerErrors.email}>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <Input
-                  name="email"
-                  ref={registerRegister}
-                />
-                <FormErrorMessage>
-                  {registerErrors.email && registerErrors.email.message}
-                </FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={registerErrors.password}>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <Input
-                  name="password"
-                  type="password"
-                  ref={registerRegister}
-                />
-                <FormErrorMessage>
-                  {registerErrors.password && registerErrors.password.message}
-                </FormErrorMessage>
-              </FormControl>
-              <Button data-testid="login" mt={4} colorScheme="teal" type="submit">
-                Sign Up
-              </Button>
-            </form>
+          <Tabs>
+            <TabList>
+              <Tab>Login</Tab>
+              <Tab>Sign Up</Tab>
+            </TabList>
+
+            <TabPanels>
+              <TabPanel>
+                <form onSubmit={handleLoginSubmit(login)}>
+                  <FormControl isInvalid={loginErrors.email}>
+                    <FormLabel htmlFor="email">Email</FormLabel>
+                    <Input
+                      name="email"
+                      ref={loginRegister}
+                    />
+                    <FormErrorMessage>
+                      {loginErrors.email && loginErrors.email.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                  <FormControl isInvalid={loginErrors.password}>
+                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <Input
+                      name="password"
+                      type="password"
+                      ref={loginRegister}
+                    />
+                    <FormErrorMessage>
+                      {loginErrors.password && loginErrors.password.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                  <Button data-testid="login" mt={4} colorScheme="teal" type="submit">
+                    Login
+                  </Button>
+                </form>
+              </TabPanel>
+              <TabPanel>
+                <form onSubmit={handleRegisterSubmit(registerNewUser)}>
+                  <FormControl isInvalid={registerErrors.email}>
+                    <FormLabel htmlFor="email">Email</FormLabel>
+                    <Input
+                      name="email"
+                      ref={registerRegister}
+                    />
+                    <FormErrorMessage>
+                      {registerErrors.email && registerErrors.email.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                  <FormControl isInvalid={registerErrors.password}>
+                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <Input
+                      name="password"
+                      type="password"
+                      ref={registerRegister}
+                    />
+                    <FormErrorMessage>
+                      {registerErrors.password && registerErrors.password.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                  <Button data-testid="login" mt={4} colorScheme="teal" type="submit">
+                    Sign Up
+                  </Button>
+                </form>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
           </ModalBody>
         </ModalContent>
       </Modal>

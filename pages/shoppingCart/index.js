@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useDisclosure } from "@chakra-ui/react"
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import useSWR from 'swr'
+import { useRouter } from 'next/router'
 import { useAccount } from '../../context/accountContext'
 import { HttpError, ServerError, Loading, LoginRegisterModal, QuantitySelector } from '../../components'
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
@@ -12,7 +12,7 @@ const { FUNCTIONS: { Get_Shopping_Cart_Products_For_Account, Remove_Product_From
 const { URL_PATHS: { Products_Index_Page, Checkout_Index_Page }} = require('../../util/constants/urlPaths')
 
 const ShoppingCartHome = () =>  {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const router = useRouter()
   const [shoppingCartQuantities, setShoppingCartQuantities] = useState({})
   const accountContext = useAccount()
   const { data, mutate, error } = useSWR(
@@ -24,7 +24,7 @@ const ShoppingCartHome = () =>  {
   )
 
   if (error && error.status === Unauthenticated){
-    return <LoginRegisterModal onClose={onClose} isOpen={true} message={"Please login to view your shopping cart"}/>
+    return <LoginRegisterModal onClose={() => {router.back()}} isOpen={true} message={"Please login to view your shopping cart"}/>
   } 
   if (error) return <ServerError error={error}/>
   if (!data) return <Loading />
