@@ -9,6 +9,7 @@ import { ErrorBoundary } from './errorBoundary'
 import { Loading } from './loading'
 import { QuantitySelector } from './quantitySelector'
 import { LoginRegisterModal } from './loginRegisterModal'
+import { Navbar } from './NavBar/navbar'
 
 export {
   RegisterAccount,
@@ -20,5 +21,6 @@ export {
   ErrorBoundary,
   Loading,
   QuantitySelector,
-  LoginRegisterModal
+  LoginRegisterModal,
+  Navbar,
 }
