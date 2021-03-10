@@ -13,7 +13,6 @@ const AllShopsHome = () => {
   if (!data) return <Loading/>
 
   const shops = data.shops
-  console.log(shops)
 
   return (
       <>

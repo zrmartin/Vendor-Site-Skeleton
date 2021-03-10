@@ -21,10 +21,11 @@ export const Authenticate = ({ Component, pageProps }) => {
     if (localStorage.getItem("loggedIn") && (!account || !accessToken)) {
       await refreshAccountAndToken()
     }
-    if (accessToken && (!shoppingCartId || !shoppingCartQuantity)) {
+    if (accessToken && (!shoppingCartId || shoppingCartQuantity === null)) {
       await getShoppingCart()
     }
     if (accessToken && !shopId) {
+      console.log()
       await getShopId()
     }
     setBusy(false)
