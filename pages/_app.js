@@ -1,8 +1,7 @@
 import { Toaster } from 'react-hot-toast';
 import { ChakraProvider } from "@chakra-ui/react"
 import { AccountProvider } from '../context/accountContext'
-import { Authenticate, ErrorBoundary, Navbar } from '../components';
-import { Box } from "@chakra-ui/react"
+import { Authenticate, ErrorBoundary } from '../components';
 
 function Application({ Component, pageProps }) {
   return (
@@ -11,10 +10,7 @@ function Application({ Component, pageProps }) {
       <AccountProvider>
           <Toaster/>
           <ErrorBoundary>
-            <Navbar/> 
-            <Box maxWidth={"80em"} mx={["30", "30", "30", "30", "auto"]}>
-              <Authenticate Component={Component} {...pageProps}/>
-            </Box>
+            <Authenticate Component={Component} {...pageProps}/>
           </ErrorBoundary>
         </AccountProvider>
     </ChakraProvider>

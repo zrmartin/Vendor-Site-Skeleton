@@ -7,14 +7,14 @@ import { ShoppingCart } from 'react-feather';
 import { Box } from "@chakra-ui/react";
 const { URL_PATHS: { Shopping_Cart_Index_Page, Home_Page }} = require('../../util/constants/urlPaths')
 
-export const Navbar = (props) => {
+export const Navbar = ({numProducts}) => {
   const [isOpen, setIsOpen] = useState(false)
  
   const toggle = () => setIsOpen(!isOpen)
  
   return (
     <Box bg={["blue.100"]}>
-      <NavBarContainer {...props}>
+      <NavBarContainer>
         <MenuToggle toggle={toggle} isOpen={isOpen} />
         <NextLink href={Home_Page} passHref>
           <Box>
@@ -22,12 +22,16 @@ export const Navbar = (props) => {
           </Box>
         </NextLink>
         <NextLink href={Shopping_Cart_Index_Page} passHref>
-              <Box _hover={{ cursor:"pointer" }}>
-                <ShoppingCart/>
-                <Box as="span" position={"relative"} top={"-35px"} right={'-27px'}>
-                  5
-                </Box>
+          <Box _hover={{ cursor:"pointer" }}>
+            <ShoppingCart/>
+            {numProducts ? 
+              <Box as="span" position={"relative"} top={"-35px"} right={'-27px'}>
+                {numProducts}
               </Box>
+              : <></>
+            }
+  
+          </Box>
         </NextLink>
 
         {/* Force Menu items to be on seperate line */}

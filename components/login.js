@@ -5,7 +5,7 @@ import { POST, GET } from "../util/requests"
 const { VERCEL_FUNCTIONS: { LogIn, LogOut }} = require ('../util/constants/vercelFunctions')
 
 export const Login = () => {
-  let { setAccessToken, setAccount, account, accessToken, setShoppingCartId, setShopId } = useAccount()
+  let { setAccessToken, setAccount, account, accessToken, setShoppingCartId, setShopId, setShoppingCartQuantity } = useAccount()
   const { register, handleSubmit, errors } = useForm()
 
   let login = async (formData) => {
@@ -31,6 +31,7 @@ export const Login = () => {
       setAccount(null)
       setShopId(null)
       setShoppingCartId(null)
+      setShoppingCartQuantity(null)
       localStorage.removeItem("loggedIn")
     }
     catch (e) {

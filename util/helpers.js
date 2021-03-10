@@ -52,6 +52,7 @@ export const handleFaunaError = (accountContext, error, toastId) => {
     accountContext.setAccount(null)
     accountContext.setShopId(null)
     accountContext.setShoppingCartId(null)
+    accountContext.setShoppingCartQuantity(null)
   }
   else {
     if (error.message) {

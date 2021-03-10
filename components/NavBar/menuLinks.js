@@ -23,6 +23,7 @@ export const MenuLinks = ({ isOpen }) => {
           accountRoles && accountRoles.includes(owner) ? (
             shopId ? (
               <>
+                <MenuItem to={Owner_Index_Page}>Owner Home </MenuItem>
                 <MenuItem to={Owner_Shop_Index_Page}>Your Shop </MenuItem>
                 <MenuItem to={Owner_Products_Index_Page}>Your Products </MenuItem>
               </>

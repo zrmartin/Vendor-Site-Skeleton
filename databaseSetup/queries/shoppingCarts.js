@@ -1,6 +1,6 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Add, Ref, CurrentIdentity, Update, If, Exists, Select, Replace, Equals, Let, ToObject, ToArray } = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Count, Ref, CurrentIdentity, Update, If, Exists, Select, Replace, Equals, Let, ToObject, ToArray } = q
 
 const { COLLECTIONS: { ShoppingCarts, Accounts, Products } } = require('../../util/constants/database/collections')
 const { INDEXES: { Shopping_Cart_For_Account }} = require('../../util/constants/database/indexes')
@@ -20,18 +20,24 @@ function CreateShoppingCart(accountId) {
 
 function GetShoppingCartForAccount() {
   return If(
-    Exists(Index(Shopping_Cart_For_Account)), 
-    {
-      shoppingCart: Select(
-        ["data", 0], 
-        Map(
-          Paginate(Match(Index(Shopping_Cart_For_Account), CurrentIdentity())),
-          Lambda("X", Get(Var("X")))
+    Exists(Index(Shopping_Cart_For_Account)),
+    Let(
+      {
+        shoppingCart: Select(
+          ["data", 0], 
+          Map(
+            Paginate(Match(Index(Shopping_Cart_For_Account), CurrentIdentity())),
+            Lambda("X", Get(Var("X")))
+          ),
+          {}
         ),
-        {}
-      ),
-      code: Success,
-    },
+      },
+      {
+        shoppingCart: Var("shoppingCart"),
+        numProducts: Count(ToArray(Select(["data", "products"], Var("shoppingCart")))),
+        code: Success,
+      }
+    ),
     {
       code: Not_Found,
       message: "Could not find Shopping_Cart_For_Account Index"
