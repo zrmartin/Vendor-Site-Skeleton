@@ -81,8 +81,6 @@ export const Authenticate = ({ Component, pageProps }) => {
   }
 
   return (
-    <Box ml={10} mr={10}>
-      <Component {...pageProps}/>
-    </Box>
+    <Component {...pageProps}/>
   );
 };

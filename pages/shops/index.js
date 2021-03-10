@@ -21,9 +21,7 @@ const AllShopsHome = () => {
           <br/>
           {
             shops?.map(shop =>
-              
               <div key={getId(shop)}>
-                {console.log(getId(shop))}
                 <Link href={Shop_Index_Page({shopId: getId(shop)})}>
                   <a>{shop.data.name}</a>
                 </Link>

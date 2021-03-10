@@ -3,14 +3,14 @@ export const NavBarContainer = ({ children, ...props }) => {
   return (
     <Flex
       as="nav"
-      align="center"
+      align="flex-start"
       justify="space-between"
       wrap="wrap"
-      w="100%"
+      maxWidth={"80em"}
+      mx={{ base: "30", xl: "auto" }}
       mb={4}
-      p={8}
-      bg={["blue.100", "blue.100", "transparent", "transparent"]}
-      color={["black", "black", "black", "black"]}
+      py={4}
+      color={["black"]}
       {...props}
     >
       {children}

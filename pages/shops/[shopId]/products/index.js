@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION } from "../../../../util/requests"
-import { getId, getPrice } from '../../../../util/helpers'
+import { getId, getPrice   } from '../../../../util/helpers'
 import { ServerError, Loading } from '../../../../components'
 import { getAllProductsForShopSchema } from '../../../../validators'
 const { FUNCTIONS: { Get_All_Products_For_Shop }} = require('../../../../util/constants/database/functions')
@@ -23,7 +23,6 @@ const ShopHome = () => {
   if (!data) return <Loading/>
 
   const products = data.products
-  console.log(data)
 
   return (
       <>
