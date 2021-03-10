@@ -4,7 +4,7 @@ import Link from 'next/link';
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import { useAccount } from '../../context/accountContext'
-import { HttpError, ServerError, Loading, LoginRegisterModal, QuantitySelector } from '../../components'
+import { ServerError, Loading, LoginRegisterModal, QuantitySelector } from '../../components'
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
 import { getId, getPrice, handleFaunaResults, handleFaunaError } from '../../util/helpers'
 const { HTTP_CODES: { Success, Unauthenticated }} = require ('../../util/constants/httpCodes')
@@ -28,7 +28,6 @@ const ShoppingCartHome = () =>  {
   } 
   if (error) return <ServerError error={error}/>
   if (!data) return <Loading />
-  if (data.code !== Success) return <HttpError error={data}/>
 
   const shoppingCart = data.shoppingCart
 

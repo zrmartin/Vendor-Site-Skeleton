@@ -1,7 +1,7 @@
 import { Box, Button, Stack } from "@chakra-ui/react";
 import { MenuItem } from './menuItem'
 import { useAccount } from '../../context/accountContext';
-const { URL_PATHS: { Owner_Shop_Index_Page, Owner_Products_Index_Page, Shopping_Cart_Index_Page, Owner_Index_Page}} = require('../../util/constants/urlPaths')
+const { URL_PATHS: { Owner_Shop_Index_Page, Owner_Products_Index_Page, Shopping_Cart_Index_Page, Owner_Index_Page, All_Shops_Index_Page, Products_Index_Page }} = require('../../util/constants/urlPaths')
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
 export const MenuLinks = ({ isOpen }) => {
@@ -36,7 +36,10 @@ export const MenuLinks = ({ isOpen }) => {
             </>
           )
         }
+        <MenuItem to={All_Shops_Index_Page}>Shops </MenuItem>
+        <MenuItem to={Products_Index_Page}>All Products </MenuItem>
         <MenuItem to={Shopping_Cart_Index_Page}>Shopping Cart </MenuItem>
+
       </Stack>
     </Box>
   );

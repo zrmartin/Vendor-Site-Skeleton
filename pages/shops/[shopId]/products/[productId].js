@@ -4,16 +4,16 @@ import { useState } from 'react'
 import useSWR from 'swr'
 import Link from 'next/link';
 import { useRouter } from 'next/router'
-import { useAccount } from '../../context/accountContext'
-import { CALL_FAUNA_FUNCTION } from "../../util/requests"
-import { getId, getPrice, handleFaunaResults } from '../../util/helpers'
-import { ServerError, Loading, QuantitySelector, LoginRegisterModal } from '../../components'
-import { getProductSchema } from '../../validators'
-const { FUNCTIONS: { Get_Product, Add_Product_To_Shopping_Cart }} = require('../../util/constants/database/functions')
-const { HTTP_CODES: { Success }} = require ('../../util/constants/httpCodes')
-const { URL_PATHS: { Products_Index_Page, Shopping_Cart_Index_Page }} = require('../../util/constants/urlPaths')
+import { useAccount } from '../../../../context/accountContext'
+import { CALL_FAUNA_FUNCTION } from "../../../../util/requests"
+import { getId, getPrice, handleFaunaResults } from '../../../../util/helpers'
+import { ServerError, Loading, QuantitySelector, LoginRegisterModal } from '../../../../components'
+import { getProductSchema } from '../../../../validators'
+const { FUNCTIONS: { Get_Product, Add_Product_To_Shopping_Cart }} = require('../../../../util/constants/database/functions')
+const { HTTP_CODES: { Success }} = require ('../../../../util/constants/httpCodes')
+const { URL_PATHS: { Products_Index_Page, Shopping_Cart_Index_Page }} = require('../../../../util/constants/urlPaths')
 
-const ProductHome = () => {
+const ShopProductHome = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [quantity, setQuantity] = useState(1)
   const accountContext = useAccount()
@@ -80,4 +80,4 @@ const ProductHome = () => {
   );
 };
 
-export default ProductHome
+export default ShopProductHome

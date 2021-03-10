@@ -1,4 +1,3 @@
-import '@styles/globals.css'
 import { Toaster } from 'react-hot-toast';
 import { ChakraProvider } from "@chakra-ui/react"
 import { AccountProvider } from '../context/accountContext'

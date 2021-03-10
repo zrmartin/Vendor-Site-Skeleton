@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import useSWR from 'swr'
 import { useAccount } from '../../context/accountContext'
-import { HttpError, ServerError, Loading } from '../../components'
+import { ServerError, Loading } from '../../components'
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
 import { getId } from '../../util/helpers'
 const { HTTP_CODES: { Success }} = require ('../../util/constants/httpCodes')
@@ -19,7 +19,6 @@ const OwnerHome = () =>  {
 
   if (error) return <ServerError error={error}/>
   if (!data) return <Loading />
-  if (data.code !== Success) return <HttpError error={data}/>
   const shop = data.shop
 
   return (

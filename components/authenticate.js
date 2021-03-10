@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react"
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount } from '../context/accountContext';
@@ -79,5 +80,9 @@ export const Authenticate = ({ Component, pageProps }) => {
     return <Unauthenticated message={"You do not have permission to access to this page"} showLogin={false}/>
   }
 
-  return <Component {...pageProps}/>;
+  return (
+    <Box ml={10} mr={10}>
+      <Component {...pageProps}/>
+    </Box>
+  );
 };

@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { CALL_FAUNA_FUNCTION, POST } from "../../../../util/requests"
 import { useAccount } from '../../../../context/accountContext'
 import { getId, getCollection, getPrice, handleFaunaResults, handleFaunaError } from '../../../../util/helpers'
-import { HttpError, DropZone, ServerError, Loading } from '../../../../components'
+import { DropZone, ServerError, Loading } from '../../../../components'
 import { updateProductSchema, getProductSchema, deleteProductSchema, createImagesSchema, deleteImageSchema } from '../../../../validators'
 const { FUNCTIONS: { Get_Product, Delete_Product, Update_Product, Create_Images, Delete_Image }} = require('../../../../util/constants/database/functions')
 const { VERCEL_FUNCTIONS: { Delete_S3_Files }} = require ('../../../../util/constants/vercelFunctions')
@@ -31,7 +31,6 @@ const OwnerProductPage = () => {
   )
   if (error) return <ServerError error={error}/>
   if (!data) return <Loading/>
-  if (data.code !== Success) return <HttpError error={data}/>
 
   const product = data.product
   const images = data.images
