@@ -9,6 +9,7 @@ import { getId } from '../util/helpers';
 import { Loading, Navbar } from '../components';
 const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
 const { FUNCTIONS: { Get_Shop_For_Account, Get_Shopping_Cart_For_Account }} = require('../util/constants/database/functions')
+const { ROLES: { owner }} = require('../util/constants/roles')
 
 export const Authenticate = ({ Component, pageProps }) => {
   const { pathname } = useRouter();
@@ -21,11 +22,10 @@ export const Authenticate = ({ Component, pageProps }) => {
     if (localStorage.getItem("loggedIn") && (!account || !accessToken)) {
       await refreshAccountAndToken()
     }
-    if (accessToken && (!shoppingCartId || shoppingCartQuantity === null)) {
+    if (accessToken && (!shoppingCartId || shoppingCartQuantity === undefined)) {
       await getShoppingCart()
     }
-    if (accessToken && !shopId) {
-      console.log()
+    if (accessToken && accountRoles?.includes(owner) && shopId === undefined ) {
       await getShopId()
     }
     setBusy(false)
@@ -40,11 +40,11 @@ export const Authenticate = ({ Component, pageProps }) => {
     }
     catch(e) {
       localStorage.removeItem("loggedIn")
-      setAccessToken(null)
-      setAccount(null)
-      setShopId(null)
-      setShoppingCartId(null)
-      setShoppingCartQuantity(null)
+      setAccessToken(undefined)
+      setAccount(undefined)
+      setShopId(undefined)
+      setShoppingCartId(undefined)
+      setShoppingCartQuantity(undefined)
     }
   }
 
@@ -52,7 +52,16 @@ export const Authenticate = ({ Component, pageProps }) => {
     setBusy(true)
     try {
       const getShopForAccountResponse = await CALL_FAUNA_FUNCTION(Get_Shop_For_Account, accessToken, null, {})
-      setShopId(getId(getShopForAccountResponse?.shop))
+      // Owner has not created a shop yet
+      // Instead of sending a query every time the component changs, set to -1
+      // This gets updated when a user creates a shop
+      console.log(getShopForAccountResponse)
+      if (Object.entries(getShopForAccountResponse.shop).length === 0) {
+        setShopId(0)
+      }
+      else {
+        setShopId(getId(getShopForAccountResponse?.shop))
+      }
     }
     catch(e) {
     }

@@ -59,7 +59,7 @@ test('Successfully logs user in and out and sets cookie/localStorage', async () 
   expect(document.cookie).toMatch(/refreshToken=abc-123/i)
 
   // Local Storage is set
-  expect(localStorage.getItem('loggedIn')).not.toEqual(null)
+  expect(localStorage.getItem('loggedIn')).not.toEqual(undefined)
 
   // Logout
   fireEvent.click(await findByText('Logout'))
@@ -69,7 +69,7 @@ test('Successfully logs user in and out and sets cookie/localStorage', async () 
   expect(document.cookie).not.toMatch(/refreshToken=abc-123/i)
 
   // Local Storage is removed
-  expect(localStorage.getItem('loggedIn')).toEqual(null)
+  expect(localStorage.getItem('loggedIn')).toEqual(undefined)
 });
 
 test('Invalid Credentails Succesfully displays toast', async () => {
@@ -95,5 +95,5 @@ test('Invalid Credentails Succesfully displays toast', async () => {
   expect(await findByText(errorMessage)).toBeInTheDocument()
 
   // Local Storage is not set
-  expect(localStorage.getItem('loggedIn')).toEqual(null)
+  expect(localStorage.getItem('loggedIn')).toEqual(undefined)
 });

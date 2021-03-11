@@ -42,7 +42,7 @@ test('Successfully Refresh token', async () => {
     Call(Refresh_Token)
   )
 
-  expect(refreshTokenResponse.access).not.toEqual(null);
+  expect(refreshTokenResponse.access).not.toEqual(undefined);
   expect(refreshTokenResponse.account).toMatchObject(loginResponse.account);
 });
 

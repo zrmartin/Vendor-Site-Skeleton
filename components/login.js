@@ -27,11 +27,11 @@ export const Login = () => {
   let logout = async () => {
     try {
       await GET(LogOut)
-      setAccessToken(null)
-      setAccount(null)
-      setShopId(null)
-      setShoppingCartId(null)
-      setShoppingCartQuantity(null)
+      setAccessToken(undefined)
+      setAccount(undefined)
+      setShopId(undefined)
+      setShoppingCartId(undefined)
+      setShoppingCartQuantity(undefined)
       localStorage.removeItem("loggedIn")
     }
     catch (e) {

@@ -6,13 +6,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { CALL_FAUNA_FUNCTION } from "../../../util/requests"
 import { useAccount } from '../../../context/accountContext'
 import { handleFaunaResults, handleFaunaError, getId } from '../../../util/helpers'
-import { createShopSchema, } from '../../../validators'
+import { createShopSchema } from '../../../validators'
 const { FUNCTIONS: { Create_Shop }} = require('../../../util/constants/database/functions')
 const { URL_PATHS: { Owner_Index_Page, Owner_Shop_Index_Page }} = require('../../../util/constants/urlPaths')
 
 const CreateShopPage = () => {
   const { register, handleSubmit, errors } = useForm({
-    resolver: yupResolver
+    resolver: yupResolver(createShopSchema)
   })
   const accountContext = useAccount()
   const router = useRouter()
@@ -24,6 +24,8 @@ const CreateShopPage = () => {
       let results = await CALL_FAUNA_FUNCTION(Create_Shop, accountContext.accessToken, createShopSchema, {
         name
       })
+
+      accountContext.setShopId(getId(results.shop))
 
       handleFaunaResults({
         results,

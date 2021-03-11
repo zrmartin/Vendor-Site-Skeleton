@@ -48,11 +48,11 @@ export const handleFaunaResults = async ({results, toastId, mutate = null, redir
 export const handleFaunaError = (accountContext, error, toastId) => {
   if(error.status === Unauthenticated && localStorage.getItem("loggedIn")){
     accountContext.setBusy(true)
-    accountContext.setAccessToken(null)
-    accountContext.setAccount(null)
-    accountContext.setShopId(null)
-    accountContext.setShoppingCartId(null)
-    accountContext.setShoppingCartQuantity(null)
+    accountContext.setAccessToken(undefined)
+    accountContext.setAccount(undefined)
+    accountContext.setShopId(undefined)
+    accountContext.setShoppingCartId(undefined)
+    accountContext.setShoppingCartQuantity(undefined)
   }
   else {
     if (error.message) {
