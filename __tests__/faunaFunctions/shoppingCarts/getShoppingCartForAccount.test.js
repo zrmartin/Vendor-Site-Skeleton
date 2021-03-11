@@ -16,7 +16,9 @@ async function setupTestEntities() {
     Create(Collection(ShoppingCarts), {
       data: {
         account: CurrentIdentity(),
-        products: {}
+        products: {
+          "123": 1
+        }
       }
     })
   )
@@ -45,6 +47,7 @@ test('Successfully gets shopping cart for logged in user', async () => {
   )
 
   expect(response.code).toEqual(Success);
+  expect(response.numProducts).toEqual(1);
 });
 
 test('Successfully returns error message is Shopping_Cart_For_Account index does not exist', async () => {
