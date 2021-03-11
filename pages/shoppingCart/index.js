@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import useSWR from 'swr'
@@ -15,6 +15,7 @@ const ShoppingCartHome = () =>  {
   const router = useRouter()
   const [shoppingCartQuantities, setShoppingCartQuantities] = useState({})
   const accountContext = useAccount()
+
   const { data, mutate, error } = useSWR(
     [Get_Shopping_Cart_Products_For_Account, accountContext.accessToken], 
     (url, token) => 
@@ -22,6 +23,12 @@ const ShoppingCartHome = () =>  {
       url, token
     )
   )
+  useEffect(() => {
+    if (data?.shoppingCart) {
+      accountContext.setShoppingCartQuantity(data.shoppingCart.length)
+    }
+    
+  }, [data])
 
   if (error && error.status === Unauthenticated){
     return <LoginRegisterModal onClose={() => {router.back()}} isOpen={true} message={"Please login to view your shopping cart"}/>

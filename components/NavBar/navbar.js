@@ -22,10 +22,10 @@ export const Navbar = ({numProducts}) => {
           </Box>
         </NextLink>
         <NextLink href={Shopping_Cart_Index_Page} passHref>
-          <Box _hover={{ cursor:"pointer" }}>
+          <Box display="flex" _hover={{ cursor:"pointer" }}>
             <ShoppingCart/>
             {numProducts ? 
-              <Box as="span" position={"relative"} top={"-35px"} right={'-27px'}>
+              <Box as="span" position={"relative"} top={"-8px"} right={'-3px'}>
                 {numProducts}
               </Box>
               : <></>

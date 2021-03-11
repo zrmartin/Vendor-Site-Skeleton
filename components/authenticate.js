@@ -53,9 +53,8 @@ export const Authenticate = ({ Component, pageProps }) => {
     try {
       const getShopForAccountResponse = await CALL_FAUNA_FUNCTION(Get_Shop_For_Account, accessToken, null, {})
       // Owner has not created a shop yet
-      // Instead of sending a query every time the component changs, set to -1
+      // Instead of sending a query every time the component changs, set to 0
       // This gets updated when a user creates a shop
-      console.log(getShopForAccountResponse)
       if (Object.entries(getShopForAccountResponse.shop).length === 0) {
         setShopId(0)
       }
