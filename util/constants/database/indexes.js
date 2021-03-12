@@ -9,6 +9,7 @@ const INDEXES = {
   // Shops
   All_Shops: 'all_shops',
   Shop_For_Account: 'shop_for_account',
+  Shop_By_Name: 'shop_by_name',
 
   // Products
   All_Products: 'all_products',

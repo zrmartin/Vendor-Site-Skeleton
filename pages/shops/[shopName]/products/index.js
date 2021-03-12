@@ -11,7 +11,7 @@ const { URL_PATHS: { Shop_Product_Page }} = require('../../../../util/constants/
 
 const ShopHome = () => {
   const router = useRouter()
-  const { shopId } = router.query
+  const { shopName } = router.query
   const { data, error } = useSWR(
     [Get_All_Products_For_Shop, process.env.NEXT_PUBLIC_FAUNADB_SECRET, getAllProductsForShopSchema, shopId], 
     (url, token, validator, shopId) => 
@@ -31,7 +31,7 @@ const ShopHome = () => {
         {
             products?.map(product =>
               <div key={getId(product)}>
-                <Link href={Shop_Product_Page({shopId: shopId, productId: getId(product)})}>
+                <Link href={Shop_Product_Page({shopName, productId: getId(product)})}>
                   <a>{product.data.name}</a>
                 </Link>
                  - price ${getPrice(product.data.price)} - quantity - {product.data.quantity}

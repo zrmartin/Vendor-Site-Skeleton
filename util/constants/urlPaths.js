@@ -14,9 +14,9 @@ const URL_PATHS = {
 
   // Shops
   All_Shops_Index_Page: '/shops',
-  Shop_Index_Page: ({shopId}) => `/shops/${shopId}`,
-  Shop_Products_Page: ({shopId}) => `/shops/${shopId}/products`,
-  Shop_Product_Page: ({shopId, productId}) => `/shops/${shopId}/products/${productId}`,
+  Shop_Index_Page: ({shopName}) => `/shops/${shopName}`,
+  Shop_Products_Page: ({shopName}) => `/shops/${shopName}/products`,
+  Shop_Product_Page: ({shopName, productId}) => `/shops/${shopName}/products/${productId}`,
 
   // Products
   Products_Index_Page: `/products`,

@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import Link from 'next/link';
 import { CALL_FAUNA_FUNCTION } from "../../util/requests"
-import { getId } from '../../util/helpers'
+import { getId, getShopNameOrId } from '../../util/helpers'
 import { ServerError, Loading } from '../../components'
 const { FUNCTIONS: { Get_All_Shops }} = require('../../util/constants/database/functions')
 const { HTTP_CODES: { Success }} = require ('../../util/constants/httpCodes')
@@ -21,7 +21,7 @@ const AllShopsHome = () => {
           {
             shops?.map(shop =>
               <div key={getId(shop)}>
-                <Link href={Shop_Index_Page({shopId: getId(shop)})}>
+                <Link href={Shop_Index_Page({shopName: shop.data.name})}>
                   <a>{shop.data.name}</a>
                 </Link>
               </div>

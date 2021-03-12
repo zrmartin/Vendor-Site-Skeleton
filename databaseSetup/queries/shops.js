@@ -1,9 +1,9 @@
 const faunadb = require('faunadb')
 const q = faunadb.query
-const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Let, GT, Count} = q
+const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Let, Equals, Count} = q
 
 const { COLLECTIONS: { Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Shops, Shop_For_Account }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Shops, Shop_For_Account, Shop_By_Name }} = require('../../util/constants/database/indexes')
 const { HTTP_CODES: { Success, Not_Found, Validation_Error }} = require('../../util/constants/httpCodes')
 
 function CreateShop(name) {
@@ -57,6 +57,39 @@ function GetShop(id) {
     {
       code: Not_Found,
       message: "Shop not found"
+    }
+  )
+}
+
+function GetShopByName(name) {
+  return If(
+    Exists(Index(Shop_By_Name)),
+    Let(
+      {
+        shop: Select(
+          ["data", 0], 
+          Map(
+            Paginate(Match(Index(Shop_By_Name), name)),
+            Lambda("X", Get(Var("X")))
+          ),
+          false
+        ),
+      },
+      If(
+       Equals(Var("shop"), false),
+        {
+          code: Not_Found,
+          message: "Shop not found"
+        },
+        {
+          shop: Var("shop"),
+          code: Success,
+        }
+      )
+    ),
+    {
+      code: Not_Found,
+      message: "Could not find Shop_By_Name Index"
     }
   )
 }
@@ -118,4 +151,4 @@ function DeleteShop(id) {
     }
   )
 }
-module.exports = { CreateShop, GetAllShops, GetShop, GetShopForAccount, UpdateShop, DeleteShop }
+module.exports = { CreateShop, GetAllShops, GetShop, GetShopByName, GetShopForAccount, UpdateShop, DeleteShop }

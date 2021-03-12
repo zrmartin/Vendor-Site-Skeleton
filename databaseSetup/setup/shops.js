@@ -1,8 +1,8 @@
 const { IfNotExists, CreateOrUpdateRole, CreateOrUpdateFunction } = require('../helpers/fql')
-const { CreateShop, GetShop, GetAllShops, GetShopForAccount, DeleteShop, UpdateShop } = require('../queries/shops')
+const { CreateShop, GetShop, GetShopByName, GetAllShops, GetShopForAccount, DeleteShop, UpdateShop } = require('../queries/shops')
 const { COLLECTIONS: { Accounts, Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Shops, Shop_For_Account }} = require('../../util/constants/database/indexes')
-const { FUNCTIONS: { Create_Shop, Get_Shop, Get_Shop_For_Account, Get_All_Shops, Delete_Shop, Update_Shop, }} = require('../../util/constants/database/functions')
+const { INDEXES: { All_Shops, Shop_For_Account, Shop_By_Name }} = require('../../util/constants/database/indexes')
+const { FUNCTIONS: { Create_Shop, Get_Shop, Get_Shop_By_Name, Get_Shop_For_Account, Get_All_Shops, Delete_Shop, Update_Shop }} = require('../../util/constants/database/functions')
 const { MEMBERSHIP_ROLES: { MembershipRole_Shop_Owner_Shop_Access }} = require('../../util/constants/database/membershipRoles')
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
@@ -32,6 +32,16 @@ const CreateIndexShopForAccount = (shopCollection) => CreateIndex({
   unique: true
 })
 
+const CreateIndexShopByName = (shopCollection) => CreateIndex({
+  name: Shop_By_Name,
+  source: shopCollection,
+  terms:[
+    { field: ['data', 'name']}
+  ],
+  serialized: true,
+  unique: true
+})
+
 /* Function Roles */
 
 /* Functions */
@@ -43,6 +53,11 @@ const CreateShopUDF = CreateOrUpdateFunction({
 const GetShopUDF = CreateOrUpdateFunction({
   name: Get_Shop,
   body: Query(Lambda(['data'], GetShop(Select(['id'], Var('data'))))),
+})
+
+const GetShopByNameUDF = CreateOrUpdateFunction({
+  name: Get_Shop_By_Name,
+  body: Query(Lambda(['data'], GetShopByName(Select(['name'], Var('data'))))),
 })
 
 const GetAllShopsUDF = CreateOrUpdateFunction({
@@ -66,7 +81,7 @@ const UpdateShopUDF = CreateOrUpdateFunction({
 })
 
 /* Membership Roles */
-const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, getShopForAccountFunction, updateShopFunction, deleteShopFunction, allShopsIndex, allShopsForAccountIndex, shopsCollection) => CreateOrUpdateRole({
+const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getShopFunction, getShopByNameFunction, getShopForAccountFunction, updateShopFunction, deleteShopFunction, allShopsIndex, shopForAccountIndex, shopByNameIndex, shopsCollection) => CreateOrUpdateRole({
   name: MembershipRole_Shop_Owner_Shop_Access,
   membership: [{ 
     resource: Collection(Accounts),
@@ -98,6 +113,12 @@ const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getSho
       }
     },
     {
+      resource: getShopByNameFunction,
+      actions: {
+        call: true
+      }
+    },
+    {
       resource: getShopForAccountFunction,
       actions: {
         call: true
@@ -120,7 +141,11 @@ const CreateShopOwnerShopRole = (createShopFunction, getAllShopsFunction, getSho
       actions: { read: true }
     },
     {
-      resource: allShopsForAccountIndex,
+      resource: shopForAccountIndex,
+      actions: { read: true }
+    },
+    {
+      resource: shopByNameIndex,
       actions: { read: true }
     },
     {
@@ -172,6 +197,11 @@ async function createShopsCollection(client) {
           Select(["ref"], Var("shops_collection"))
         ))
       },
+      {
+        shop_by_name_index: IfNotExists(Index(Shop_By_Name), CreateIndexShopByName(
+          Select(["ref"], Var("shops_collection"))
+        ))
+      },
       // Create Function Roles
       // Create Functions
       {
@@ -182,6 +212,9 @@ async function createShopsCollection(client) {
       },
       {
         get_shop_function: GetShopUDF
+      },
+      {
+        get_shop_by_name_function: GetShopByNameUDF
       },
       {
         get_shop_for_account_function: GetShopForAccountUDF
@@ -198,11 +231,13 @@ async function createShopsCollection(client) {
           Select(["ref"], Var("create_shop_function")),
           Select(["ref"], Var("get_all_shops_function")),
           Select(["ref"], Var("get_shop_function")),
+          Select(["ref"], Var("get_shop_by_name_function")),
           Select(["ref"], Var("get_shop_for_account_function")),
           Select(["ref"], Var("update_shop_function")),
           Select(["ref"], Var("delete_shop_function")),
           Select(["ref"], Var("all_shops_index")),
           Select(["ref"], Var("shop_for_account_index")),
+          Select(["ref"], Var("shop_by_name_index")),
           Select(["ref"], Var("shops_collection")),
         ),
       },
