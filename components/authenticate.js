@@ -12,74 +12,98 @@ const { ROLES: { owner }} = require('../util/constants/roles')
 
 export const Authenticate = ({ Component, pageProps }) => {
   const { pathname } = useRouter();
-  const { account, setAccount, accessToken, setAccessToken, busy, setBusy, shopId, setShopId, shoppingCartId, setShoppingCartId, shoppingCartQuantity, setShoppingCartQuantity} = useAccount();
+  const { dispatch, accountContext } = useAccount();
   const role = pathname.split("/")[1].toLowerCase();
-  const accountRoles = account?.data?.roles
+  const accountRoles = accountContext.account?.data?.roles
 
   // Page was reloaded OR accessToken expired
   useEffect(async () => {
-    if (localStorage.getItem("loggedIn") && (!account || !accessToken)) {
-      await refreshAccountAndToken()
-    }
-    if (accessToken && (!shoppingCartId || shoppingCartQuantity === undefined)) {
-      await getShoppingCart()
-    }
-    if (accessToken && accountRoles?.includes(owner) && shopId === undefined ) {
-      await getShopId()
-    }
-    setBusy(false)
-  }, [accessToken, Component])
+    let dispatchResults = {}
+    if (localStorage.getItem("loggedIn") && !accountContext.accessToken) {
+      dispatch({type: 'setBusy'})
 
-  const refreshAccountAndToken = async () => {
-    setBusy(true)
-    try {
-      const results = await GET(Refresh_Fauna_Token)
-      setAccount(results.account)
-      setAccessToken(results.secret)
-    }
-    catch(e) {
-      localStorage.removeItem("loggedIn")
-      setAccessToken(undefined)
-      setAccount(undefined)
-      setShopId(undefined)
-      setShoppingCartId(undefined)
-      setShoppingCartQuantity(undefined)
-    }
-  }
-
-  const getShopId = async () => {
-    setBusy(true)
-    try {
-      const getShopForAccountResponse = await CALL_FAUNA_FUNCTION(Get_Shop_For_Account, accessToken, null, {})
-      // Owner has not created a shop yet
-      // Instead of sending a query every time the component changs, set to 0
-      // This gets updated when a user creates a shop
-      if (Object.entries(getShopForAccountResponse.shop).length === 0) {
-        setShopId(0)
+      // Get Account and Access Token
+      const refreshResults = await refreshAccountAndToken()
+      if (refreshResults) {
+        dispatchResults = {
+          ...dispatchResults,
+          account: refreshResults.account,
+          accessToken: refreshResults.secret
+        }
       }
       else {
-        setShopId(getId(getShopForAccountResponse?.shop))
+        dispatch({type: 'logout'})
       }
+      
+      // Get ShoppingCartId and Quantity
+      if (accountContext.shoppingCartId && accountContext.shoppingCartQuantity) {
+        dispatchResults = {
+          ...dispatchResults,
+          shoppingCartId: accountContext.shoppingCartId,
+          shoppingCartQuantity: accountContext.shoppingCartQuantity
+        }
+      }
+      else {
+        const shoppingCartResults = await getShoppingCart(dispatchResults.accessToken)
+        console.log(shoppingCartResults)
+        dispatchResults = {
+          ...dispatchResults,
+          shoppingCartId: getId(shoppingCartResults.shoppingCart),
+          shoppingCartQuantity: shoppingCartResults.numProducts
+        }
+      }
+
+      // Get ShopId if user is an owner
+      if (dispatchResults.account.data.roles.includes(owner) && !accountContext.shopId) {
+        const shopId = await getShopId(dispatchResults.accessToken)
+        dispatchResults = {
+          ...dispatchResults,
+          shopId
+        }
+      }
+      else {
+        dispatchResults = {
+          ...dispatchResults,
+          shopId: undefined
+        }
+      }
+      dispatch({type: 'setAll', results: dispatchResults})
+    }
+  }, [accountContext.accessToken])
+
+  const refreshAccountAndToken = async () => {
+    try {
+      const results = await GET(Refresh_Fauna_Token)
+      return results
+    }
+    catch(e) {
+      return null
+    }
+  }
+
+  const getShopId = async (accessToken) => {
+    try {
+      const getShopForAccountResponse = await CALL_FAUNA_FUNCTION(Get_Shop_For_Account, accessToken, null, {})
+      return getId(getShopForAccountResponse.shop)
     }
     catch(e) {
     }
   }
 
-  const getShoppingCart = async () => {
-    setBusy(true)
+  const getShoppingCart = async (accessToken) => {
     try {
       const getShoppingCartReponse = await CALL_FAUNA_FUNCTION(Get_Shopping_Cart_For_Account, accessToken, null, {})
-      setShoppingCartId(getId(getShoppingCartReponse.shoppingCart))
-      setShoppingCartQuantity(getShoppingCartReponse.numProducts)
+      return getShoppingCartReponse
     }
     catch(e) {
+      return null
     }
   }
 
-  if (busy) {
+  if (accountContext.busy) {
     return (
       <>
-        <Navbar numProducts={shoppingCartQuantity}/>
+        <Navbar numProducts={accountContext.shoppingCartQuantity}/>
         <Box maxWidth={"80em"} mx={{ base: "30", xl: "auto" }}>
           <Loading/>
         </Box>
@@ -89,10 +113,10 @@ export const Authenticate = ({ Component, pageProps }) => {
   }
 
   // User is not logged in and trying to access restricted paths
-  if (!account && role in ROLES) {
+  if (!accountContext.account && role in ROLES) {
     return (
       <>
-        <Navbar numProducts={shoppingCartQuantity}/>
+        <Navbar numProducts={accountContext.shoppingCartQuantity}/>
         <Box maxWidth={"80em"} mx={{ base: "30", xl: "auto" }}>
           <Unauthenticated message={"Please login to view this page"} showLogin={true}/>
         </Box>
@@ -104,7 +128,7 @@ export const Authenticate = ({ Component, pageProps }) => {
   if((!accountRoles?.includes(role) && role in ROLES)) {
     return (
       <>
-        <Navbar numProducts={shoppingCartQuantity}/>
+        <Navbar numProducts={accountContext.shoppingCartQuantity}/>
         <Box maxWidth={"80em"} mx={{ base: "30", xl: "auto" }}>
           <Unauthenticated message={"You do not have permission to access to this page"} showLogin={false}/>
         </Box>
@@ -114,7 +138,7 @@ export const Authenticate = ({ Component, pageProps }) => {
 
   return (
     <>
-      <Navbar numProducts={shoppingCartQuantity}/>
+      <Navbar numProducts={accountContext.shoppingCartQuantity}/>
       <Box maxWidth={"80em"} mx={{ base: "30", xl: "auto" }}>
         <Component {...pageProps}/>
       </Box>

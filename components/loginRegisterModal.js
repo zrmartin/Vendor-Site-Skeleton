@@ -15,7 +15,7 @@ const { VERCEL_FUNCTIONS: { LogIn }} = require ('../util/constants/vercelFunctio
 const { FUNCTIONS: { Register, Create_Shopping_Cart }} = require ('../util/constants/database/functions')
 
 export const LoginRegisterModal = ({onClose, isOpen, message}) => {
-  let accountContext = useAccount()
+  let { dispatch } = useAccount()
   const { 
     register: loginRegister,
     handleSubmit: handleLoginSubmit,
@@ -41,13 +41,17 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
         results: loginResult,
         toastId,
       })
-      accountContext.setAccessToken(loginResult.secret)
-      accountContext.setAccount(loginResult.account)
-      localStorage.setItem("loggedIn", true)
+      dispatch({
+        type: 'login',
+        results: {
+          account: loginResult.account,
+          accessToken: loginResult.secret
+        }
+      })
       onClose()
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 
@@ -75,7 +79,7 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
       onClose()
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 

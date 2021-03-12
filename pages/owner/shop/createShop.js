@@ -14,7 +14,7 @@ const CreateShopPage = () => {
   const { register, handleSubmit, errors } = useForm({
     resolver: yupResolver(createShopSchema)
   })
-  const accountContext = useAccount()
+  const { accountContext, dispatch } = useAccount()
   const router = useRouter()
 
   const createShop = async (formData) => {
@@ -25,17 +25,22 @@ const CreateShopPage = () => {
         name
       })
 
-      accountContext.setShopId(getId(results.shop))
-
       handleFaunaResults({
         results,
         toastId,
         redirectUrl: Owner_Shop_Index_Page,
         router
       })
+
+      dispatch({
+        type: 'setShopId', 
+        results:{
+          shopId: getId(results.shop)
+        }
+      })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 

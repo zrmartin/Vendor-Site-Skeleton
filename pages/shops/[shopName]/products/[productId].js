@@ -16,7 +16,7 @@ const { URL_PATHS: { Products_Index_Page, Shopping_Cart_Index_Page }} = require(
 const ShopProductHome = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [quantity, setQuantity] = useState(1)
-  const accountContext = useAccount()
+  const { accountContext } = useAccount()
   const router = useRouter()
   const { productId } = router.query
   const { data, mutate, error } = useSWR(

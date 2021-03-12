@@ -14,7 +14,7 @@ const { URL_PATHS: { Products_Index_Page, Checkout_Index_Page }} = require('../.
 const ShoppingCartHome = () =>  {
   const router = useRouter()
   const [shoppingCartQuantities, setShoppingCartQuantities] = useState({})
-  const accountContext = useAccount()
+  const { accountContext, dispatch }= useAccount()
 
   const { data, mutate, error } = useSWR(
     [Get_Shopping_Cart_Products_For_Account, accountContext.accessToken], 
@@ -25,7 +25,12 @@ const ShoppingCartHome = () =>  {
   )
   useEffect(() => {
     if (data?.shoppingCart) {
-      accountContext.setShoppingCartQuantity(data.shoppingCart.length)
+      dispatch({
+        type: 'setShoppingCartQuantity',
+        results: {
+          shoppingCartQuantity: data.shoppingCart.length
+        }
+      })
     }
     
   }, [data])
@@ -54,7 +59,7 @@ const ShoppingCartHome = () =>  {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 
@@ -73,7 +78,7 @@ const ShoppingCartHome = () =>  {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
   
@@ -108,7 +113,7 @@ const ShoppingCartHome = () =>  {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 

@@ -11,7 +11,7 @@ const { HTTP_CODES: { Success }} = require ('../../../../util/constants/httpCode
 const { URL_PATHS: { Owner_Product_Index_Page, Owner_Product_Create_Page, Owner_Index_Page }} = require('../../../../util/constants/urlPaths')
 
 const OwnerProductsHome = () => {
-  const accountContext = useAccount()
+  const { accountContext } = useAccount()
   const shopId = accountContext.shopId
   const router = useRouter()
   

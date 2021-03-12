@@ -13,7 +13,7 @@ const CreateProductPage = () => {
   const { register, handleSubmit, errors } = useForm({ 
     resolver: yupResolver(createProductSchema)
   })
-  const accountContext = useAccount()
+  const { accountContext, dispatch } = useAccount()
   const shopId = accountContext.shopId
   const router = useRouter()
 
@@ -40,7 +40,7 @@ const CreateProductPage = () => {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 

@@ -17,7 +17,7 @@ const OwnerProductPage = () => {
   const { register, handleSubmit, errors } = useForm({ 
     resolver: yupResolver(updateProductSchema)
   })
-  const accountContext = useAccount()
+  const { accountContext, dispatch } = useAccount()
   const router = useRouter()
   const shopId = accountContext.shopId
   const { productId } = router.query
@@ -51,7 +51,7 @@ const OwnerProductPage = () => {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
   
@@ -92,7 +92,7 @@ const OwnerProductPage = () => {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 
@@ -123,7 +123,7 @@ const OwnerProductPage = () => {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 
@@ -157,7 +157,7 @@ const OwnerProductPage = () => {
       })
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
 
   }

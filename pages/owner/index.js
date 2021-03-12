@@ -8,7 +8,7 @@ const { HTTP_CODES: { Success }} = require ('../../util/constants/httpCodes')
 const { FUNCTIONS: { Get_Shop_For_Account }} = require('../../util/constants/database/functions')
 const { URL_PATHS: { Owner_Shop_Index_Page, Owner_Products_Index_Page, Owner_Shop_Create_Page }} = require('../../util/constants/urlPaths')
 const OwnerHome = () =>  {
-  const accountContext = useAccount()
+  const { accountContext } = useAccount()
   const { data, mutate, error } = useSWR(
     [Get_Shop_For_Account, accountContext.accessToken], 
     (url, token) => 

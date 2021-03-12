@@ -4,11 +4,11 @@ import { useAccount } from '../context/accountContext';
 import { handleFaunaError } from '../util/helpers'
 
 export const ServerError = ({ error }) => {
-  const accountContext = useAccount();
+  const { dispatch } = useAccount();
 
   useEffect(() => {
     const toastId = toast.loading("Loading")
-    handleFaunaError(accountContext, error, toastId)
+    handleFaunaError(dispatch, error, toastId)
   }, [])
 
   return (

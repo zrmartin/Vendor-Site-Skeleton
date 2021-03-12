@@ -10,7 +10,7 @@ const { URL_PATHS: { Owner_Products_Index_Page, Owner_Index_Page }} = require('.
 const { FUNCTIONS: { Get_Shop }} = require('../../../util/constants/database/functions')
 
 const OwnerShopIndex = () =>  {
-  const accountContext = useAccount()
+  const { accountContext } = useAccount()
   const router = useRouter()
   const shopId = accountContext.shopId
 

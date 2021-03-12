@@ -5,7 +5,8 @@ const { URL_PATHS: { Owner_Shop_Index_Page, Owner_Products_Index_Page, Shopping_
 const { ROLES: { owner }} = require('../../util/constants/roles')
 
 export const MenuLinks = ({ isOpen }) => {
-  const { account, shopId } = useAccount();
+  const { accountContext } = useAccount();
+  const { account, shopId } = accountContext
   const accountRoles = account?.data?.roles
   return (
     <Box

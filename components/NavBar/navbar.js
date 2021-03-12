@@ -17,9 +17,8 @@ const { URL_PATHS: { Shopping_Cart_Index_Page, Home_Page }} = require('../../uti
 export const Navbar = ({numProducts}) => {
   const router = useRouter()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  let accountContext = useAccount()
+  let { accountContext, dispatch } = useAccount()
   const [navbarIsOpen, setNavbarIsOpen] = useState(false)
-  console.log(isOpen)
   const toggle = () => setNavbarIsOpen(!navbarIsOpen)
  
   let logout = async () => {
@@ -29,17 +28,13 @@ export const Navbar = ({numProducts}) => {
       handleFaunaResults({
         results: logOutResults,
         toastId,
+        router,
+        redirectUrl: Home_Page
       })
-      accountContext.setAccessToken(undefined)
-      accountContext.setAccount(undefined)
-      accountContext.setShopId(undefined)
-      accountContext.setShoppingCartId(undefined)
-      accountContext.setShoppingCartQuantity(undefined)
-      localStorage.removeItem("loggedIn")
-      router.push(Home_Page)
+      dispatch({type: 'logout'})
     }
     catch (e){
-      handleFaunaError(accountContext, e, toastId)
+      handleFaunaError(dispatch, e, toastId)
     }
   }
 
