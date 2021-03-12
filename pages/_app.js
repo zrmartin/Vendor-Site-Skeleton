@@ -8,7 +8,7 @@ function Application({ Component, pageProps }) {
     <>
     <ChakraProvider>
       <AccountProvider>
-          <Toaster/>
+          <Toaster position="bottom-center"/>
           <ErrorBoundary>
             <Authenticate Component={Component} {...pageProps}/>
           </ErrorBoundary>

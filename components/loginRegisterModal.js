@@ -30,18 +30,24 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
   })
 
   let login = async (formData) => {
+    const toastId = toast.loading("Loading")
     try {
       const { email, password } = formData
-      let results = await POST(LogIn, {
+      let loginResult = await POST(LogIn, {
         email,
         password,
       })
-      accountContext.setAccessToken(results.secret)
-      accountContext.setAccount(results.account)
+      handleFaunaResults({
+        results: loginResult,
+        toastId,
+      })
+      accountContext.setAccessToken(loginResult.secret)
+      accountContext.setAccount(loginResult.account)
       localStorage.setItem("loggedIn", true)
+      onClose()
     }
-    catch (e) {
-      toast.error(e.message)
+    catch (e){
+      handleFaunaError(accountContext, e, toastId)
     }
   }
 
@@ -66,6 +72,7 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
         email,
         password
       })
+      onClose()
     }
     catch (e){
       handleFaunaError(accountContext, e, toastId)
@@ -77,7 +84,11 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
       <Modal data-testid="modal" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent w={["90%", "100%"]}>
-          <ModalHeader mt={5}>{message}</ModalHeader>
+          {message ? (
+            <ModalHeader mr={12}>{message}</ModalHeader>
+          ) : (
+            <></>    
+          )}
           <ModalCloseButton />
           <ModalBody>
           <Tabs>

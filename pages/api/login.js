@@ -30,6 +30,7 @@ module.exports = async (req, res) => {
       res.setHeader("Set-Cookie", [`refreshToken=${results.refresh.secret}; HttpOnly; Expires=${now.toUTCString()}; Path=/; ${includeSecure}`])
       res.json({
         body: {
+          message: "Login Successful",
           account: results.account,
           secret: results.access.secret
         }

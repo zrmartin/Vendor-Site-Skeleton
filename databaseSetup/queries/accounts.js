@@ -77,7 +77,8 @@ function LogoutCurrentSession() {
       sessionLoggedOut: Logout(false), // this logs out the session token
       // while when we delete something with 'Delete' it would return the deleted object on success.
       // we'll modify that and just return a count of how many tokens that were deleted.
-      accountLoggedOut: DeleteAllAndCount(Select(['data'], Paginate(Var('accessTokens'), { size: 100000 })))
+      accountLoggedOut: DeleteAllAndCount(Select(['data'], Paginate(Var('accessTokens'), { size: 100000 }))),
+      message: "Logout Successful",
     }
   )
 }
@@ -102,6 +103,7 @@ function LogoutAllSessions() {
       )
     },
     {
+      message: "Logout Successful",
       allRefreshTokensDeleted: DeleteAllAndCount(Union(Select(['data'], Var('allRefreshTokens')))),
       allAccountTokens: DeleteAllAndCount(Select(['data'], Paginate(Var('allAccountTokens')))),
       allAccountSessionsDeleted: DeleteAllAndCount(Select(['data'], Paginate(Var('allAccountSessions'))))

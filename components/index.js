@@ -1,6 +1,4 @@
 
-import { RegisterAccount } from './register'
-import { Login } from './login'
 import { Authenticate } from './authenticate'
 import { ServerError } from './serverError'
 import { DropZone } from './dropZone'
@@ -12,8 +10,6 @@ import { Navbar } from './NavBar/navbar'
 import { Unauthenticated } from './unauthenticated'
 
 export {
-  RegisterAccount,
-  Login,
   Authenticate,
   ServerError,
   DropZone,
