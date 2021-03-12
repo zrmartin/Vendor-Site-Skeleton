@@ -9,6 +9,7 @@ import { Loading } from './loading'
 import { QuantitySelector } from './quantitySelector'
 import { LoginRegisterModal } from './loginRegisterModal'
 import { Navbar } from './NavBar/navbar'
+import { Unauthenticated } from './unauthenticated'
 
 export {
   RegisterAccount,
@@ -21,4 +22,5 @@ export {
   QuantitySelector,
   LoginRegisterModal,
   Navbar,
+  Unauthenticated
 }

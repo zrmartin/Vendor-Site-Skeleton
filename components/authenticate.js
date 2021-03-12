@@ -2,11 +2,10 @@ import { Box } from "@chakra-ui/react"
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount } from '../context/accountContext';
-import Unauthenticated from '../pages/unauthenticated';
 import { ROLES } from '../util/constants/roles';
 import { GET, CALL_FAUNA_FUNCTION } from '../util/requests';
 import { getId } from '../util/helpers';
-import { Loading, Navbar } from '../components';
+import { Loading, Navbar, Unauthenticated } from '../components';
 const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
 const { FUNCTIONS: { Get_Shop_For_Account, Get_Shopping_Cart_For_Account }} = require('../util/constants/database/functions')
 const { ROLES: { owner }} = require('../util/constants/roles')
