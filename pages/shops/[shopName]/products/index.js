@@ -13,15 +13,14 @@ const ShopHome = () => {
   const router = useRouter()
   const { shopName } = router.query
   const { data, error } = useSWR(
-    [Get_All_Products_For_Shop, process.env.NEXT_PUBLIC_FAUNADB_SECRET, getAllProductsForShopSchema, shopId], 
-    (url, token, validator, shopId) => 
+    [Get_All_Products_For_Shop, process.env.NEXT_PUBLIC_FAUNADB_SECRET, null, shopName], 
+    (url, token, validator, shopIdOrName) => 
     CALL_FAUNA_FUNCTION(
-      url, token, validator, { shopId }
+      url, token, validator, { shopIdOrName }
     )
   )
   if (error) return <ServerError error={error}/>
   if (!data) return <Loading/>
-
   const products = data.products
 
   return (

@@ -3,7 +3,7 @@ const q = faunadb.query
 const { Create, Collection, Map, Paginate, Index, Lambda, Get, Var, Match, Delete, Ref, CurrentIdentity, Update, If, Exists, Select, Call, Function, Equals, Let } = q
 
 const { COLLECTIONS: { Products, Shops } } = require('../../util/constants/database/collections')
-const { INDEXES: { All_Products, All_Images_For_Entity, All_Products_For_Shop }} = require('../../util/constants/database/indexes')
+const { INDEXES: { All_Products, All_Images_For_Entity, All_Products_For_Shop, Shop_By_Name }} = require('../../util/constants/database/indexes')
 const { FUNCTIONS: { Get_All_Images_For_Entity }} = require('../../util/constants/database/functions')
 const { HTTP_CODES: { Success, Not_Found, Bad_Request }} = require('../../util/constants/httpCodes')
 
@@ -58,23 +58,41 @@ function GetAllProducts() {
   )
 }
 
-function GetAllProductsForShop(shopId) {
-  return If(
-    Exists(Index(All_Products_For_Shop)), 
+function GetAllProductsForShop(shopIdOrName) {
+  return Let(
     {
-      products: Select(
-        ["data"], 
+      shopId: Select(
+        ["data", 0, "ref", "id"], 
         Map(
-          Paginate(Match(Index(All_Products_For_Shop), Ref(Collection(Shops), shopId))),
+          Paginate(Match(Index(Shop_By_Name), shopIdOrName)),
           Lambda("X", Get(Var("X")))
-        )
+        ),
+        false
       ),
-      code: Success,
     },
-    {
-      code: Not_Found,
-      message: "Could not find All_Products_For_Shop Index"
-    }
+    If (
+      Equals(Var("shopId"), false),
+      {
+        products: Select(
+          ["data"], 
+          Map(
+            Paginate(Match(Index(All_Products_For_Shop), Ref(Collection(Shops), shopIdOrName))),
+            Lambda("X", Get(Var("X")))
+          )
+        ),
+        code: Success,
+      },
+      {
+        products: Select(
+          ["data"], 
+          Map(
+            Paginate(Match(Index(All_Products_For_Shop), Ref(Collection(Shops), Var("shopId")))),
+            Lambda("X", Get(Var("X")))
+          )
+        ),
+        code: Success,
+      }
+    )
   )
 }
 

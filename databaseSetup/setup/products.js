@@ -48,7 +48,7 @@ const GetAllProductsUDF = CreateOrUpdateFunction({
 
 const GetAllProductsForShopUDF = CreateOrUpdateFunction({
   name: Get_All_Products_For_Shop,
-  body: Query(Lambda(['data'], GetAllProductsForShop(Select(['shopId'], Var('data'))))),
+  body: Query(Lambda(['data'], GetAllProductsForShop(Select(['shopIdOrName'], Var('data'))))),
 })
 
 const GetProductUDF = CreateOrUpdateFunction({

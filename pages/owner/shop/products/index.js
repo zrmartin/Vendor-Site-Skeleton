@@ -18,10 +18,10 @@ const OwnerProductsHome = () => {
   if (!shopId) router.push(Owner_Index_Page)
 
   const { data, mutate, error } = useSWR(
-    [Get_All_Products_For_Shop, accountContext.accessToken, getAllProductsForShopSchema, shopId], 
-    (url, token, validator, shopId) => 
+    [Get_All_Products_For_Shop, accountContext.accessToken, null, shopId], 
+    (url, token, validator, shopIdOrName) => 
     CALL_FAUNA_FUNCTION(
-      url, token, validator, { shopId }
+      url, token, validator, { shopIdOrName }
     )
   )
 

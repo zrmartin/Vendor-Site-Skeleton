@@ -46,7 +46,6 @@ export const Authenticate = ({ Component, pageProps }) => {
       }
       else {
         const shoppingCartResults = await getShoppingCart(dispatchResults.accessToken)
-        console.log(shoppingCartResults)
         dispatchResults = {
           ...dispatchResults,
           shoppingCartId: getId(shoppingCartResults.shoppingCart),
