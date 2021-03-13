@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useReducer } from 'react'
+const { REDUCERS: {Set_Busy, Set_Shop_Id, Set_Shopping_Cart_Quantity, Set_All, Remove_Access_Token, Login, Logout }} = require('../util/constants/reducers')
 
 const AccountContext = createContext()
 const initialState = {
@@ -12,22 +13,22 @@ const initialState = {
 const reducer = (state, action) => {
   const { results } = action
   switch (action.type) {
-    case "setBusy": 
+    case Set_Busy: 
       return {
         ...state,
         busy: true
       }
-    case "setShopId": 
+    case Set_Shop_Id: 
       return {
         ...state,
         shopId: results.shopId
       }
-    case "setShoppingCartQuantity": 
+    case Set_Shopping_Cart_Quantity: 
       return {
         ...state,
         shoppingCartQuantity: results.shoppingCartQuantity
       }
-    case 'setAll':
+    case Set_All:
         return {
           account: results.account,
           accessToken: results.accessToken,
@@ -36,19 +37,19 @@ const reducer = (state, action) => {
           shoppingCartQuantity: results.shoppingCartQuantity,
           busy: false
         }
-    case 'removeAccessToken':
+    case Remove_Access_Token:
       return {
         ...state,
         accessToken: undefined
       }
-    case 'login':
+    case Login:
       localStorage.setItem("loggedIn", true)
       return {
         ...state,
         account: results.account,
         accessToken: results.accessToken
       }   
-    case 'logout':
+    case Logout:
       localStorage.removeItem("loggedIn")
       return {
         account: undefined,

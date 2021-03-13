@@ -13,6 +13,7 @@ import { handleFaunaResults, handleFaunaError, getId } from '../util/helpers'
 import { registerSchema } from '../validators'
 const { VERCEL_FUNCTIONS: { LogIn }} = require ('../util/constants/vercelFunctions')
 const { FUNCTIONS: { Register, Create_Shopping_Cart }} = require ('../util/constants/database/functions')
+const { REDUCERS: { Login }} = require('../util/constants/reducers')
 
 export const LoginRegisterModal = ({onClose, isOpen, message}) => {
   let { dispatch } = useAccount()
@@ -42,7 +43,7 @@ export const LoginRegisterModal = ({onClose, isOpen, message}) => {
         toastId,
       })
       dispatch({
-        type: 'login',
+        type: Login,
         results: {
           account: loginResult.account,
           accessToken: loginResult.secret

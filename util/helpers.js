@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 const { HTTP_CODES: { Unauthenticated }} = require('./constants/httpCodes')
+const { REDUCERS: { Remove_Access_Token }} = require('./constants/reducers')
 
 export function getCookie(cookie, name) {
   var match = cookie?.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -47,7 +48,7 @@ export const handleFaunaResults = async ({results, toastId, mutate = null, redir
 
 export const handleFaunaError = (dispatch, error, toastId) => {
   if(error.status === Unauthenticated && localStorage.getItem("loggedIn")){
-    dispatch({type: 'removeAccessToken'})
+    dispatch({type: Remove_Access_Token})
   }
   else {
     if (error.message) {

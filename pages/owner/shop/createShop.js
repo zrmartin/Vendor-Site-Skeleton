@@ -9,6 +9,7 @@ import { handleFaunaResults, handleFaunaError, getId } from '../../../util/helpe
 import { createShopSchema } from '../../../validators'
 const { FUNCTIONS: { Create_Shop }} = require('../../../util/constants/database/functions')
 const { URL_PATHS: { Owner_Index_Page, Owner_Shop_Index_Page }} = require('../../../util/constants/urlPaths')
+const { REDUCERS: { Set_Shop_Id }} = require('../../../util/constants/reducers')
 
 const CreateShopPage = () => {
   const { register, handleSubmit, errors } = useForm({
@@ -33,7 +34,7 @@ const CreateShopPage = () => {
       })
 
       dispatch({
-        type: 'setShopId', 
+        type: Set_Shop_Id, 
         results:{
           shopId: getId(results.shop)
         }

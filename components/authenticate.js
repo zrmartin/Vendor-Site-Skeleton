@@ -9,6 +9,7 @@ import { Loading, Navbar, Unauthenticated } from '../components';
 const { VERCEL_FUNCTIONS: { Refresh_Fauna_Token }} = require('../util/constants/vercelFunctions')
 const { FUNCTIONS: { Get_Shop_For_Account, Get_Shopping_Cart_For_Account }} = require('../util/constants/database/functions')
 const { ROLES: { owner }} = require('../util/constants/roles')
+const { REDUCERS: {Set_Busy, Set_All, Logout }} = require('../util/constants/reducers')
 
 export const Authenticate = ({ Component, pageProps }) => {
   const { pathname } = useRouter();
@@ -20,7 +21,7 @@ export const Authenticate = ({ Component, pageProps }) => {
   useEffect(async () => {
     let dispatchResults = {}
     if (localStorage.getItem("loggedIn") && !accountContext.accessToken) {
-      dispatch({type: 'setBusy'})
+      dispatch({type: Set_Busy})
 
       // Get Account and Access Token
       const refreshResults = await refreshAccountAndToken()
@@ -32,7 +33,7 @@ export const Authenticate = ({ Component, pageProps }) => {
         }
       }
       else {
-        dispatch({type: 'logout'})
+        dispatch({type: Logout})
       }
       
       // Get ShoppingCartId and Quantity
@@ -67,7 +68,7 @@ export const Authenticate = ({ Component, pageProps }) => {
           shopId: undefined
         }
       }
-      dispatch({type: 'setAll', results: dispatchResults})
+      dispatch({type: Set_All, results: dispatchResults})
     }
   }, [accountContext.accessToken])
 

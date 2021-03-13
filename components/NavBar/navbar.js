@@ -13,6 +13,7 @@ import { LoginRegisterModal } from '../../components'
 import { handleFaunaResults, handleFaunaError } from '../../util/helpers'
 const { VERCEL_FUNCTIONS: { LogOut }} = require ('../../util/constants/vercelFunctions')
 const { URL_PATHS: { Shopping_Cart_Index_Page, Home_Page }} = require('../../util/constants/urlPaths')
+const { REDUCERS: { Logout }} = require('../../util/constants/reducers')
 
 export const Navbar = ({numProducts}) => {
   const router = useRouter()
@@ -31,7 +32,7 @@ export const Navbar = ({numProducts}) => {
         router,
         redirectUrl: Home_Page
       })
-      dispatch({type: 'logout'})
+      dispatch({type: Logout})
     }
     catch (e){
       handleFaunaError(dispatch, e, toastId)

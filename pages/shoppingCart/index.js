@@ -10,6 +10,7 @@ import { getId, getPrice, handleFaunaResults, handleFaunaError } from '../../uti
 const { HTTP_CODES: { Success, Unauthenticated }} = require ('../../util/constants/httpCodes')
 const { FUNCTIONS: { Get_Shopping_Cart_Products_For_Account, Remove_Product_From_Shopping_Cart, Clear_Shopping_Cart, Update_Shopping_Cart }} = require('../../util/constants/database/functions')
 const { URL_PATHS: { Products_Index_Page, Checkout_Index_Page }} = require('../../util/constants/urlPaths')
+const { REDUCERS: { Set_Shopping_Cart_Quantity }} = require('../../util/constants/reducers')
 
 const ShoppingCartHome = () =>  {
   const router = useRouter()
@@ -26,7 +27,7 @@ const ShoppingCartHome = () =>  {
   useEffect(() => {
     if (data?.shoppingCart) {
       dispatch({
-        type: 'setShoppingCartQuantity',
+        type: Set_Shopping_Cart_Quantity,
         results: {
           shoppingCartQuantity: data.shoppingCart.length
         }
